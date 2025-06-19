@@ -16,11 +16,15 @@ set(LIBS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/libs)
 # Contain all cpp files within src
 set(SOURCE_FILES
         src/main.cpp
+        src/board/Board.cpp
+        include/board/Board.h
 )
 
 # Contain all source files
 set(ALL_SOURCE_FILES
         ${SOURCE_FILES}
+        src/board/Stone.cpp
+        include/board/Stone.h
 )
 
 # Add an executable target
@@ -28,6 +32,7 @@ add_executable(${PROJECT_NAME} ${ALL_SOURCE_FILES})
 
 target_include_directories(${PROJECT_NAME}
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include
+        PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/board
 )
 
 target_link_libraries(${PROJECT_NAME})
