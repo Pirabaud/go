@@ -2,12 +2,17 @@
 
 #include <iostream>
 
+#include "BoardScene.hpp"
 #include "MainMenuScene.hpp"
 #include "SFML/Window/VideoMode.hpp"
 
-unsigned DisplayService::WINDOW_WIDTH = 800;
+unsigned DisplayService::WINDOW_WIDTH = 1000;
 unsigned DisplayService::WINDOW_HEIGHT = 800;
 AbstractScene* DisplayService::selectedScene = nullptr;
+
+DisplayService::DisplayService()
+{
+}
 
 DisplayService::~DisplayService()
 {
@@ -29,6 +34,7 @@ void DisplayService::start()
         while (const std::optional event = window.pollEvent())
         {
             handleEvent(event);
+            handleKeyboardEvents(window);
             if (selectedScene)
             {
                 selectedScene->handleEvent(event, window);
@@ -50,5 +56,22 @@ void DisplayService::handleEvent(const std::optional<sf::Event>& event)
     if (event->is<sf::Event::Closed>())
     {
         window.close();
+    }
+
+    if (event->is<sf::Event::Resized>())
+    {
+        const auto& eventSize = event->getIf<sf::Event::Resized>();
+        if (!eventSize) return;
+        const sf::FloatRect visibleArea(
+            {0, 0}, {static_cast<float>(eventSize->size.x), static_cast<float>(eventSize->size.y)});
+        window.setView(sf::View(visibleArea));
+    }
+}
+
+void DisplayService::handleKeyboardEvents(sf::RenderWindow& window) const
+{
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scan::Numpad0))
+    {
+        changeScene(new MainMenuScene(window));
     }
 }

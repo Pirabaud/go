@@ -8,9 +8,33 @@ project(Gomoku)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pg")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pg")
+
+
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 set(LIBS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/libs)
+
+include(FetchContent)
+
+set(SFML_BUILD_AUDIO OFF)
+set(SFML_BUILD_NETWORK OFF)
+set(SFML_BUILD_WINDOW ON)
+set(SFML_BUILD_GRAPHICS ON)
+set(SFML_BUILD_SYSTEM ON)
+
+FetchContent_Declare(SFML
+        GIT_REPOSITORY https://github.com/SFML/SFML.git
+        GIT_TAG 3.0.1
+        GIT_SHALLOW ON
+        EXCLUDE_FROM_ALL
+        SYSTEM)
+FetchContent_MakeAvailable(SFML)
+
+set(BOARD_FILES
+        src/board/Board.cpp
+)
 
 set(DISPLAY_COMPONENTS_FILES
         src/display/components/Button.cpp
@@ -19,13 +43,14 @@ set(DISPLAY_COMPONENTS_FILES
 
 set(DISPLAY_SCENES_FILES
         src/display/scenes/MainMenuScene.cpp
+        src/display/scenes/BoardScene.cpp
 )
 
 set(DISPLAY_FILES
         ${DISPLAY_COMPONENTS_FILES}
         ${DISPLAY_SCENES_FILES}
         src/display/DisplayService.cpp
-)ssssswwq
+)
 
 # Contain all cpp files within src
 set(SOURCE_FILES
@@ -36,19 +61,10 @@ set(SOURCE_FILES
 
 # Contain all source files
 set(ALL_SOURCE_FILES
+        ${BOARD_FILES}
         ${DISPLAY_FILES}
         ${SOURCE_FILES}
 )
-
-
-include(FetchContent)
-FetchContent_Declare(SFML
-        GIT_REPOSITORY https://github.com/SFML/SFML.git
-        GIT_TAG 3.0.1
-        GIT_SHALLOW ON
-        EXCLUDE_FROM_ALL
-        SYSTEM)
-FetchContent_MakeAvailable(SFML)
 
 
 # Add an executable target
@@ -56,10 +72,10 @@ add_executable(${PROJECT_NAME} ${ALL_SOURCE_FILES})
 
 target_include_directories(${PROJECT_NAME}
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include
+        PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/board
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/display
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/display/components
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/display/scenes
-        PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/board
 )
 
 target_link_libraries(${PROJECT_NAME})

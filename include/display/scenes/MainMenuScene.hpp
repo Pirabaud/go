@@ -6,14 +6,12 @@
 #include "Button.hpp"
 
 
-class MainMenuScene : public AbstractScene
+class MainMenuScene final : public AbstractScene
 {
 private:
-    sf::RenderWindow& window;
     Button pvpButton;
     Button pveButton;
     Button simulationButton;
-    sf::Color backgroundColor;
 
 public:
     explicit MainMenuScene(sf::RenderWindow& win);

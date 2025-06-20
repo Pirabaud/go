@@ -8,7 +8,7 @@
 class DisplayService
 {
 public:
-    DisplayService() = default;
+    DisplayService();
     ~DisplayService();
 
     void start();
@@ -21,6 +21,7 @@ public:
 
 private:
     void handleEvent(const std::optional<sf::Event>& event);
+    void handleKeyboardEvents(sf::RenderWindow& window) const;
 
     bool isInitialized = false;
     sf::RenderWindow window;
