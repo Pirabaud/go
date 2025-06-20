@@ -9,16 +9,20 @@
 #include <iosfwd>
 #include <set>
 
-class Board {
+class Board
+{
 public:
     static constexpr int SIZE = 19;
     static constexpr int MAXCANDIDATESPOSITIONS = 3;
 
-    [[nodiscard]] std::array<uint32_t, Board::SIZE>& getGridWhite();
-    [[nodiscard]] std::array<uint32_t, Board::SIZE>& getGridBlack();
+
+    typedef std::array<uint32_t, SIZE> StoneMask;
+
+
+    [[nodiscard]] const StoneMask& getGridWhite() const;
+    [[nodiscard]] const StoneMask& getGridBlack() const;
 
     void addStoneWhite(int x, int y);
-
     void addStoneBlack(int x, int y);
 
 
@@ -26,15 +30,13 @@ public:
     ~Board() = default;
 
 private:
-    std::array<uint32_t, SIZE> gridWhite{};
-    std::array<uint32_t, SIZE> gridBlack{};
+    StoneMask gridWhite{};
+    StoneMask gridBlack{};
     std::set<uint32_t> candidatesPositionsWhite;
     std::set<uint32_t> candidatesPositionsBlack;
-
 };
 
-std::ostream& operator<<(std::ostream& os, Board& board);
-
+std::ostream& operator<<(std::ostream& os, const Board& board);
 
 
 #endif //BOARD_H

@@ -1,14 +1,11 @@
-//
-// Created by pirabaud on 6/19/25.
-//
-
-#include "../../include/CheckMovesService.h"
+#include "CheckMovesService.h"
 
 
-class CheckMovesService {
-
+class CheckMovesService
+{
 public:
-    static enum IllegalMoves {
+    static enum IllegalMoves
+    {
         NONE = "[SANS RAISON]",
         CREATE_CAPTURE = "cela crée une capture",
         DOUBLE_FREE_CAPTURE = "cela crée un double \"free-three\""

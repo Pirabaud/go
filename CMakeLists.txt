@@ -34,6 +34,7 @@ FetchContent_MakeAvailable(SFML)
 
 set(BOARD_FILES
         src/board/Board.cpp
+        src/board/CheckWinService.cpp
 )
 
 set(DISPLAY_COMPONENTS_FILES
@@ -42,8 +43,9 @@ set(DISPLAY_COMPONENTS_FILES
 )
 
 set(DISPLAY_SCENES_FILES
-        src/display/scenes/MainMenuScene.cpp
         src/display/scenes/BoardScene.cpp
+        src/display/scenes/MainMenuScene.cpp
+        src/display/scenes/PvPScene.cpp
 )
 
 set(DISPLAY_FILES

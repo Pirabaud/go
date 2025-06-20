@@ -17,7 +17,6 @@ public:
     explicit MainMenuScene(sf::RenderWindow& win);
 
     void handleEvent(const std::optional<sf::Event>& event, sf::RenderWindow& window) override;
-    void update() override;
     void draw(sf::RenderWindow& window) override;
 };
 

@@ -20,29 +20,29 @@ Board::Board()
     }
 }
 
-std::array<uint32_t, Board::SIZE>& Board::getGridWhite()
+const Board::StoneMask& Board::getGridWhite() const
 {
     return this->gridWhite;
 }
 
-std::array<uint32_t, Board::SIZE>& Board::getGridBlack()
+const Board::StoneMask& Board::getGridBlack() const
 {
     return this->gridBlack;
 }
 
-void Board::addStoneWhite(int x, int y)
+void Board::addStoneWhite(const int x, const int y)
 {
-    uint32_t newStone = 1u << SIZE - 1 - y;
-    this->getGridWhite().at(x) = this->getGridWhite().at(x) | newStone;
+    const uint32_t newStone = 1u << SIZE - 1 - y;
+    this->gridWhite.at(x) = this->gridWhite.at(x) | newStone;
 }
 
-void Board::addStoneBlack(int x, int y)
+void Board::addStoneBlack(const int x, const int y)
 {
-    uint32_t newStone = 1u << SIZE - 1 - y;
-    this->getGridBlack().at(x) = this->getGridBlack().at(x) | newStone;
+    const uint32_t newStone = 1u << SIZE - 1 - y;
+    this->gridBlack.at(x) = this->gridBlack.at(x) | newStone;
 }
 
-std::ostream& operator<<(std::ostream& os, Board& board)
+std::ostream& operator<<(std::ostream& os, const Board& board)
 {
     os << "grid black: \n";
     for (auto& row : board.getGridBlack())

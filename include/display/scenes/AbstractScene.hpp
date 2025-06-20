@@ -9,7 +9,7 @@ protected:
 
 public:
     virtual void handleEvent(const std::optional<sf::Event>&, sf::RenderWindow& window) = 0;
-    virtual void update() = 0;
+    // Called at each frame to draw the scene
     virtual void draw(sf::RenderWindow& window) = 0;
     virtual ~AbstractScene() = default;
 };
