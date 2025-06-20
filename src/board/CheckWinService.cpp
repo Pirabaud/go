@@ -4,6 +4,8 @@
 
 const sf::Color* CheckWinService::isWin(const Board& board)
 {
+    //TODO Add condition win if a player has captured 10 opponents stones
+
     if (isColorWin(board.getGridBlack()))
     {
         return &sf::Color::Black;
