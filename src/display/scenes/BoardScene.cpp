@@ -1,8 +1,5 @@
 #include "BoardScene.hpp"
 
-#include <cmath>
-#include <iostream>
-
 #include "DisplayService.hpp"
 #include "SFML/Graphics/CircleShape.hpp"
 
@@ -16,10 +13,8 @@ BoardScene::BoardScene(sf::RenderWindow& window)
 void BoardScene::draw(sf::RenderWindow& window)
 {
     window.clear(backgroundColor);
-    // Here you would draw the board, pieces, etc.
     drawBoard(window);
     drawStones(window);
-
     window.display();
 }
 
@@ -116,7 +111,7 @@ void BoardScene::drawSingleColorStone(const std::array<uint32_t, 19>& stonesMask
     }
 }
 
-void BoardScene::playMove(const int row, const int col)
+void BoardScene::playMove(const int& row, const int& col)
 {
     if (colorToPlay == sf::Color::White)
     {

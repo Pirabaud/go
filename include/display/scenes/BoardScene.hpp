@@ -23,7 +23,7 @@ private:
     void drawStones(sf::RenderWindow& window);
     void drawSingleColorStone(const std::array<uint32_t, 19>& stonesMask, sf::RenderWindow& window,
                               const sf::Color& color);
-    void playMove(int row, int col);
+    void playMove(const int& row, const int& col);
     void nextTurn();
 };
 
