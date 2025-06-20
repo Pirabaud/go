@@ -2,11 +2,12 @@
 
 #include "BoardScene.hpp"
 #include "DisplayService.hpp"
+#include "PvPScene.hpp"
 
 MainMenuScene::MainMenuScene(sf::RenderWindow& win):
     pvpButton({200, 50}, {300, 100}, "PvP", [this, &win]()
     {
-        DisplayService::changeScene(new BoardScene(win));
+        DisplayService::changeScene(new PvPScene(win));
     }),
     pveButton({200, 50}, {300, 200}, "PvE", [this]()
     {
