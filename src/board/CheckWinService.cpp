@@ -10,7 +10,7 @@ const sf::Color* CheckWinService::isWin(const Board& board)
     {
         return &sf::Color::Black;
     }
-    else if (isColorWin(board.getGridWhite()))
+    if (isColorWin(board.getGridWhite()))
     {
         return &sf::Color::White;
     }
