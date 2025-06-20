@@ -8,7 +8,6 @@ class BoardScene : public AbstractScene
 {
 public:
     void draw(sf::RenderWindow& window) override;
-    void update() override;
 
     static float PADDING;
 
@@ -16,6 +15,8 @@ protected:
     Board board;
     sf::Color colorToPlay = sf::Color::Black;
     BoardScene(sf::RenderWindow& window);
+
+    virtual void drawTexts() = 0;
 
     void drawBoard(sf::RenderWindow& window);
     void drawStones(sf::RenderWindow& window);

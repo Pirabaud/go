@@ -33,10 +33,6 @@ void MainMenuScene::handleEvent(const std::optional<sf::Event>& event, sf::Rende
     simulationButton.handleEvent(event, window);
 }
 
-void MainMenuScene::update()
-{
-}
-
 void MainMenuScene::draw(sf::RenderWindow& window)
 {
     window.clear(backgroundColor);

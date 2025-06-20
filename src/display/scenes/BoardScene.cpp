@@ -15,11 +15,8 @@ void BoardScene::draw(sf::RenderWindow& window)
     window.clear(backgroundColor);
     drawBoard(window);
     drawStones(window);
+    drawTexts();
     window.display();
-}
-
-void BoardScene::update()
-{
 }
 
 void BoardScene::drawBoard(sf::RenderWindow& window)
