@@ -1,12 +1,15 @@
 #include <iostream>
-#include <bits/ostream.tcc>
 
-#include "Board.h"
+#include "DisplayService.hpp"
+#include "SFML/Window/Window.hpp"
 
-int main() {
-    Board board;
-
-    board.addStoneWhite(0, 2);
-    std::cout << board;
+int main()
+{
     std::cout << "Hello World!\n" << std::endl;
+    DisplayService displayService;
+    displayService.start();
+
+
+    std::cout << "Goodbye World!\n" << std::endl;
+    return 0;
 }
