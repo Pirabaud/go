@@ -25,11 +25,13 @@ set(DISPLAY_FILES
         ${DISPLAY_COMPONENTS_FILES}
         ${DISPLAY_SCENES_FILES}
         src/display/DisplayService.cpp
-)
+)ssssswwq
 
 # Contain all cpp files within src
 set(SOURCE_FILES
         src/main.cpp
+        src/board/Board.cpp
+        include/board/Board.h
 )
 
 # Contain all source files
@@ -57,6 +59,7 @@ target_include_directories(${PROJECT_NAME}
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/display
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/display/components
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/display/scenes
+        PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/board
 )
 
 target_link_libraries(${PROJECT_NAME})
