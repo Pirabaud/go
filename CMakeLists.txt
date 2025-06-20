@@ -12,6 +12,20 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 set(LIBS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/libs)
 
+set(DISPLAY_COMPONENTS_FILES
+        src/display/components/Button.cpp
+        src/display/utils/getSharedFont.cpp
+)
+
+set(DISPLAY_SCENES_FILES
+        src/display/scenes/MainMenuScene.cpp
+)
+
+set(DISPLAY_FILES
+        ${DISPLAY_COMPONENTS_FILES}
+        ${DISPLAY_SCENES_FILES}
+        src/display/DisplayService.cpp
+)
 
 # Contain all cpp files within src
 set(SOURCE_FILES
@@ -20,14 +34,30 @@ set(SOURCE_FILES
 
 # Contain all source files
 set(ALL_SOURCE_FILES
+        ${DISPLAY_FILES}
         ${SOURCE_FILES}
 )
+
+
+include(FetchContent)
+FetchContent_Declare(SFML
+        GIT_REPOSITORY https://github.com/SFML/SFML.git
+        GIT_TAG 3.0.1
+        GIT_SHALLOW ON
+        EXCLUDE_FROM_ALL
+        SYSTEM)
+FetchContent_MakeAvailable(SFML)
+
 
 # Add an executable target
 add_executable(${PROJECT_NAME} ${ALL_SOURCE_FILES})
 
 target_include_directories(${PROJECT_NAME}
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include
+        PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/display
+        PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/display/components
+        PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/display/scenes
 )
 
 target_link_libraries(${PROJECT_NAME})
+target_link_libraries(${PROJECT_NAME} PRIVATE SFML::Graphics)

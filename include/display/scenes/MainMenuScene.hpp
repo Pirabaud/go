@@ -1,0 +1,27 @@
+#ifndef MAIN_MENU_SCENE_HPP
+#define MAIN_MENU_SCENE_HPP
+#include <iostream>
+
+#include "AbstractScene.hpp"
+#include "Button.hpp"
+
+
+class MainMenuScene : public AbstractScene
+{
+private:
+    sf::RenderWindow& window;
+    Button pvpButton;
+    Button pveButton;
+    Button simulationButton;
+    sf::Color backgroundColor;
+
+public:
+    explicit MainMenuScene(sf::RenderWindow& win);
+
+    void handleEvent(const std::optional<sf::Event>& event, sf::RenderWindow& window) override;
+    void update() override;
+    void draw(sf::RenderWindow& window) override;
+};
+
+
+#endif //MAIN_MENU_SCENE_HPP
