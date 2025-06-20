@@ -18,26 +18,31 @@ Board::Board() {
 
 }
 
-std::array<uint32_t, Board::SIZE> Board::getGridWhite() const {
+std::array<uint32_t, Board::SIZE>& Board::getGridWhite() {
     return this->gridWhite;
 }
-uint32_t Board::getGridBlack() const {
-    return this->getGridBlack();
+std::array<uint32_t, Board::SIZE>& Board::getGridBlack() {
+    return this->gridBlack;
 }
 
-std::ostream& operator<<(std::ostream& os, std::byte b)
-{
-    return os << std::bitset<Board::SIZE>(std::to_integer<int>(b));
+void Board::addStoneWhite(int  x, int  y) {
+    uint32_t newStone = 1u << SIZE - 1 - y;
+    this->getGridWhite().at(x) = this->getGridWhite().at(x) | newStone;
 }
 
-std::ostream& operator<<(std::ostream& os, Board board){
+void Board::addStoneBlack(int  x, int  y) {
+    uint32_t newStone = 1u << SIZE - 1 - y;
+    this->getGridWhite().at(x) = this->getGridWhite().at(x) | newStone;
+}
+
+std::ostream & operator<<(std::ostream &os, Board &board) {
     os << "grid black: \n";
     for (auto & row : board.getGridBlack()) {
-        os << std::byte{row} << '\n';
+        os << std::bitset<Board::SIZE>(row) << '\n';
     }
     os << "grid White: \n";
     for (auto & row : board.getGridWhite()) {
-        os << std::byte{row} << '\n';
+        os << std::bitset<Board::SIZE>(row) << '\n';
     }
     return os;
 }

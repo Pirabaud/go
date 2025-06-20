@@ -23,8 +23,6 @@ set(SOURCE_FILES
 # Contain all source files
 set(ALL_SOURCE_FILES
         ${SOURCE_FILES}
-        src/board/Stone.cpp
-        include/board/Stone.h
 )
 
 # Add an executable target

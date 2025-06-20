@@ -6,29 +6,34 @@
 #define BOARD_H
 #include <array>
 #include <cstdint>
+#include <iosfwd>
 #include <set>
-
-
-#include "Stone.h"
-
 
 class Board {
 public:
     static constexpr int SIZE = 19;
     static constexpr int MAXCANDIDATESPOSITIONS = 3;
+
+    [[nodiscard]] std::array<uint32_t, Board::SIZE>& getGridWhite();
+    [[nodiscard]] std::array<uint32_t, Board::SIZE>& getGridBlack();
+
+    void addStoneWhite(int x, int y);
+
+    void addStoneBlack(int x, int y);
+
+
     Board();
     ~Board() = default;
-    void printBit();
-    [[nodiscard]] std::array<uint32_t, Board::SIZE> getGridWhite() const;
-    uint32_t getGridBlack() const;
 
 private:
-    std::array<uint32_t, SIZE> gridWhite;
-    uint32_t gridBlack[SIZE];
-    std::set<Stone> candidatesPositionsWhite;
-    std::set<Stone> candidatesPositionsBlack;
+    std::array<uint32_t, SIZE> gridWhite{};
+    std::array<uint32_t, SIZE> gridBlack{};
+    std::set<uint32_t> candidatesPositionsWhite;
+    std::set<uint32_t> candidatesPositionsBlack;
 
 };
+
+std::ostream& operator<<(std::ostream& os, Board& board);
 
 
 
