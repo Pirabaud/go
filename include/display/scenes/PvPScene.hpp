@@ -17,7 +17,7 @@ public:
     }
 
     void handleEvent(const std::optional<sf::Event>&, sf::RenderWindow& window) override;
-    void drawTexts() override;
+    void drawTexts(sf::RenderWindow& window) override;
 
 private:
     const sf::Color* winningColor = nullptr;

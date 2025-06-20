@@ -10,13 +10,17 @@ public:
     void draw(sf::RenderWindow& window) override;
 
     static float PADDING;
+    static float BOARD_SIZE;
+    static float BOARD_SIZE_WITH_PADDING;
+    static float CELL_SIZE;
+    static float STONE_RADIUS;
 
 protected:
     Board board;
     sf::Color colorToPlay = sf::Color::Black;
     BoardScene(sf::RenderWindow& window);
 
-    virtual void drawTexts() = 0;
+    virtual void drawTexts(sf::RenderWindow& window) = 0;
 
     void drawBoard(sf::RenderWindow& window);
     void drawStones(sf::RenderWindow& window);

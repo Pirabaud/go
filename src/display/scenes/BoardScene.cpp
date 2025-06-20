@@ -4,6 +4,10 @@
 #include "SFML/Graphics/CircleShape.hpp"
 
 float BoardScene::PADDING = 40.0f;
+float BoardScene::BOARD_SIZE = DisplayService::WINDOW_HEIGHT - 2 * PADDING; // 200 is the width of the sidebar
+float BoardScene::BOARD_SIZE_WITH_PADDING = BOARD_SIZE + 2 * PADDING;
+float BoardScene::CELL_SIZE = BOARD_SIZE / (Board::SIZE - 1);
+float BoardScene::STONE_RADIUS = CELL_SIZE / 2.0f - 2.0f;
 
 BoardScene::BoardScene(sf::RenderWindow& window)
 {
@@ -15,30 +19,27 @@ void BoardScene::draw(sf::RenderWindow& window)
     window.clear(backgroundColor);
     drawBoard(window);
     drawStones(window);
-    drawTexts();
+    drawTexts(window);
     window.display();
 }
 
 void BoardScene::drawBoard(sf::RenderWindow& window)
 {
-    const float boardPixelSize = DisplayService::WINDOW_HEIGHT - 2 * PADDING; // 200 is the width of the sidebar
-    const float cellSize = boardPixelSize / (Board::SIZE - 1);
-
     sf::Vertex line[2];
 
     for (int i = 0; i < Board::SIZE; ++i)
     {
-        const float y = PADDING + i * cellSize;
+        const float y = PADDING + i * CELL_SIZE;
         line[0] = sf::Vertex{sf::Vector2f(PADDING, y), sf::Color::Black};
-        line[1] = sf::Vertex{sf::Vector2f(PADDING + cellSize * (Board::SIZE - 1), y), sf::Color::Black};
+        line[1] = sf::Vertex{sf::Vector2f(PADDING + CELL_SIZE * (Board::SIZE - 1), y), sf::Color::Black};
         window.draw(line, 2, sf::PrimitiveType::Lines);
     }
 
     for (int i = 0; i < Board::SIZE; ++i)
     {
-        const float x = PADDING + i * cellSize;
+        const float x = PADDING + i * CELL_SIZE;
         line[0] = sf::Vertex{sf::Vector2f(x, PADDING), sf::Color::Black};
-        line[1] = sf::Vertex{sf::Vector2f(x, PADDING + cellSize * (Board::SIZE - 1)), sf::Color::Black};
+        line[1] = sf::Vertex{sf::Vector2f(x, PADDING + CELL_SIZE * (Board::SIZE - 1)), sf::Color::Black};
         window.draw(line, 2, sf::PrimitiveType::Lines);
     }
 }
@@ -52,8 +53,6 @@ void BoardScene::drawStones(sf::RenderWindow& window)
 void BoardScene::drawSingleColorStone(const Board::StoneMask& stonesMask, sf::RenderWindow& window,
                                       const sf::Color& color)
 {
-    const float boardPixelSize = DisplayService::WINDOW_HEIGHT - 2 * PADDING; // 200 is the width of the sidebar
-    const float cellSize = boardPixelSize / (Board::SIZE - 1);
     for (int row = 0; row < Board::SIZE; ++row)
     {
         for (int col = 0; col < Board::SIZE; ++col)
@@ -61,9 +60,9 @@ void BoardScene::drawSingleColorStone(const Board::StoneMask& stonesMask, sf::Re
             if (stonesMask[row] & (1 << col))
             {
                 // Draw a stone at the position
-                const float x = PADDING + (Board::SIZE - col - 1) * cellSize;
-                const float y = PADDING + row * cellSize;
-                sf::CircleShape stone(cellSize / 2.0f - 2.0f);
+                const float x = PADDING + (Board::SIZE - col - 1) * CELL_SIZE;
+                const float y = PADDING + row * CELL_SIZE;
+                sf::CircleShape stone(CELL_SIZE / 2.0f - 2.0f);
                 stone.setFillColor(color);
                 stone.setPosition({x - stone.getRadius(), y - stone.getRadius()});
                 window.draw(stone);
@@ -79,10 +78,6 @@ bool BoardScene::handleStonePlacement(const std::optional<sf::Event>& event, sf:
     if (const auto& mousePressedEvent = event->getIf<sf::Event::MouseButtonPressed>(); mousePressedEvent &&
         mousePressedEvent->button == sf::Mouse::Button::Left)
     {
-        const float boardPixelSize = DisplayService::WINDOW_HEIGHT - 2 * PADDING;
-        const float cellSize = boardPixelSize / (Board::SIZE - 1);
-        const float circleRadius = cellSize / 2.0f - 2.0f;
-
         const auto& mousePos = mousePressedEvent->position;
         const float fx = static_cast<float>(mousePos.x);
         const float fy = static_cast<float>(mousePos.y);
@@ -91,14 +86,14 @@ bool BoardScene::handleStonePlacement(const std::optional<sf::Event>& event, sf:
         {
             for (int col = 0; col < Board::SIZE; ++col)
             {
-                const float cx = PADDING + col * cellSize;
-                const float cy = PADDING + row * cellSize;
+                const float cx = PADDING + col * CELL_SIZE;
+                const float cy = PADDING + row * CELL_SIZE;
 
                 const float dx = fx - cx;
                 const float dy = fy - cy;
                 const float distSq = dx * dx + dy * dy;
 
-                if (distSq <= circleRadius * circleRadius)
+                if (distSq <= STONE_RADIUS * STONE_RADIUS)
                 {
                     playMove(row, col);
                     return true;;
