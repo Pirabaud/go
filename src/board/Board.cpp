@@ -25,14 +25,14 @@ std::array<uint32_t, Board::SIZE>& Board::getGridBlack() {
     return this->gridBlack;
 }
 
-void Board::addStoneWhite(int  x, int  y) {
+void Board::addStoneWhite(const int  &x, const int  &y) {
     uint32_t newStone = 1u << SIZE - 1 - y;
     this->getGridWhite().at(x) = this->getGridWhite().at(x) | newStone;
 }
 
-void Board::addStoneBlack(int  x, int  y) {
+void Board::addStoneBlack(const int  &x, const int  &y) {
     uint32_t newStone = 1u << SIZE - 1 - y;
-    this->getGridWhite().at(x) = this->getGridWhite().at(x) | newStone;
+    this->getGridBlack().at(x) = this->getGridBlack().at(x) | newStone;
 }
 
 std::ostream & operator<<(std::ostream &os, Board &board) {

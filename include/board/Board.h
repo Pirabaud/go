@@ -17,9 +17,9 @@ public:
     [[nodiscard]] std::array<uint32_t, Board::SIZE>& getGridWhite();
     [[nodiscard]] std::array<uint32_t, Board::SIZE>& getGridBlack();
 
-    void addStoneWhite(int x, int y);
+    void addStoneWhite(const int &x, const int &y);
 
-    void addStoneBlack(int x, int y);
+    void addStoneBlack(const int &x, const int &y);
 
 
     Board();

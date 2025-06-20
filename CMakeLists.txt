@@ -23,6 +23,8 @@ set(SOURCE_FILES
 # Contain all source files
 set(ALL_SOURCE_FILES
         ${SOURCE_FILES}
+        src/Service/CheckMoveService.cpp
+        include/Service/CheckMoveService.h
 )
 
 # Add an executable target
