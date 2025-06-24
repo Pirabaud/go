@@ -4,6 +4,7 @@
 
 #include "../../include/Service/CheckMoveService.h"
 
+#include <bitset>
 #include <iostream>
 #include <ostream>
 
@@ -15,7 +16,7 @@ bool CheckMoveService::isLegalMove(const int &x, const int &y, const std::array<
     if (alreadyStone(x, y, gridBack, gridWhite)) {
         return false;
     }
-    if (checkLineCapture(x, y, gridBack, gridWhite, isBlack)) {
+    if (checkLineCapture(x, y, gridBack, gridWhite, TODO, TODO)) {
         return false;
     }
     return true;
@@ -37,46 +38,48 @@ bool CheckMoveService::alreadyStone(const int &x, const int &y, const std::array
     return false;
 }
 
-bool CheckMoveService::checkSelfCapture(const int &dx, const int &dy, const std::array<uint32_t, Board::SIZE> & gridWhite,
-    const std::array<uint32_t, Board::SIZE> &gridBlack, uint32_t &stone, const bool &isBlack) {
+bool CheckMoveService::checkDirectionCapture(const int &x, const int &y, const std::array<uint32_t, Board::SIZE> &gridColor,
+    const std::array<uint32_t, Board::SIZE> &gridOpposite) {
 
-    if (isBlack) {
-        //uint32_t line = gridBlack.at(x + );
-        //uint32_t adjacentStone = 1u << Board::SIZE - 1 - y ;
+    std::array<std::pair<int, int>, 4> directions = {
+        std::make_pair(0, 1),
+        std::make_pair(1, 0),
+        std::make_pair(1, -1),
+        std::make_pair(1, 1),
+    };
 
-    }
-
-    return false;
-}
-
-bool CheckMoveService::canSelfCapture(const int &x, const int &y, const std::array<uint32_t, Board::SIZE> &,
-                                      const std::array<uint32_t, Board::SIZE> &, const bool &isBlack) {
-    uint32_t checkValue = 1u << Board::SIZE - 1 - y;
-
-    return false;
-
-}
-
-bool CheckMoveService::checkLineCapture(const int &x, const int &y, const std::array<uint32_t, Board::SIZE> &gridWhite,
-    const std::array<uint32_t, Board::SIZE> &gridBlack, const bool &isBlack) {
-    uint32_t checkLineColor;
-    uint32_t checkLineOppositeColor;
-    uint32_t stone = 1u << Board::SIZE - 1 - y;
-    if (isBlack) {
-        checkLineColor = gridBlack.at(x);
-        checkLineOppositeColor = gridWhite.at(x);
-    }
-    else {
-        checkLineColor = gridWhite.at(x);
-        checkLineOppositeColor = gridBlack.at(x);
-    }
-    uint32_t checkAdjacentRight = checkLineColor >> Board::SIZE - y - 2 & stone >> Board::SIZE - y - 1;
-    if (checkAdjacentRight % 2 != 0) {
-        uint32_t checkOppositeColor = checkLineOppositeColor >> Board::SIZE - y - 3 & checkAdjacentRight;
-        if (checkOppositeColor % 2 != 0) {
+    for (auto &[dx, dy] : directions) {
+        if (checkCapture(x, y, gridColor, gridOpposite, dx, dy)) {
             return true;
         }
-        return false;
+        if (checkCapture(x, y, gridColor, gridOpposite, -dx, -dy)) {
+            return true;
+        }
     }
     return false;
 }
+
+inline bool checkBitSet(const uint32_t &val, const int &bit) {
+    return bit >= 0 && bit < Board::SIZE && val & (1u << bit);
+}
+
+bool CheckMoveService::checkCapture(const int &x, const int &y, const std::array<uint32_t, Board::SIZE> &gridColor,
+    const std::array<uint32_t, Board::SIZE> &gridOpposite, const int &dx, const int &dy) {
+
+    const uint32_t lineColorAdjacent = gridColor.at(x + dx);
+    const uint32_t lineOppositeAdjacent1 = gridOpposite.at(x + dx * 2);
+    const uint32_t lineOppositeAdjacent2 = gridOpposite.at(x - dx);
+
+    const int maskColorAdjacent = Board::SIZE - y - dy;
+    const int maskOppositeAdjacent1 = Board::SIZE - y - dy * 2;
+    const int maskOppositeAdjacent2 = Board::SIZE - y - dy * -2;
+
+
+    if (checkBitSet(lineColorAdjacent, maskColorAdjacent)
+        && checkBitSet(lineOppositeAdjacent1,  maskOppositeAdjacent1)
+        && checkBitSet(lineOppositeAdjacent2, maskOppositeAdjacent2)) {
+        return true;
+    }
+    return false;
+}
+

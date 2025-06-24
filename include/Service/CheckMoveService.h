@@ -17,13 +17,12 @@ public:
 private:
     static bool NotInBoard(const int &x, const int &y);
     static bool alreadyStone(const int &x, const int &y, const std::array<uint32_t, Board::SIZE> &,
-    const std::array<uint32_t, Board::SIZE> &);
-    static bool checkSelfCapture(const int &dx, const int &dy, const std::array<uint32_t, Board::SIZE> &,
-    const std::array<uint32_t, Board::SIZE> &, uint32_t &, const bool &);
-    static bool canSelfCapture(const int &dx, const int &dy, const std::array<uint32_t, Board::SIZE> &,
-    const std::array<uint32_t, Board::SIZE> &, const bool &);
-    static bool checkLineCapture(const int &x, const int &y, const std::array<uint32_t, Board::SIZE> &,
-        const std::array<uint32_t, Board::SIZE> &, const bool &);
+    const std::array<uint32_t, Board::SIZE> &);;
+    static bool checkDirectionCapture(const int &dx, const int &dy, const std::array<unsigned, 8> &,
+                                      const std::array<unsigned, 8> &);
+    static bool checkCapture(const int &x, const int &y, const std::array<unsigned, 8> &,
+                                 const std::array<unsigned, 8> &, const int &dx, const int &dy);
+
     CheckMoveService() = default;
 };
 

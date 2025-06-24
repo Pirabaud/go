@@ -26,22 +26,22 @@ std::array<uint32_t, Board::SIZE>& Board::getGridBlack() {
 }
 
 void Board::addStoneWhite(const int  &x, const int  &y) {
-    uint32_t newStone = 1u << SIZE - 1 - y;
+    const uint32_t newStone = 1u << SIZE - 1 - y;
     this->getGridWhite().at(x) = this->getGridWhite().at(x) | newStone;
 }
 
 void Board::addStoneBlack(const int  &x, const int  &y) {
-    uint32_t newStone = 1u << SIZE - 1 - y;
+    const uint32_t newStone = 1u << SIZE - 1 - y;
     this->getGridBlack().at(x) = this->getGridBlack().at(x) | newStone;
 }
 
 std::ostream & operator<<(std::ostream &os, Board &board) {
     os << "grid black: \n";
-    for (auto & row : board.getGridBlack()) {
+    for (const auto & row : board.getGridBlack()) {
         os << std::bitset<Board::SIZE>(row) << '\n';
     }
     os << "grid White: \n";
-    for (auto & row : board.getGridWhite()) {
+    for (const auto & row : board.getGridWhite()) {
         os << std::bitset<Board::SIZE>(row) << '\n';
     }
     return os;
