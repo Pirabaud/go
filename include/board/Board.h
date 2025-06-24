@@ -11,7 +11,7 @@
 
 class Board {
 public:
-    static constexpr int SIZE = 8;
+    static constexpr int SIZE = 19;
     static constexpr int MAXCANDIDATESPOSITIONS = 3;
 
     [[nodiscard]] std::array<uint32_t, Board::SIZE>& getGridWhite();

@@ -2,7 +2,7 @@
 #include <bits/ostream.tcc>
 
 #include "Board.h"
-#include "Service/CheckMoveService.h"
+#include "services/CheckMoveService.h"
 
 int main() {
     Board board;

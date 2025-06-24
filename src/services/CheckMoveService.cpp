@@ -2,21 +2,24 @@
 // Created by pirabaud on 6/20/25.
 //
 
-#include "../../include/Service/CheckMoveService.h"
+#include "../../include/services/CheckMoveService.h"
 
-#include <bitset>
 #include <iostream>
-#include <ostream>
 
-bool CheckMoveService::isLegalMove(const int &x, const int &y, const std::array<uint32_t, Board::SIZE> &gridBack,
+
+bool CheckMoveService::isLegalMove(const int &x, const int &y, const std::array<uint32_t, Board::SIZE> &gridBlack,
                                    const std::array<uint32_t, Board::SIZE> &gridWhite, const bool &isBlack) {
     if (NotInBoard(x, y)) {
         return false;
     }
-    if (alreadyStone(x, y, gridBack, gridWhite)) {
+    if (alreadyStone(x, y, gridBlack, gridWhite)) {
         return false;
     }
-    if (checkLineCapture(x, y, gridBack, gridWhite, TODO, TODO)) {
+    if (checkDirectionCapture(
+        x,
+        y,
+        isBlack ? gridBlack : gridWhite,
+        isBlack ? gridWhite : gridBlack)) {
         return false;
     }
     return true;
@@ -66,6 +69,10 @@ inline bool checkBitSet(const uint32_t &val, const int &bit) {
 bool CheckMoveService::checkCapture(const int &x, const int &y, const std::array<uint32_t, Board::SIZE> &gridColor,
     const std::array<uint32_t, Board::SIZE> &gridOpposite, const int &dx, const int &dy) {
 
+    if ( x + dx < 0 ||
+        x - dx < 0 ||
+        x + dx * 2 >= Board::SIZE)
+        return false;
     const uint32_t lineColorAdjacent = gridColor.at(x + dx);
     const uint32_t lineOppositeAdjacent1 = gridOpposite.at(x + dx * 2);
     const uint32_t lineOppositeAdjacent2 = gridOpposite.at(x - dx);
