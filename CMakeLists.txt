@@ -17,14 +17,12 @@ set(LIBS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/libs)
 set(SOURCE_FILES
         src/main.cpp
         src/board/Board.cpp
-        include/board/Board.h
+        src/services/CheckMoveService.cpp
 )
 
 # Contain all source files
 set(ALL_SOURCE_FILES
         ${SOURCE_FILES}
-        src/Service/CheckMoveService.cpp
-        include/Service/CheckMoveService.h
 )
 
 # Add an executable target
@@ -33,6 +31,20 @@ add_executable(${PROJECT_NAME} ${ALL_SOURCE_FILES})
 target_include_directories(${PROJECT_NAME}
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/board
+        PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/services
 )
 
 target_link_libraries(${PROJECT_NAME})
+
+include(FetchContent)
+
+FetchContent_Declare(
+        Catch2
+        GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+        GIT_TAG v3.5.4
+)
+FetchContent_MakeAvailable(Catch2)
+
+list(APPEND CMAKE_MODULE_PATH ${catch2_SOURCE_DIR}/extras)
+
+add_subdirectory(tests)
