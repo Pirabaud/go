@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.29)
 
 add_executable(GomokuTests
         services/test_checkMoveService.cpp
+        services/CheckWinServiceTest.cpp
         ../src/services/CheckMoveService.cpp
         ../src/board/Board.cpp
 )

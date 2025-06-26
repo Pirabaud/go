@@ -11,7 +11,7 @@
 struct boardFixture {
     Board board;
 
-    void setupCaptureTest(
+    void setupCreatesCaptureTest(
         const int& playX,
         const int& playY,
         const int& playColorX,
@@ -32,35 +32,35 @@ struct boardFixture {
 
 TEST_CASE_METHOD(boardFixture, "Check Creating Capture") {
     SECTION("Check creating capture line left") {
-        setupCaptureTest(0, 2, 0, 1, 0, 0, 0, 3, IllegalMoves::Type::CREATE_CAPTURE);
+        setupCreatesCaptureTest(0, 2, 0, 1, 0, 0, 0, 3, IllegalMoves::Type::CREATE_CAPTURE);
     }
 
     SECTION("Check creating capture line right") {
-        setupCaptureTest(0, 1, 0, 2, 0, 0, 0, 3, IllegalMoves::Type::CREATE_CAPTURE);
+        setupCreatesCaptureTest(0, 1, 0, 2, 0, 0, 0, 3, IllegalMoves::Type::CREATE_CAPTURE);
     }
 
     SECTION("Check creating capture col bot") {
-        setupCaptureTest(1, 0, 2, 0, 0, 0, 3, 0, IllegalMoves::Type::CREATE_CAPTURE);
+        setupCreatesCaptureTest(1, 0, 2, 0, 0, 0, 3, 0, IllegalMoves::Type::CREATE_CAPTURE);
     }
 
     SECTION("Check creating capture col top") {
-        setupCaptureTest(2, 0, 1, 0, 0, 0, 3, 0, IllegalMoves::Type::CREATE_CAPTURE);
+        setupCreatesCaptureTest(2, 0, 1, 0, 0, 0, 3, 0, IllegalMoves::Type::CREATE_CAPTURE);
     }
 
     SECTION("Check creating capture diagonal top right") {
-        setupCaptureTest(2, 1, 1, 2, 3, 0, 0, 3, IllegalMoves::Type::CREATE_CAPTURE);
+        setupCreatesCaptureTest(2, 1, 1, 2, 3, 0, 0, 3, IllegalMoves::Type::CREATE_CAPTURE);
     }
 
     SECTION("Check creating capture diagonal bot left") {
-        setupCaptureTest(2, 1, 1, 2, 3, 0, 0, 3, IllegalMoves::Type::CREATE_CAPTURE);
+        setupCreatesCaptureTest(2, 1, 1, 2, 3, 0, 0, 3, IllegalMoves::Type::CREATE_CAPTURE);
     }
 
     SECTION("already stone on this pos") {
-        setupCaptureTest(1, 2, 1, 2, 3, 0, 0, 3, IllegalMoves::Type::OCCUPIED);
+        setupCreatesCaptureTest(1, 2, 1, 2, 3, 0, 0, 3, IllegalMoves::Type::OCCUPIED);
     }
 
     SECTION("out of board") {
-        setupCaptureTest(-2, 1, 1, 2, 3, 0, 0, 3, IllegalMoves::Type::NOT_IN_BOARD);
+        setupCreatesCaptureTest(-2, 1, 1, 2, 3, 0, 0, 3, IllegalMoves::Type::NOT_IN_BOARD);
     }
 }
 
