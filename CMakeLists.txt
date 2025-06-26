@@ -1,23 +1,22 @@
-# Set the minimum required version of cmake
 cmake_minimum_required(VERSION 3.29)
-
-# Store the name of the project in PROJECT_NAME
 project(Gomoku)
 
-# Set the C++ standard
+# Activer les tests dès le début
+enable_testing()
+
+# Utiliser C++20
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+# Flags pour profilage
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pg")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pg")
 
-
+# Include général
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-set(LIBS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/libs)
-
+# SFML (affichage)
 include(FetchContent)
-
 set(SFML_BUILD_AUDIO OFF)
 set(SFML_BUILD_NETWORK OFF)
 set(SFML_BUILD_WINDOW ON)
@@ -32,6 +31,19 @@ FetchContent_Declare(SFML
         SYSTEM)
 FetchContent_MakeAvailable(SFML)
 
+# Catch2 pour tests
+FetchContent_Declare(
+        Catch2
+        GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+        GIT_TAG v3.5.4
+)
+FetchContent_MakeAvailable(Catch2)
+
+# Ajoute le chemin du module Catch2 pour catch_discover_tests
+list(APPEND CMAKE_MODULE_PATH ${catch2_SOURCE_DIR}/extras)
+include(Catch) # pour catch_discover_tests
+
+# Sources de ton application principale
 set(BOARD_FILES
         src/board/Board.cpp
         src/board/CheckWinService.cpp
@@ -54,22 +66,18 @@ set(DISPLAY_FILES
         src/display/DisplayService.cpp
 )
 
-# Contain all cpp files within src
 set(SOURCE_FILES
         src/main.cpp
         src/board/Board.cpp
-        src/services/CheckMoveService.cpp
+        include/board/Board.h
 )
 
-# Contain all source files
 set(ALL_SOURCE_FILES
         ${BOARD_FILES}
         ${DISPLAY_FILES}
         ${SOURCE_FILES}
 )
 
-
-# Add an executable target
 add_executable(${PROJECT_NAME} ${ALL_SOURCE_FILES})
 
 target_include_directories(${PROJECT_NAME}
@@ -81,18 +89,7 @@ target_include_directories(${PROJECT_NAME}
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/services
 )
 
-target_link_libraries(${PROJECT_NAME})
 target_link_libraries(${PROJECT_NAME} PRIVATE SFML::Graphics)
 
-include(FetchContent)
-
-FetchContent_Declare(
-        Catch2
-        GIT_REPOSITORY https://github.com/catchorg/Catch2.git
-        GIT_TAG v3.5.4
-)
-FetchContent_MakeAvailable(Catch2)
-
-list(APPEND CMAKE_MODULE_PATH ${catch2_SOURCE_DIR}/extras)
-
+# Ajoute le sous-répertoire contenant les tests
 add_subdirectory(tests)
