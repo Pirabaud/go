@@ -19,3 +19,5 @@ target_include_directories(GomokuTests
 # Enregistrement des tests avec CTest via Catch2 v3
 catch_discover_tests(GomokuTests)
 
+add_test(NAME RunAllTests COMMAND GomokuTests -s --reporter console)
+

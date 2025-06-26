@@ -91,5 +91,11 @@ target_include_directories(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME} PRIVATE SFML::Graphics)
 
-# Ajoute le sous-répertoire contenant les tests
-add_subdirectory(tests)
+
+option(ENABLE_TESTS "Enable tests" ON)
+
+if(ENABLE_TESTS)
+    enable_testing()
+    add_subdirectory(tests)
+endif()
+
