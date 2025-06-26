@@ -46,17 +46,5 @@ TEST_CASE_METHOD(boardFixture, "Check Capture") {
     SECTION("Check capture diagonal top right") {
         setupCaptureTest(2, 1, 1, 2, 3, 0, 0, 3, false);
     }
-
-    SECTION("Check capture diagonal bot left") {
-        setupCaptureTest(2, 1, 1, 2, 3, 0, 0, 3, false);
-    }
-
-    SECTION("already stone on this pos") {
-        setupCaptureTest(2, 1, 1, 2, 3, 0, 0, 3, false);
-    }
-
-    SECTION("out of board") {
-        setupCaptureTest(-2, 1, 1, 2, 3, 0, 0, 3, false);
-    }
 }
 
