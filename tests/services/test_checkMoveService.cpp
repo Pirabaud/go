@@ -4,19 +4,59 @@
 
 #include <catch2/catch_test_macros.hpp>
 #include "services/CheckMoveService.h"
-#include <array>
 
-TEST_CASE("checkCapture fonctionne", "[gomoku]") {
-    std::array<uint32_t, 19> gridBlack{};
-    std::array<uint32_t, 19> gridWhite{};
+struct boardFixture {
+    Board board;
 
-    // Exemple : simulate un motif de capture
-    int x = 10;
-    int y = 10;
-    gridBlack[x + 1] = 1u << (18 - (y + 1));        // Friendly stone
-    gridWhite[x + 2] = 1u << (18 - (y + 2));        // Enemy stone
-    gridWhite[x - 1] = 1u << (18 - (y - 1));        // Enemy stone
+    void setupCaptureTest(
+        const int playX,
+        const int playY,
+        const int playColorX,
+        const int playColorY,
+        const int oppositeColor1X,
+        const int oppositeColor1Y,
+        const int oppositeColor2X,
+        const int oppositeColor2Y,
+        const bool expected) {
+        board.addStoneWhite(playColorX, playColorY);
+        board.addStoneBlack(oppositeColor1X, oppositeColor1Y);
+        board.addStoneBlack(oppositeColor2X, oppositeColor2Y);
 
-    bool result = CheckMoveService::isLegalMove(x, y, gridBlack, gridWhite, true);
-    REQUIRE(result == true);
+        REQUIRE(CheckMoveService::isLegalMove(playX, playY, board.getGridBlack(), board.getGridWhite(), false) == expected);
+    }
+};
+
+TEST_CASE_METHOD(boardFixture, "Check Capture") {
+    SECTION("Check capture line left") {
+        setupCaptureTest(0, 2, 0, 1, 0, 0, 0, 3, false);
+    }
+
+    SECTION("Check capture line right") {
+        setupCaptureTest(0, 1, 0, 2, 0, 0, 0, 3, false);
+    }
+
+    SECTION("Check capture col bot") {
+        setupCaptureTest(1, 0, 2, 0, 0, 0, 3, 0, false);
+    }
+
+    SECTION("Check capture col top") {
+        setupCaptureTest(2, 0, 1, 0, 0, 0, 3, 0, false);
+    }
+
+    SECTION("Check capture diagonal top right") {
+        setupCaptureTest(2, 1, 1, 2, 3, 0, 0, 3, false);
+    }
+
+    SECTION("Check capture diagonal bot left") {
+        setupCaptureTest(2, 1, 1, 2, 3, 0, 0, 3, false);
+    }
+
+    SECTION("already stone on this pos") {
+        setupCaptureTest(2, 1, 1, 2, 3, 0, 0, 3, false);
+    }
+
+    SECTION("out of board") {
+        setupCaptureTest(-2, 1, 1, 2, 3, 0, 0, 3, false);
+    }
 }
+

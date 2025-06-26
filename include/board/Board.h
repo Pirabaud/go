@@ -28,9 +28,6 @@ public:
 private:
     std::array<uint32_t, SIZE> gridWhite{};
     std::array<uint32_t, SIZE> gridBlack{};
-    std::set<uint32_t> candidatesPositionsWhite;
-    std::set<uint32_t> candidatesPositionsBlack;
-
 };
 
 std::ostream& operator<<(std::ostream& os, Board& board);

@@ -28,3 +28,5 @@ include(Catch)
 # Enregistre les tests automatiquement avec CTest
 catch_discover_tests(GomokuTests)
 
+add_test(NAME RunAllTests COMMAND GomokuTests -s --reporter console)
+
