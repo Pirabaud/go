@@ -18,8 +18,8 @@ public:
     typedef std::array<uint32_t, SIZE> StoneMask;
 
 
-    [[nodiscard]] const StoneMask& getGridWhite() const;
-    [[nodiscard]] const StoneMask& getGridBlack() const;
+    [[nodiscard]] StoneMask& getGridWhite();
+    [[nodiscard]] StoneMask& getGridBlack();
 
     void addStoneWhite(const int &x, const int &y);
 

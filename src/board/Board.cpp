@@ -18,10 +18,12 @@ Board::Board() {
 
 }
 
-std::array<uint32_t, Board::SIZE>& Board::getGridWhite() {
+
+Board::StoneMask &Board::getGridWhite() {
     return this->gridWhite;
 }
-std::array<uint32_t, Board::SIZE>& Board::getGridBlack() {
+
+Board::StoneMask &Board::getGridBlack() {
     return this->gridBlack;
 }
 

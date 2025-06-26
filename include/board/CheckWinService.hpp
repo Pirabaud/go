@@ -11,7 +11,7 @@
 class CheckWinService
 {
 public:
-    static const sf::Color* isWin(const Board& board);
+    static const sf::Color* isWin(Board &board);
 
 private:
     CheckWinService() = default;

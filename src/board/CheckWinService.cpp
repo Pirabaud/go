@@ -2,7 +2,7 @@
 
 #include <vector>
 
-const sf::Color* CheckWinService::isWin(const Board& board)
+const sf::Color* CheckWinService::isWin(Board& board)
 {
     //TODO Add condition win if a player has captured 10 opponents stones
 
