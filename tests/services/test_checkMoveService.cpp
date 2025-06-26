@@ -8,7 +8,7 @@
 #include "IllegalMoves.hpp"
 #include "CheckMoveService.hpp"
 
-struct boardFixture {
+struct BoardFixture {
     Board board;
 
     void setupCreatesCaptureTest(
@@ -30,7 +30,7 @@ struct boardFixture {
     }
 };
 
-TEST_CASE_METHOD(boardFixture, "Check Creating Capture") {
+TEST_CASE_METHOD(BoardFixture, "Check Creating Capture") {
     SECTION("Check creating capture line left") {
         setupCreatesCaptureTest(0, 2, 0, 1, 0, 0, 0, 3, IllegalMoves::Type::CREATE_CAPTURE);
     }
