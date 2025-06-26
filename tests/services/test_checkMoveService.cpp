@@ -3,60 +3,64 @@
 //
 
 #include <catch2/catch_test_macros.hpp>
-#include "services/CheckMoveService.h"
+
+#include "catch2/benchmark/catch_benchmark.hpp"
+#include "IllegalMoves.hpp"
+#include "CheckMoveService.hpp"
 
 struct boardFixture {
     Board board;
 
     void setupCaptureTest(
-        const int playX,
-        const int playY,
-        const int playColorX,
-        const int playColorY,
-        const int oppositeColor1X,
-        const int oppositeColor1Y,
-        const int oppositeColor2X,
-        const int oppositeColor2Y,
-        const bool expected) {
+        const int& playX,
+        const int& playY,
+        const int& playColorX,
+        const int& playColorY,
+        const int& oppositeColor1X,
+        const int& oppositeColor1Y,
+        const int& oppositeColor2X,
+        const int& oppositeColor2Y,
+        const IllegalMoves::Type& expected) {
         board.addStoneWhite(playColorX, playColorY);
         board.addStoneBlack(oppositeColor1X, oppositeColor1Y);
         board.addStoneBlack(oppositeColor2X, oppositeColor2Y);
 
-        REQUIRE(CheckMoveService::isLegalMove(playX, playY, board.getGridBlack(), board.getGridWhite(), false) == expected);
+        REQUIRE(
+            CheckMoveService::isLegalMove(playX, playY, board.getGridBlack(), board.getGridWhite(), false) == expected);
     }
 };
 
-TEST_CASE_METHOD(boardFixture, "Check Capture") {
-    SECTION("Check capture line left") {
-        setupCaptureTest(0, 2, 0, 1, 0, 0, 0, 3, false);
+TEST_CASE_METHOD(boardFixture, "Check Creating Capture") {
+    SECTION("Check creating capture line left") {
+        setupCaptureTest(0, 2, 0, 1, 0, 0, 0, 3, IllegalMoves::Type::CREATE_CAPTURE);
     }
 
-    SECTION("Check capture line right") {
-        setupCaptureTest(0, 1, 0, 2, 0, 0, 0, 3, false);
+    SECTION("Check creating capture line right") {
+        setupCaptureTest(0, 1, 0, 2, 0, 0, 0, 3, IllegalMoves::Type::CREATE_CAPTURE);
     }
 
-    SECTION("Check capture col bot") {
-        setupCaptureTest(1, 0, 2, 0, 0, 0, 3, 0, false);
+    SECTION("Check creating capture col bot") {
+        setupCaptureTest(1, 0, 2, 0, 0, 0, 3, 0, IllegalMoves::Type::CREATE_CAPTURE);
     }
 
-    SECTION("Check capture col top") {
-        setupCaptureTest(2, 0, 1, 0, 0, 0, 3, 0, false);
+    SECTION("Check creating capture col top") {
+        setupCaptureTest(2, 0, 1, 0, 0, 0, 3, 0, IllegalMoves::Type::CREATE_CAPTURE);
     }
 
-    SECTION("Check capture diagonal top right") {
-        setupCaptureTest(2, 1, 1, 2, 3, 0, 0, 3, false);
+    SECTION("Check creating capture diagonal top right") {
+        setupCaptureTest(2, 1, 1, 2, 3, 0, 0, 3, IllegalMoves::Type::CREATE_CAPTURE);
     }
 
-    SECTION("Check capture diagonal bot left") {
-        setupCaptureTest(2, 1, 1, 2, 3, 0, 0, 3, false);
+    SECTION("Check creating capture diagonal bot left") {
+        setupCaptureTest(2, 1, 1, 2, 3, 0, 0, 3, IllegalMoves::Type::CREATE_CAPTURE);
     }
 
     SECTION("already stone on this pos") {
-        setupCaptureTest(2, 1, 1, 2, 3, 0, 0, 3, false);
+        setupCaptureTest(1, 2, 1, 2, 3, 0, 0, 3, IllegalMoves::Type::OCCUPIED);
     }
 
     SECTION("out of board") {
-        setupCaptureTest(-2, 1, 1, 2, 3, 0, 0, 3, false);
+        setupCaptureTest(-2, 1, 1, 2, 3, 0, 0, 3, IllegalMoves::Type::NOT_IN_BOARD);
     }
 }
 

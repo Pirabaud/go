@@ -2,28 +2,24 @@
 
 #include <iostream>
 
-#include "CheckWinService.hpp"
+#include "CheckMoveService.hpp"
+#include "../../../include/services/CheckWinService.hpp"
 #include "SFML/Graphics/Text.hpp"
 #include "utils/getSharedFont.hpp"
 
-void PvPScene::handleEvent(const std::optional<sf::Event>& event, sf::RenderWindow& window)
-{
+void PvPScene::handleEvent(const std::optional<sf::Event>& event, sf::RenderWindow& window) {
     if (winningColor) return;
     const bool doesStoneHaveBeenPlaced = handleStonePlacement(event, window);
-    if (doesStoneHaveBeenPlaced)
-    {
+    if (doesStoneHaveBeenPlaced) {
         winningColor = CheckWinService::isWin(board);
-        if (winningColor)
-        {
+        if (winningColor) {
             std::cout << "Player " << (*winningColor == sf::Color::White ? "White" : "Black") << " wins!" << std::endl;
         }
     }
 }
 
-void PvPScene::drawTexts(sf::RenderWindow& window)
-{
-    if (winningColor)
-    {
+void PvPScene::drawTexts(sf::RenderWindow& window) {
+    if (winningColor) {
         sf::Text winText(getSharedFont(),
                          "Player " + std::string(*winningColor == sf::Color::White ? "White" : "Black") + " wins!");
 
@@ -33,5 +29,40 @@ void PvPScene::drawTexts(sf::RenderWindow& window)
 
         window.draw(winText);
     }
+    if (illegalMove != IllegalMoves::Type::NONE) {
+        sf::Text illegalMoveText(getSharedFont(),
+                                 "This is move is illegal because " + std::string(IllegalMoves::toString(illegalMove)) +
+                                 ".");
+        illegalMoveText.setCharacterSize(18);
+        illegalMoveText.setFillColor(sf::Color::Red);
+        illegalMoveText.setPosition({BOARD_SIZE_WITH_PADDING, PADDING + 20});
+
+        window.draw(illegalMoveText);
+    }
+}
+
+bool PvPScene::handleStonePlacement(const std::optional<sf::Event>& event, sf::RenderWindow& window) {
+    if (!event || !event->is<sf::Event::MouseButtonPressed>()) {
+        return false;
+    }
+
+    if (const auto& mousePressedEvent = event->getIf<sf::Event::MouseButtonPressed>(); mousePressedEvent &&
+        mousePressedEvent->button == sf::Mouse::Button::Left) {
+        const auto& mousePos = mousePressedEvent->position;
+        const auto [row, col] = getCellFromMousePosition(mousePos);
+        if (row == -1 || col == -1) {
+            illegalMove = IllegalMoves::Type::NOT_IN_BOARD;
+            return false;
+        }
+        illegalMove = CheckMoveService::isLegalMove(row, col, board.getGridBlack(),
+                                                    board.getGridWhite(),
+                                                    colorToPlay == sf::Color::Black);
+        if (illegalMove != IllegalMoves::Type::NONE) {
+            return false;
+        }
+        playMove(row, col);
+        return true;
+    }
+    return false;
 }
 
