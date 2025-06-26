@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include "Board.h"
-#include "services/CheckMoveService.h"
+#include "services/CheckMoveService.hpp"
 #include "DisplayService.hpp"
 #include "SFML/Window/Window.hpp"
 

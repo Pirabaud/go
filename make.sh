@@ -4,5 +4,5 @@
 
 # -S : Provide the location of the SMakeLists.txt file
 # -B : Provide the location of the directory in which the build will be done
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
+cmake -S . -B build
 cmake --build build

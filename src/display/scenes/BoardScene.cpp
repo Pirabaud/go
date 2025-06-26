@@ -1,5 +1,7 @@
 #include "BoardScene.hpp"
 
+#include <iostream>
+
 #include "DisplayService.hpp"
 #include "SFML/Graphics/CircleShape.hpp"
 
@@ -71,38 +73,31 @@ void BoardScene::drawSingleColorStone(const Board::StoneMask& stonesMask, sf::Re
     }
 }
 
-bool BoardScene::handleStonePlacement(const std::optional<sf::Event>& event, sf::RenderWindow& window)
+std::pair<int, int> BoardScene::getCellFromMousePosition(const sf::Vector2i& mousePos) const
 {
-    if (!event.has_value()) return false;
+    const auto fx = static_cast<float>(mousePos.x);
+    const auto fy = static_cast<float>(mousePos.y);
 
-    if (const auto& mousePressedEvent = event->getIf<sf::Event::MouseButtonPressed>(); mousePressedEvent &&
-        mousePressedEvent->button == sf::Mouse::Button::Left)
+    for (int row = 0; row < Board::SIZE; ++row)
     {
-        const auto& mousePos = mousePressedEvent->position;
-        const float fx = static_cast<float>(mousePos.x);
-        const float fy = static_cast<float>(mousePos.y);
-
-        for (int row = 0; row < Board::SIZE; ++row)
+        for (int col = 0; col < Board::SIZE; ++col)
         {
-            for (int col = 0; col < Board::SIZE; ++col)
+            const float cx = PADDING + col * CELL_SIZE;
+            const float cy = PADDING + row * CELL_SIZE;
+
+            const float dx = fx - cx;
+            const float dy = fy - cy;
+            const float distSq = dx * dx + dy * dy;
+
+            if (distSq <= STONE_RADIUS * STONE_RADIUS)
             {
-                const float cx = PADDING + col * CELL_SIZE;
-                const float cy = PADDING + row * CELL_SIZE;
-
-                const float dx = fx - cx;
-                const float dy = fy - cy;
-                const float distSq = dx * dx + dy * dy;
-
-                if (distSq <= STONE_RADIUS * STONE_RADIUS)
-                {
-                    playMove(row, col);
-                    return true;;
-                }
+                return {row, col};
             }
         }
     }
-    return false;
+    return {-1, -1}; // Return an invalid position if no stone was placed
 }
+
 
 void BoardScene::playMove(const int& row, const int& col)
 {

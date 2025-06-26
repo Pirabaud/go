@@ -43,10 +43,10 @@ FetchContent_MakeAvailable(Catch2)
 list(APPEND CMAKE_MODULE_PATH ${catch2_SOURCE_DIR}/extras)
 include(Catch) # pour catch_discover_tests
 
-# Sources de ton application principale
+# Sources de l'application
 set(BOARD_FILES
         src/board/Board.cpp
-        src/board/CheckWinService.cpp
+        src/services/CheckWinService.cpp
 )
 
 set(DISPLAY_COMPONENTS_FILES
@@ -66,16 +66,22 @@ set(DISPLAY_FILES
         src/display/DisplayService.cpp
 )
 
+set(SERVICES_FILES
+        src/services/CheckMoveService.cpp
+        src/services/CheckWinService.cpp
+)
+
 set(SOURCE_FILES
         src/main.cpp
         src/board/Board.cpp
-        include/board/Board.h
 )
 
 set(ALL_SOURCE_FILES
         ${BOARD_FILES}
         ${DISPLAY_FILES}
+        ${SERVICES_FILES}
         ${SOURCE_FILES}
+        ${SERVICES_FILES}
 )
 
 add_executable(${PROJECT_NAME} ${ALL_SOURCE_FILES})
@@ -87,6 +93,7 @@ target_include_directories(${PROJECT_NAME}
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/display/components
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/display/scenes
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/services
+        PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/structs
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE SFML::Graphics)
@@ -94,8 +101,8 @@ target_link_libraries(${PROJECT_NAME} PRIVATE SFML::Graphics)
 
 option(ENABLE_TESTS "Enable tests" ON)
 
-if(ENABLE_TESTS)
+if (ENABLE_TESTS)
     enable_testing()
     add_subdirectory(tests)
-endif()
+endif ()
 

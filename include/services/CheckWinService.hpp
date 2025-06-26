@@ -4,7 +4,7 @@
 
 #ifndef CHECK_WIN_SERVICE_HPP
 #define CHECK_WIN_SERVICE_HPP
-#include "Board.h"
+#include "../board/Board.h"
 #include "SFML/Graphics/Color.hpp"
 
 
