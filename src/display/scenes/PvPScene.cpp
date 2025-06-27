@@ -2,6 +2,7 @@
 
 #include <iostream>
 
+#include "CaptureService.hpp"
 #include "CheckMoveService.hpp"
 #include "../../../include/services/CheckWinService.hpp"
 #include "SFML/Graphics/Text.hpp"
@@ -61,6 +62,7 @@ bool PvPScene::handleStonePlacement(const std::optional<sf::Event>& event, sf::R
             return false;
         }
         playMove(row, col);
+        CaptureService::resolveCaptures(board);
         return true;
     }
     return false;

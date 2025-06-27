@@ -33,7 +33,7 @@ bool CheckMoveService::notInBoard(const int& x, const int& y) {
 
 bool CheckMoveService::alreadyStone(const int& x, const int& y, const std::array<uint32_t, Board::SIZE>& gridBlack,
                                     const std::array<uint32_t, Board::SIZE>& gridWhite) {
-    uint32_t checkStone = 1u << Board::SIZE - 1 - y;
+    uint32_t checkStone = 1u << (Board::SIZE - 1 - y);
     if (checkStone & gridBlack.at(x) || checkStone & gridWhite.at(x)) {
         return true;
     }
@@ -43,7 +43,7 @@ bool CheckMoveService::alreadyStone(const int& x, const int& y, const std::array
 bool CheckMoveService::checkDirectionCreatingCapture(const int& x, const int& y,
                                                      const std::array<uint32_t, Board::SIZE>& gridColor,
                                                      const std::array<uint32_t, Board::SIZE>& gridOpposite) {
-    std::array<std::pair<int, int>, 4> directions = {
+    std::array directions = {
         std::make_pair(0, 1),
         std::make_pair(1, 0),
         std::make_pair(1, -1),
