@@ -28,15 +28,15 @@ bool CheckWinService::isColorWin(const Board::StoneMask& grid)
         {-1, 1} // ↙
     };
 
-    for (int y = 0; y < 19; ++y)
+    for (int y = 0; y < Board::SIZE; ++y)
     {
-        for (int x = 0; x < 19; ++x)
+        for (int x = 0; x < Board::SIZE; ++x)
         {
             for (auto [dx, dy] : directions)
             {
                 int count = 0;
                 int cx = x, cy = y;
-                while (cx >= 0 && cx < 19 && cy >= 0 && cy < 19 &&
+                while (cx >= 0 && cx < Board::SIZE && cy >= 0 && cy < Board::SIZE &&
                     ((grid[cy] >> cx) & 1))
                 {
                     count++;

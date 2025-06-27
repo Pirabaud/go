@@ -46,7 +46,6 @@ include(Catch) # pour catch_discover_tests
 # Sources de l'application
 set(BOARD_FILES
         src/board/Board.cpp
-        src/services/CheckWinService.cpp
 )
 
 set(DISPLAY_COMPONENTS_FILES
@@ -67,6 +66,7 @@ set(DISPLAY_FILES
 )
 
 set(SERVICES_FILES
+        src/services/CaptureService.cpp
         src/services/CheckMoveService.cpp
         src/services/CheckWinService.cpp
 )
