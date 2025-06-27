@@ -18,7 +18,6 @@ Board::Board() {
 
 }
 
-
 Board::StoneMask &Board::getGridWhite() {
     return this->gridWhite;
 }
