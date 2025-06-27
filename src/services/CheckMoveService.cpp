@@ -70,8 +70,11 @@ bool CheckMoveService::checkCapture(const int& x, const int& y, const std::array
                                     const int& dy) {
     if (x + dx < 0 ||
         x - dx < 0 ||
-        x + dx * 2 >= Board::SIZE)
+        x + dx * 2 < 0 ||
+        x + dx * 2 >= Board::SIZE ||
+        x - dx >= Board::SIZE)
         return false;
+
     const uint32_t lineColorAdjacent = gridColor.at(x + dx);
     const uint32_t lineOppositeAdjacent1 = gridOpposite.at(x + dx * 2);
     const uint32_t lineOppositeAdjacent2 = gridOpposite.at(x - dx);
@@ -81,13 +84,6 @@ bool CheckMoveService::checkCapture(const int& x, const int& y, const std::array
     const int maskOppositeAdjacent1 = bitPos - dy * 2;
     const int maskOppositeAdjacent2 = bitPos - dy * -1;
 
-    // std::cout << std::bitset<32>(lineColorAdjacent) << std::endl;
-    // std::cout << std::bitset<32>(1u << maskColorAdjacent) << std::endl << std::endl;
-    // std::cout << std::bitset<32>(lineOppositeAdjacent1) << std::endl;
-    // std::cout << std::bitset<32>(1u << maskOppositeAdjacent1) << std::endl << std::endl;
-    // std::cout << std::bitset<32>(lineOppositeAdjacent2) << std::endl;
-    // std::cout << std::bitset<32>(1u << maskOppositeAdjacent2) << std::endl << std::endl;
-    // std::cout << "===============================================" << std::endl;
     if (checkBitSet(lineColorAdjacent, maskColorAdjacent)
         && checkBitSet(lineOppositeAdjacent1, maskOppositeAdjacent1)
         && checkBitSet(lineOppositeAdjacent2, maskOppositeAdjacent2)) {

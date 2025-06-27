@@ -14,9 +14,7 @@ public:
     static constexpr int SIZE = 19;
     static constexpr int MAXCANDIDATESPOSITIONS = 3;
 
-
     typedef std::array<uint32_t, SIZE> StoneMask;
-
 
     [[nodiscard]] StoneMask& getGridWhite();
     [[nodiscard]] StoneMask& getGridBlack();
