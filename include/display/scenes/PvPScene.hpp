@@ -5,12 +5,15 @@
 #ifndef PVP_SCENE_HPP
 #define PVP_SCENE_HPP
 #include "BoardScene.hpp"
+#include "Button.hpp"
+#include "DisplayService.hpp"
+#include "MainMenuScene.hpp"
 
 
 class PvPScene : public BoardScene
 {
 public:
-    PvPScene(sf::RenderWindow& window)
+   explicit  PvPScene(sf::RenderWindow& window)
         : BoardScene(window)
     {
         backgroundColor = sf::Color(206, 163, 70);

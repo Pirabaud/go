@@ -1,21 +1,16 @@
 cmake_minimum_required(VERSION 3.29)
 project(Gomoku)
 
-# Activer les tests dès le début
 enable_testing()
 
-# Utiliser C++20
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-# Flags pour profilage
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pg")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pg")
 
-# Include général
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-# SFML (affichage)
 include(FetchContent)
 set(SFML_BUILD_AUDIO OFF)
 set(SFML_BUILD_NETWORK OFF)
@@ -31,7 +26,6 @@ FetchContent_Declare(SFML
         SYSTEM)
 FetchContent_MakeAvailable(SFML)
 
-# Catch2 pour tests
 FetchContent_Declare(
         Catch2
         GIT_REPOSITORY https://github.com/catchorg/Catch2.git
@@ -39,14 +33,11 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(Catch2)
 
-# Ajoute le chemin du module Catch2 pour catch_discover_tests
-list(APPEND CMAKE_MODULE_PATH ${catch2_SOURCE_DIR}/extras)
-include(Catch) # pour catch_discover_tests
+list(APPEND CMAKE_MODULE_PATH ${Catch2_SOURCE_DIR}/extras)
+include(Catch)
 
-# Sources de l'application
 set(BOARD_FILES
         src/board/Board.cpp
-        src/services/CheckWinService.cpp
 )
 
 set(DISPLAY_COMPONENTS_FILES
@@ -67,8 +58,10 @@ set(DISPLAY_FILES
 )
 
 set(SERVICES_FILES
+        src/services/CaptureService.cpp
         src/services/CheckMoveService.cpp
         src/services/CheckWinService.cpp
+        src/services/AlignmentChecker.cpp
 )
 
 set(SOURCE_FILES
@@ -81,7 +74,9 @@ set(ALL_SOURCE_FILES
         ${DISPLAY_FILES}
         ${SERVICES_FILES}
         ${SOURCE_FILES}
-        ${SERVICES_FILES}
+        include/structs/LineBlockState.hpp
+        include/services/AlignmentChecker.hpp
+        include/structs/Position.hpp
 )
 
 add_executable(${PROJECT_NAME} ${ALL_SOURCE_FILES})

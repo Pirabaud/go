@@ -2,65 +2,171 @@
 // Created by pirabaud on 6/24/25.
 //
 
+#include <iostream>
 #include <catch2/catch_test_macros.hpp>
 
 #include "catch2/benchmark/catch_benchmark.hpp"
 #include "IllegalMoves.hpp"
 #include "CheckMoveService.hpp"
 
+bool isValidPosition(int x, int y) {
+    return x >= 0 && x < Board::SIZE && y >= 0 && y < Board::SIZE;
+}
+
+
 struct BoardFixture {
     Board board;
 
-    void setupCreatesCaptureTest(
-        const int& playX,
-        const int& playY,
-        const int& playColorX,
-        const int& playColorY,
-        const int& oppositeColor1X,
-        const int& oppositeColor1Y,
-        const int& oppositeColor2X,
-        const int& oppositeColor2Y,
-        const IllegalMoves::Type& expected) {
-        board.addStoneWhite(playColorX, playColorY);
-        board.addStoneBlack(oppositeColor1X, oppositeColor1Y);
-        board.addStoneBlack(oppositeColor2X, oppositeColor2Y);
+    void setupCreatesCaptureTest(const Position posPlay,
+                                 const Position posColor,
+                                 const Position posOppColor1,
+                                 const Position posOppColor2,
+                                 const IllegalMoves::Type &expected) {
+        board = Board();
+
+        if (CheckMoveService::notInBoard(posPlay) ||
+            CheckMoveService::notInBoard(posOppColor1) ||
+            CheckMoveService::notInBoard(posOppColor2) ||
+            CheckMoveService::notInBoard(posColor)) {
+            return;
+        }
+
+        board.addStoneWhite(posColor);
+        board.addStoneBlack(posOppColor1);
+        board.addStoneBlack(posOppColor2);
 
         REQUIRE(
-            CheckMoveService::isLegalMove(playX, playY, board.getGridBlack(), board.getGridWhite(), false) == expected);
+            CheckMoveService::isLegalMove(posPlay, board, false) == expected);
+    }
+
+    void setupCheckAlreadyInBoard(Position pos, bool color) {
+        board = Board();
+
+        if (color) {
+            board.addStoneBlack(pos);
+        } else {
+            board.addStoneWhite(pos);
+        }
+        CHECK(
+            CheckMoveService::isLegalMove(pos, board, true)
+            == IllegalMoves::OCCUPIED);
+
+        CHECK(
+            CheckMoveService::isLegalMove(pos,board, false)
+            == IllegalMoves::OCCUPIED);
     }
 };
 
-TEST_CASE_METHOD(BoardFixture, "Check Creating Capture") {
-    SECTION("Check creating capture line left") {
-        setupCreatesCaptureTest(0, 2, 0, 1, 0, 0, 0, 3, IllegalMoves::Type::CREATE_CAPTURE);
-    }
 
-    SECTION("Check creating capture line right") {
-        setupCreatesCaptureTest(0, 1, 0, 2, 0, 0, 0, 3, IllegalMoves::Type::CREATE_CAPTURE);
-    }
+TEST_CASE_METHOD(BoardFixture, "Check creating capture col down") {
+    for (int x = 0; x < Board::SIZE; ++x) {
+        for (int y = 0; y < Board::SIZE; ++y) {
 
-    SECTION("Check creating capture col bot") {
-        setupCreatesCaptureTest(1, 0, 2, 0, 0, 0, 3, 0, IllegalMoves::Type::CREATE_CAPTURE);
-    }
-
-    SECTION("Check creating capture col top") {
-        setupCreatesCaptureTest(2, 0, 1, 0, 0, 0, 3, 0, IllegalMoves::Type::CREATE_CAPTURE);
-    }
-
-    SECTION("Check creating capture diagonal top right") {
-        setupCreatesCaptureTest(2, 1, 1, 2, 3, 0, 0, 3, IllegalMoves::Type::CREATE_CAPTURE);
-    }
-
-    SECTION("Check creating capture diagonal bot left") {
-        setupCreatesCaptureTest(2, 1, 1, 2, 3, 0, 0, 3, IllegalMoves::Type::CREATE_CAPTURE);
-    }
-
-    SECTION("already stone on this pos") {
-        setupCreatesCaptureTest(1, 2, 1, 2, 3, 0, 0, 3, IllegalMoves::Type::OCCUPIED);
-    }
-
-    SECTION("out of board") {
-        setupCreatesCaptureTest(-2, 1, 1, 2, 3, 0, 0, 3, IllegalMoves::Type::NOT_IN_BOARD);
+            setupCreatesCaptureTest(Position(x, y),
+                                    Position(x, y + 1),
+                                    Position(x, y - 1),
+                                    Position(x, y + 2),
+                                    IllegalMoves::Type::CREATE_CAPTURE);
+        }
     }
 }
 
+TEST_CASE_METHOD(BoardFixture, "Check creating capture col up") {
+    for (int x = 0; x < Board::SIZE; ++x) {
+        for (int y = 0; y < Board::SIZE; ++y) {
+            setupCreatesCaptureTest(Position(x, y),
+                                    Position(x, y - 1),
+                                    Position(x, y + 1),
+                                    Position(x, y - 2),
+                                    IllegalMoves::Type::CREATE_CAPTURE);
+        }
+    }
+}
+
+TEST_CASE_METHOD(BoardFixture, "Check creating capture line right") {
+    for (int x = 0; x < Board::SIZE; ++x) {
+        for (int y = 0; y < Board::SIZE; ++y) {
+            setupCreatesCaptureTest(Position(x, y),
+                                    Position(x + 1, y),
+                                    Position(x - 1, y),
+                                    Position(x + 2, y),
+                                    IllegalMoves::Type::CREATE_CAPTURE);
+        }
+    }
+}
+
+TEST_CASE_METHOD(BoardFixture, "Check creating capture line lef") {
+    for (int x = 0; x < Board::SIZE; ++x) {
+        for (int y = 0; y < Board::SIZE; ++y) {
+            setupCreatesCaptureTest(Position(x, y),
+                        Position(x - 1, y),
+                        Position(x + 1, y),
+                        Position(x - 2, y),
+                        IllegalMoves::Type::CREATE_CAPTURE);
+        }
+    }
+}
+
+TEST_CASE_METHOD(BoardFixture, "Check creating capture diagonal top right") {
+    for (int x = 0; x < Board::SIZE; ++x) {
+        for (int y = 0; y < Board::SIZE; ++y) {
+            setupCreatesCaptureTest(Position(x, y),
+                        Position(x - 1, y + 1),
+                        Position(x + 1, y - 1),
+                        Position(x - 2, y + 2),
+                        IllegalMoves::Type::CREATE_CAPTURE);
+        }
+    }
+}
+
+TEST_CASE_METHOD(BoardFixture, "Check creating capture diagonal bot left") {
+    for (int x = 0; x < Board::SIZE; ++x) {
+        for (int y = 0; y < Board::SIZE; ++y) {
+            setupCreatesCaptureTest(Position(x, y),
+                        Position(x + 1, y - 1),
+                        Position(x - 1, y + 1),
+                        Position(x + 2, y - 2),
+                        IllegalMoves::Type::CREATE_CAPTURE);
+        }
+    }
+}
+
+TEST_CASE_METHOD(BoardFixture, "Check creating capture diagonal top left") {
+    for (int x = 0; x < Board::SIZE; ++x) {
+        for (int y = 0; y < Board::SIZE; ++y) {
+            setupCreatesCaptureTest(Position(x, y),
+                        Position(x - 1, y - 1),
+                        Position(x + 1, y + 1),
+                        Position(x - 2, y - 2),
+                        IllegalMoves::Type::CREATE_CAPTURE);
+        }
+    }
+}
+
+TEST_CASE_METHOD(BoardFixture, "Check creating capture diagonal bot rihgt") {
+    for (int x = 0; x < Board::SIZE; ++x) {
+        for (int y = 0; y < Board::SIZE; ++y) {
+            setupCreatesCaptureTest(Position(x, y),
+                     Position(x + 1, y + 1),
+                     Position(x - 1, y - 1),
+                     Position(x + 2, y + 2),
+                     IllegalMoves::Type::CREATE_CAPTURE);
+        }
+    }
+}
+
+TEST_CASE_METHOD(BoardFixture, "Check stone already in board for black") {
+    for (int x = 0; x < Board::SIZE; ++x) {
+        for (int y = 0; y < Board::SIZE; ++y) {
+            setupCheckAlreadyInBoard(Position(x, y), true);
+        }
+    }
+}
+
+TEST_CASE_METHOD(BoardFixture, "Check stone already in board for white") {
+    for (int x = 0; x < Board::SIZE; ++x) {
+        for (int y = 0; y < Board::SIZE; ++y) {
+            setupCheckAlreadyInBoard(Position(x, y), false);
+        }
+    }
+}

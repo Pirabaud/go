@@ -19,6 +19,7 @@ protected:
     IllegalMoves::Type illegalMove = IllegalMoves::NONE;
     Board board;
     sf::Color colorToPlay = sf::Color::Black;
+    bool threeDetected = false;
     BoardScene(sf::RenderWindow& window);
 
     virtual void drawTexts(sf::RenderWindow& window) = 0;
@@ -26,11 +27,11 @@ protected:
 
     void drawBoard(sf::RenderWindow& window);
     void drawStones(sf::RenderWindow& window);
-    void drawSingleColorStone(const std::array<uint32_t, 19>& stonesMask, sf::RenderWindow& window,
+    void drawSingleColorStone(const Board::StoneMask& stonesMask, sf::RenderWindow& window,
                               const sf::Color& color);
 
     [[nodiscard]] std::pair<int, int> getCellFromMousePosition(const sf::Vector2i& mousePos) const;
-    void playMove(const int& row, const int& col);
+    void playMove(Position pos);
     void nextTurn();
 };
 
