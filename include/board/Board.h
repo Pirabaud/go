@@ -36,6 +36,7 @@ public:
     [[nodiscard]] bool isBlackStoneAt(Position pos) const;
     [[nodiscard]] bool isWhiteStoneAt(Position pos) const;
     void emptyColumn(int col);
+    void emptyLine(int col);
 
 
     Board();

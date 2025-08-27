@@ -74,6 +74,14 @@ void Board::emptyColumn(const int col) {
             removeStoneAt(gridBlack, Position(col, row));
     }
 }
+void Board::emptyLine(const int row) {
+    for (int col = 0; col < SIZE; col++) {
+        if (isWhiteStoneAt(Position(col, row)))
+            removeStoneAt(gridWhite, Position(col, row));
+        else if (isBlackStoneAt(Position(col, row)))
+            removeStoneAt(gridBlack, Position(col, row));
+    }
+}
 
 Board::StoneMask& Board::getGridWhite(){
     return this->gridWhite;

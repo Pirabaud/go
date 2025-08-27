@@ -143,7 +143,7 @@ TEST_CASE_METHOD(BoardFixture, "Check creating capture diagonal top left") {
     }
 }
 
-TEST_CASE_METHOD(BoardFixture, "Check creating capture diagonal bot rihgt") {
+TEST_CASE_METHOD(BoardFixture, "Check creating capture diagonal bot right") {
     for (int x = 0; x < Board::SIZE; ++x) {
         for (int y = 0; y < Board::SIZE; ++y) {
             setupCreatesCaptureTest(Position(x, y),
