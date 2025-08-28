@@ -5,19 +5,22 @@
 struct BoardFixture {
     Board board;
 
-    void fillDiagonal(const Position pos, int count, const Position dir, const bool color) {
+    void fillDiagonal(const Position pos, int count, const Position dir, const bool color, int changeColor) {
         int oppColor = 0;
-        for (int k = 0; k < 3; k++) {
-            if (pos.x + k >= Board::SIZE || pos.y + k >= Board::SIZE) {
+        for (int k = 0; k <= count; k++) {
+            if (pos.x + dir.x * k >= Board::SIZE
+                || pos.x + dir.x * k < 0
+                || pos.y + dir.y * k < 0
+                || pos.y + dir.y * k >= Board::SIZE) {
                 break;
             }
-            if (oppColor > 1) {
-                addStoneAt(Position(pos.x + dir.x, pos.y + dir.y), color);
+            if (oppColor > changeColor && pos.y > 0 && pos.x < Board::SIZE - 1) {
+                addStoneAt(Position(pos.x + dir.x * k, pos.y + dir.y * k), !color);
                 oppColor = 0;
             }
             else {
                 oppColor++;
-                board.addStoneWhite(Position(pos.x + k, pos.y + k));
+                addStoneAt(Position(pos.x + dir.x * k, pos.y + dir.y * k), color);
             }
         }
     }
@@ -40,19 +43,22 @@ struct BoardFixture {
         }
     }
 
-    void emptyDiagonal(const Position pos, int count, Position dir, bool color) {
+    void emptyDiagonal(const Position pos, int count, Position dir, bool color, int changeColor) {
         int oppColor = 0;
-        for (int k = 0; k < 3; k++) {
-            if (pos.x + k >= Board::SIZE || pos.y + k >= Board::SIZE) {
+        for (int k = 0; k < count; k++) {
+            if (pos.x + dir.x * k >= Board::SIZE
+                         || pos.x + dir.x * k < 0
+                         || pos.y + dir.y * k < 0
+                         || pos.y + dir.y * k >= Board::SIZE) {
                 break;
-            }
-            if (oppColor > 1) {
+                         }
+            if (oppColor > changeColor) {
                 oppColor = 0;
-                removeStoneAt(Position(pos.x + k, pos.y + k), !color);
+                removeStoneAt(Position(pos.x + dir.x * k, pos.y + dir.y * k), !color);
             }
             else {
                 oppColor++;
-                removeStoneAt(Position(pos.x + k, pos.y + k), color);
+                removeStoneAt(Position(pos.x + dir.x * k, pos.y + dir.y * k), color);
             }
         }
     }
@@ -259,6 +265,7 @@ TEST_CASE_METHOD(BoardFixture, "Check alignment free line for black") {
         }
     }
 }
+
 TEST_CASE_METHOD(BoardFixture, "Check not alignment col for white") {
     for (int i = 0 ; i < Board::SIZE ; i++) {
         int oppColor= 0;
@@ -461,61 +468,71 @@ TEST_CASE_METHOD(BoardFixture, "Check alignment free col for black") {
     }
 }
 
-TEST_CASE_METHOD(BoardFixture, "Check alignment free diag top right for white for white") {
+TEST_CASE_METHOD(BoardFixture, "Check not alignment diag top right white") {
     for (int i = 0 ; i < Board::SIZE ; i++) {
         if (i > 0) {
             board.emptyLine(i - 1);
         }
         for (int j = 0; j < Board::SIZE; j += 4) {
-            int oppColor= 0;
-            for (int k = 0; k < 3; k++) {
-                if (i + k >= Board::SIZE || j + k >= Board::SIZE) {
-                    break;
-                }
-                if (oppColor > 1) {
-                    board.addStoneBlack(Position(i + k, j + k));
-                    oppColor = 0;
-                }
-                else {
-                    oppColor++;
-                    board.addStoneWhite(Position(i + k, j + k));
-                }
-            }
+            std::cout << i << " " << j << std::endl;
+            fillDiagonal(Position(i, j), 3, Position(-1, 1), false, 1);
             REQUIRE(AlignmentChecker::detectAlignment(
               Position(i,j),
               3,
               board.getGridWhite(),
               board.getGridBlack()) == Alignment::NOTALIGN);
-            for (int k = 0; k < 3; k++) {
-                if (i + k >= Board::SIZE || j + k >= Board::SIZE) {
-                    break;
-                }
-                if (oppColor > 1) {
-                    board.removeBlackStoneAt(Position(i + k, j + k));
-                    oppColor = 0;
-                }
-                else {
-                    oppColor++;
-                    board.removeWhiteStoneAt(Position(i + k, j + k));
-                }
-            }
+            emptyDiagonal(Position(i, j), 3, Position(-1, 1), false, 1);
         }
     }
 }
 
-TEST_CASE_METHOD(BoardFixture, "Check not alignment diag top right") {
+TEST_CASE_METHOD(BoardFixture, "Check not alignment diag top right black") {
     for (int i = 0 ; i < Board::SIZE ; i++) {
         if (i > 0) {
             board.emptyLine(i - 1);
         }
         for (int j = 0; j < Board::SIZE; j += 4) {
-            fillDiagonal(Position(i, j), 3, Position(1, 1), false);
+            fillDiagonal(Position(i, j), 3, Position(1, 1), true, 1);
             REQUIRE(AlignmentChecker::detectAlignment(
               Position(i,j),
               3,
               board.getGridWhite(),
               board.getGridBlack()) == Alignment::NOTALIGN);
-            emptyDiagonal(Position(i, j), 3, Position(1, 1), false);
+            emptyDiagonal(Position(i, j), 3, Position(1, 1), true, 1);
+        }
+    }
+}
+
+TEST_CASE_METHOD(BoardFixture, "Check alignment semi-blocked diag top right white") {
+    for (int i = 4 ; i < Board::SIZE ; i++) {
+        if (i > 0) {
+            board.emptyLine(i - 1);
+        }
+        for (int j = 0; j < Board::SIZE - 4; j += 4) {
+            fillDiagonal(Position(i, j), 4, Position(-1, 1), false, 3);
+            REQUIRE(AlignmentChecker::detectAlignment(
+              Position(i,j),
+              3,
+              board.getGridWhite(),
+              board.getGridBlack()) == Alignment::SEMIBLOCKED);
+            emptyDiagonal(Position(i, j), 4, Position(-1, 1), false, 3);
+        }
+    }
+}
+
+TEST_CASE_METHOD(BoardFixture, "Check alignment semi-blocked diag top right black") {
+    for (int i = 0 ; i < Board::SIZE ; i++) {
+        if (i > 0) {
+            board.emptyLine(i - 1);
+        }
+        for (int j = 0; j < Board::SIZE - 4; j += 4) {
+            fillDiagonal(Position(i, j), 3, Position(1, 1), true, 1);
+            REQUIRE(AlignmentChecker::detectAlignment(
+              Position(i,j),
+              3,
+              board.getGridWhite(),
+              board.getGridBlack()) == Alignment::NOTALIGN);
+            emptyDiagonal(Position(i, j), 3, Position(1, 1), true, 1);
         }
     }
 }

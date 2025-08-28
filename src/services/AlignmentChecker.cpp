@@ -1,12 +1,14 @@
 #include "AlignmentChecker.hpp"
 
+#include <iostream>
+
 Alignment AlignmentChecker::detectAlignment(const Position pos, const int count, Board::StoneMask &grid,
-                                                   Board::StoneMask &gridOpposite) {
+                                            Board::StoneMask &gridOpposite) {
     std::array directions = {
-        std::make_pair(0, 1),
-        std::make_pair(1, 0),
+        //std::make_pair(0, 1),
+        //std::make_pair(1, 0),
         std::make_pair(1, -1),
-        std::make_pair(1, 1),
+        //std::make_pair(1, 1),
     };
     for (auto& [dx, dy] : directions) {
         Result result1 = countDirection(pos, {dx, dy}, count, grid, gridOpposite);
@@ -33,6 +35,10 @@ AlignmentChecker::Result AlignmentChecker::countDirection(Position pos, Position
     int cx = pos.x  + dir.x;
     int cy = pos.y + dir.y;
     for (int i = 0; i < count; i++) {
+        //for (int j = 0; j < Board::SIZE; j++) {
+          //  std::cout << std::bitset<Board::SIZE>(grid.at(j)) << std::endl;
+        //}
+
         if ( cx < 0 || cx >= Board::SIZE || cy < 0 || cy >= Board::SIZE) {
             break;
         }
