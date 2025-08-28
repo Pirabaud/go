@@ -5,7 +5,7 @@
 struct BoardFixture {
     Board board;
 
-    void fillDiagonal(const Position pos, int count, const Position dir, const bool color, int changeColor) {
+    void fillDiagonal(const Position pos, int count, const Position dir, const bool color, const int changeColor) {
         int oppColor = 0;
         for (int k = 0; k <= count; k++) {
             if (pos.x + dir.x * k >= Board::SIZE
@@ -14,16 +14,18 @@ struct BoardFixture {
                 || pos.y + dir.y * k >= Board::SIZE) {
                 break;
             }
-            if (oppColor > changeColor && pos.y > 0 && pos.x < Board::SIZE - 1) {
+            if (oppColor == changeColor &&
+                pos.y > 0
+                && pos.x < Board::SIZE - 1) {
                 addStoneAt(Position(pos.x + dir.x * k, pos.y + dir.y * k), !color);
                 oppColor = 0;
-            }
-            else {
+           }
+            else if (oppColor < changeColor) {
                 oppColor++;
                 addStoneAt(Position(pos.x + dir.x * k, pos.y + dir.y * k), color);
             }
         }
-    }
+}
 
     void removeStoneAt(const Position pos, const bool color) {
         if (color) {
@@ -114,11 +116,12 @@ TEST_CASE_METHOD(BoardFixture, "Check not alignment line for black") {
 
 TEST_CASE_METHOD(BoardFixture, "Check alignment semi-blocked line for white") {
     for (int i = 0 ; i < Board::SIZE ; i++) {
-        int oppColor= 0;
+        int oppColor=0;
         if (i > 0) {
             board.emptyColumn(i - 1);
         }
         for (int j = 0; j < Board::SIZE - 1; j++) {
+            std::cout << j << " " << ;
             if (oppColor > 2) {
                 board.addStoneBlack(Position(i, j));
                 oppColor = 0;
@@ -129,7 +132,7 @@ TEST_CASE_METHOD(BoardFixture, "Check alignment semi-blocked line for white") {
             }
             if (oppColor == 3) {
                 REQUIRE(AlignmentChecker::detectAlignment(
-                    Position(i,j),
+                    Position(i,j - 1),
                     3,
                     board.getGridWhite(),
                     board.getGridBlack()) == Alignment::SEMIBLOCKED);
@@ -405,11 +408,11 @@ TEST_CASE_METHOD(BoardFixture, "Check alignment blocked col for black") {
             }
             else {
                 oppColor++;
-                board.addStoneBlack(Position(j - 1, i));
+                board.addStoneBlack(Position(j, i));
             }
             if (oppColor == 0 && j > 0) {
                     REQUIRE(AlignmentChecker::detectAlignment(
-                   Position(j,i - 1),
+                   Position(j - 1, i),
                    3,
                    board.getGridBlack(),
                    board.getGridWhite()) == Alignment::BLOCKED);
@@ -474,7 +477,6 @@ TEST_CASE_METHOD(BoardFixture, "Check not alignment diag top right white") {
             board.emptyLine(i - 1);
         }
         for (int j = 0; j < Board::SIZE; j += 4) {
-            std::cout << i << " " << j << std::endl;
             fillDiagonal(Position(i, j), 3, Position(-1, 1), false, 1);
             REQUIRE(AlignmentChecker::detectAlignment(
               Position(i,j),
@@ -486,11 +488,17 @@ TEST_CASE_METHOD(BoardFixture, "Check not alignment diag top right white") {
     }
 }
 
+TEST_CASE_METHOD(BoardFixture, "Check not alignment diag top right white test") {
+    fillDiagonal(Position(2, 0), 3, Position(-1, 1), false, 1);
+    REQUIRE(AlignmentChecker::detectAlignment(
+              Position(2,0),
+              3,
+              board.getGridWhite(),
+              board.getGridBlack()) == Alignment::NOTALIGN);
+}
+
 TEST_CASE_METHOD(BoardFixture, "Check not alignment diag top right black") {
     for (int i = 0 ; i < Board::SIZE ; i++) {
-        if (i > 0) {
-            board.emptyLine(i - 1);
-        }
         for (int j = 0; j < Board::SIZE; j += 4) {
             fillDiagonal(Position(i, j), 3, Position(1, 1), true, 1);
             REQUIRE(AlignmentChecker::detectAlignment(
@@ -504,35 +512,30 @@ TEST_CASE_METHOD(BoardFixture, "Check not alignment diag top right black") {
 }
 
 TEST_CASE_METHOD(BoardFixture, "Check alignment semi-blocked diag top right white") {
-    for (int i = 4 ; i < Board::SIZE ; i++) {
-        if (i > 0) {
-            board.emptyLine(i - 1);
-        }
+    for (int i = 4; i < Board::SIZE ; i++) {
         for (int j = 0; j < Board::SIZE - 4; j += 4) {
-            fillDiagonal(Position(i, j), 4, Position(-1, 1), false, 3);
+            fillDiagonal(Position(i, j), 4, Position(-1, 1), false, 4);
             REQUIRE(AlignmentChecker::detectAlignment(
               Position(i,j),
               3,
               board.getGridWhite(),
               board.getGridBlack()) == Alignment::SEMIBLOCKED);
-            emptyDiagonal(Position(i, j), 4, Position(-1, 1), false, 3);
+            emptyDiagonal(Position(i, j), 4, Position(-1, 1), false, 4);
         }
     }
 }
 
 TEST_CASE_METHOD(BoardFixture, "Check alignment semi-blocked diag top right black") {
-    for (int i = 0 ; i < Board::SIZE ; i++) {
-        if (i > 0) {
-            board.emptyLine(i - 1);
-        }
+    for (int i = 4; i < Board::SIZE ; i++) {
         for (int j = 0; j < Board::SIZE - 4; j += 4) {
-            fillDiagonal(Position(i, j), 3, Position(1, 1), true, 1);
+            std::cout << i << " " << j << std::endl;
+            fillDiagonal(Position(i, j), 3, Position(-1, 1), true, 3);
             REQUIRE(AlignmentChecker::detectAlignment(
               Position(i,j),
               3,
-              board.getGridWhite(),
-              board.getGridBlack()) == Alignment::NOTALIGN);
-            emptyDiagonal(Position(i, j), 3, Position(1, 1), true, 1);
+              board.getGridBlack(),
+              board.getGridWhite()) == Alignment::SEMIBLOCKED);
+            emptyDiagonal(Position(i, j), 3, Position(-1, 1), true, 3);
         }
     }
 }

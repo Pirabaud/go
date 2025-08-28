@@ -1,5 +1,6 @@
 #include "AlignmentChecker.hpp"
 
+#include <bitset>
 #include <iostream>
 
 Alignment AlignmentChecker::detectAlignment(const Position pos, const int count, Board::StoneMask &grid,
@@ -35,10 +36,13 @@ AlignmentChecker::Result AlignmentChecker::countDirection(Position pos, Position
     int cx = pos.x  + dir.x;
     int cy = pos.y + dir.y;
     for (int i = 0; i < count; i++) {
-        //for (int j = 0; j < Board::SIZE; j++) {
-          //  std::cout << std::bitset<Board::SIZE>(grid.at(j)) << std::endl;
-        //}
-
+        // for (int j = 0; j < Board::SIZE; j++) {
+        //     std::cout << std::bitset<Board::SIZE>(grid.at(j)) << std::endl;
+        // }
+        // std::cout << "=========================================" << std::endl;
+        // for (int j = 0; j < Board::SIZE; j++) {
+        //     std::cout << std::bitset<Board::SIZE>(gridOpposite.at(j)) << std::endl;
+        // }
         if ( cx < 0 || cx >= Board::SIZE || cy < 0 || cy >= Board::SIZE) {
             break;
         }

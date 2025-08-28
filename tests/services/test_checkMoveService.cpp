@@ -36,7 +36,7 @@ struct BoardFixture {
         board.addStoneBlack(posOppColor2);
 
         REQUIRE(
-            CheckMoveService::isLegalMove(posPlay, board, false) == expected);
+            CheckMoveService::isLegalMove(posPlay, board, true) == expected);
     }
 
     void setupCheckAlreadyInBoard(Position pos, bool color) {
@@ -61,7 +61,7 @@ struct BoardFixture {
 TEST_CASE_METHOD(BoardFixture, "Check creating capture col down") {
     for (int x = 0; x < Board::SIZE; ++x) {
         for (int y = 0; y < Board::SIZE; ++y) {
-
+            std::cout << x << ", " << y << std::endl;
             setupCreatesCaptureTest(Position(x, y),
                                     Position(x, y + 1),
                                     Position(x, y - 1),
