@@ -6,9 +6,9 @@
 Alignment AlignmentChecker::detectAlignment(const Position pos, const int count, Board::StoneMask &grid,
                                             Board::StoneMask &gridOpposite) {
     std::array directions = {
-        //std::make_pair(0, 1),
-        //std::make_pair(1, 0),
-        std::make_pair(1, -1),
+        std::make_pair(0, 1),
+        std::make_pair(1, 0),
+        //std::make_pair(1, -1),
         //std::make_pair(1, 1),
     };
     for (auto& [dx, dy] : directions) {
