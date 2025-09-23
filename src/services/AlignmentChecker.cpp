@@ -8,12 +8,15 @@ Alignment AlignmentChecker::detectAlignment(const Position pos, const int count,
     std::array directions = {
         std::make_pair(0, 1),
         std::make_pair(1, 0),
-        //std::make_pair(1, -1),
+        std::make_pair(1, -1),
         //std::make_pair(1, 1),
     };
     for (auto& [dx, dy] : directions) {
         Result result1 = countDirection(pos, {dx, dy}, count, grid, gridOpposite);
+        // std::cout << "result 1 : count : " << result1.count << " blocked : " << result1.blocked << std::endl;
         Result result2 = countDirection(pos, {-dx, -dy}, count, grid, gridOpposite);
+        // std::cout << "result 2 : count : " << result2.count << " blocked : " << result2.blocked << std::endl;
+
 
         if (result1.count + result2.count + 1 >= count) {
             switch (result1.blocked + result2.blocked) {
@@ -36,13 +39,15 @@ AlignmentChecker::Result AlignmentChecker::countDirection(Position pos, Position
     int cx = pos.x  + dir.x;
     int cy = pos.y + dir.y;
     for (int i = 0; i < count; i++) {
-        // for (int j = 0; j < Board::SIZE; j++) {
-        //     std::cout << std::bitset<Board::SIZE>(grid.at(j)) << std::endl;
-        // }
-        // std::cout << "=========================================" << std::endl;
-        // for (int j = 0; j < Board::SIZE; j++) {
-        //     std::cout << std::bitset<Board::SIZE>(gridOpposite.at(j)) << std::endl;
-        // }
+       // for (int j = 0; j < Board::SIZE; j++) {
+         //   std::cout << std::bitset<Board::SIZE>(grid.at(j)) << std::endl;
+         //}
+           // std::cout << "=========================================" << std::endl;
+         //for (int j = 0; j < Board::SIZE; j++) {
+           //    std::cout << std::bitset<Board::SIZE>(gridOpposite.at(j)) << std::endl;
+         //}
+        //std::cout << "=========================================" << std::endl;
+
         if ( cx < 0 || cx >= Board::SIZE || cy < 0 || cy >= Board::SIZE) {
             break;
         }
