@@ -10,6 +10,9 @@ add_executable(GomokuTests
         ../src/services/CheckWinService.cpp
         ../src/services/CaptureService.cpp
         ../src/board/Board.cpp
+        ../src/services/FreeThreeService.cpp
+        ../include/services/FreeThreeService.h
+        services/CheckFreeThree.cpp
 )
 
 target_link_libraries(GomokuTests PRIVATE SFML::Graphics)

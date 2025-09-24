@@ -38,6 +38,8 @@ public:
     void emptyColumn(int col);
     void emptyLine(int col);
 
+    void printBoard() const;
+
 
     Board();
 

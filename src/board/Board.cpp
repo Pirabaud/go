@@ -83,6 +83,25 @@ void Board::emptyLine(const int row) {
     }
 }
 
+void Board::printBoard() const {
+    std::cout << "============BOARD=============" << std::endl;
+    for (int row = 0; row < SIZE; row++) {
+        std::cout << row << ": ";
+        for (int col = 0; col < SIZE; col++) {
+            if (isWhiteStoneAt(Position(row, col))) {
+                std::cout << 'W';
+            }
+            else if (isBlackStoneAt(Position(row, col))) {
+                std::cout << 'B';
+            }
+            else {
+                std::cout << 'O';
+            }
+        }
+        std::cout << std::endl;
+    }
+}
+
 Board::StoneMask& Board::getGridWhite(){
     return this->gridWhite;
 }
