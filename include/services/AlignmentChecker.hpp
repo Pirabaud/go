@@ -11,7 +11,7 @@
 class AlignmentChecker {
 
 public:
-    static Alignment detectAlignment(Position pos, int count, Board::StoneMask &grid,  Board::StoneMask &gridOpposite);
+    static Alignment detectAlignment(Position pos, int count, const Board::StoneMask &grid,  const Board::StoneMask &gridOpposite);
 
 private:
     struct Result {
@@ -19,7 +19,7 @@ private:
         bool blocked;
     };
 
-    static Result countDirection(Position pos, Position dir, int count, Board::StoneMask &grid, Board::StoneMask &gridOpposite);
+    static Result countDirection(Position pos, Position dir, int count, const Board::StoneMask &grid, const Board::StoneMask &gridOpposite);
 
 };
 

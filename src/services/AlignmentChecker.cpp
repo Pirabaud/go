@@ -3,8 +3,8 @@
 #include <bitset>
 #include <iostream>
 
-Alignment AlignmentChecker::detectAlignment(const Position pos, const int count, Board::StoneMask &grid,
-                                            Board::StoneMask &gridOpposite) {
+Alignment AlignmentChecker::detectAlignment(const Position pos, const int count, const Board::StoneMask &grid,
+                                            const Board::StoneMask &gridOpposite) {
     std::array directions = {
         std::make_pair(0, 1),
         std::make_pair(1, 0),
@@ -12,8 +12,8 @@ Alignment AlignmentChecker::detectAlignment(const Position pos, const int count,
         std::make_pair(1, 1),
     };
     for (auto& [dx, dy] : directions) {
-        Result result1 = countDirection(pos, {dx, dy}, count, grid, gridOpposite);
-        Result result2 = countDirection(pos, {-dx, -dy}, count, grid, gridOpposite);
+        const Result result1 = countDirection(pos, {dx, dy}, count, grid, gridOpposite);
+        const Result result2 = countDirection(pos, {-dx, -dy}, count, grid, gridOpposite);
 
 
         if (result1.count + result2.count + 1 >= count) {
@@ -30,8 +30,8 @@ Alignment AlignmentChecker::detectAlignment(const Position pos, const int count,
     return Alignment::NOTALIGN;
 }
 
-AlignmentChecker::Result AlignmentChecker::countDirection(Position pos, Position dir, int count, Board::StoneMask &grid,
-    Board::StoneMask &gridOpposite) {
+AlignmentChecker::Result AlignmentChecker::countDirection(Position pos, Position dir, int count, const Board::StoneMask &grid,
+    const Board::StoneMask &gridOpposite) {
     Result result{};
 
     int cx = pos.x  + dir.x;
