@@ -1,16 +1,15 @@
 #ifndef CAPTURE_SERVICE_HPP
 #define CAPTURE_SERVICE_HPP
 #include "Board.h"
+#include "Position.hpp"
 
 
 class CaptureService {
 public:
-    static void resolveCaptures(Board& board);
+    static bool resolveCaptureAtPosition(Board &board, Position pos, bool isBlack);
 
 private:
-    static void resolveCaptureAtPosition(Board& board, const int& row, const int& col);
-    static void resolveCaptureAtPositionInDirection(Board& board, const int& row, const int& col, const int& dx,
-                                                    const int& dy);
+    static bool resolveCaptureAtPositionInDirection(Board &board, Position pos, Position dir, bool color);
 };
 
 

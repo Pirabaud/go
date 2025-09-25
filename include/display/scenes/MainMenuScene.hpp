@@ -13,6 +13,7 @@ private:
     Button pveButton;
     Button simulationButton;
 
+
 public:
     explicit MainMenuScene(sf::RenderWindow& win);
 

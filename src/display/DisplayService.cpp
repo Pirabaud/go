@@ -58,7 +58,7 @@ void DisplayService::handleEvent(const std::optional<sf::Event>& event) {
 }
 
 void DisplayService::handleKeyboardEvents(sf::RenderWindow& window) const {
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scan::Numpad0)) {
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scan::Escape)) {
         changeScene(new MainMenuScene(window));
     }
 }

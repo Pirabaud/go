@@ -85,12 +85,12 @@ std::pair<int, int> BoardScene::getCellFromMousePosition(const sf::Vector2i& mou
 }
 
 
-void BoardScene::playMove(const int& row, const int& col) {
+void BoardScene::playMove(Position pos) {
     if (colorToPlay == sf::Color::White) {
-        board.addStoneWhite(row, col);
+        board.addStoneWhite(pos);
     }
     else {
-        board.addStoneBlack(row, col);
+        board.addStoneBlack(pos);
     }
     nextTurn();
 }

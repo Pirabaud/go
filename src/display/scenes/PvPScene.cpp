@@ -20,6 +20,7 @@ void PvPScene::handleEvent(const std::optional<sf::Event>& event, sf::RenderWind
 }
 
 void PvPScene::drawTexts(sf::RenderWindow& window) {
+
     if (winningColor) {
         sf::Text winText(getSharedFont(),
                          "Player " + std::string(*winningColor == sf::Color::White ? "White" : "Black") + " wins!");
@@ -55,14 +56,13 @@ bool PvPScene::handleStonePlacement(const std::optional<sf::Event>& event, sf::R
             illegalMove = IllegalMoves::Type::NOT_IN_BOARD;
             return false;
         }
-        illegalMove = CheckMoveService::isLegalMove(row, col, board.getGridBlack(),
-                                                    board.getGridWhite(),
-                                                    colorToPlay == sf::Color::Black);
+        illegalMove = CheckMoveService::isLegalMove(Position{row, col}, board, colorToPlay == sf::Color::Black);
+
         if (illegalMove != IllegalMoves::Type::NONE) {
             return false;
         }
-        playMove(row, col);
-        CaptureService::resolveCaptures(board);
+        playMove(Position{row, col});
+        board.resolveCaptures();
         return true;
     }
     return false;

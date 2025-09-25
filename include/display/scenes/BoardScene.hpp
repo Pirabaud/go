@@ -19,6 +19,7 @@ protected:
     IllegalMoves::Type illegalMove = IllegalMoves::NONE;
     Board board;
     sf::Color colorToPlay = sf::Color::Black;
+    bool threeDetected = false;
     BoardScene(sf::RenderWindow& window);
 
     virtual void drawTexts(sf::RenderWindow& window) = 0;
@@ -30,7 +31,7 @@ protected:
                               const sf::Color& color);
 
     [[nodiscard]] std::pair<int, int> getCellFromMousePosition(const sf::Vector2i& mousePos) const;
-    void playMove(const int& row, const int& col);
+    void playMove(Position pos);
     void nextTurn();
 };
 

@@ -6,15 +6,10 @@
 
 #include <iostream>
 
-void CaptureService::resolveCaptures(Board& board) {
-    for (int row = 0; row < Board::SIZE; row++) {
-        for (int col = 0; col < Board::SIZE; col++) {
-            resolveCaptureAtPosition(board, row, col);
-        }
-    }
-}
+#include "Position.hpp"
+#include "SFML/Graphics/Color.hpp"
 
-void CaptureService::resolveCaptureAtPosition(Board& board, const int& row, const int& col) {
+bool CaptureService::resolveCaptureAtPosition(Board & board, const Position pos, const bool isBlack) {
     std::array directions = {
         std::make_pair(0, 1),
         std::make_pair(1, 0),
@@ -22,39 +17,33 @@ void CaptureService::resolveCaptureAtPosition(Board& board, const int& row, cons
         std::make_pair(1, 1),
     };
 
-    for (auto& [dx, dy] : directions) {
-        resolveCaptureAtPositionInDirection(board, row, col, dx, dy);
+    for (auto& [x, y] : directions) {
+        if (resolveCaptureAtPositionInDirection(board, pos, Position{x, y}, isBlack)) {
+            return true;
+        }
+         if (resolveCaptureAtPositionInDirection(board, pos, Position{-x, -y}, isBlack)) {
+            return true;
+        }
     }
+    return false;
 }
 
-void CaptureService::resolveCaptureAtPositionInDirection(Board& board, const int& row, const int& col, const int& dx,
-                                                         const int& dy) {
+bool CaptureService::resolveCaptureAtPositionInDirection(Board &board, const Position pos, const Position dir, const bool isBlack) {
     // Check overflow
-    if (row + dx > Board::SIZE - 1 || row + dx < 0 ||
-        row + dx * 2 > Board::SIZE - 1 || row + dx * 2 < 0 ||
-        row + dx * 3 > Board::SIZE - 1 || row + dx * 3 < 0 ||
-        col + dy > Board::SIZE - 1 || col + dy < 0 ||
-        col + dy * 2 > Board::SIZE - 1 || col + dy * 2 < 0 ||
-        col + dy * 3 > Board::SIZE - 1 || col + dy * 3 < 0) {
-        return;
+    if (pos.x + dir.x > Board::SIZE - 1 || pos.x + dir.x < 0 ||
+        pos.x + dir.x * 2 > Board::SIZE - 1 || pos.x + dir.x * 2 < 0 ||
+        pos.x + dir.x * -1 > Board::SIZE - 1 || pos.x + dir.x * -1 < 0 ||
+        pos.y + dir.y > Board::SIZE - 1 || pos.y + dir.y < 0 ||
+        pos.y + dir.y * 2 > Board::SIZE - 1 || pos.y + dir.y * 2 < 0 ||
+        pos.y + dir.y * -1 > Board::SIZE - 1 || pos.y + dir.y * -1 < 0) {
+        return false;
     }
 
-    const bool isWhiteStone = board.isWhiteStoneAt(row, col);
-    const bool isBlackStone = board.isBlackStoneAt(row, col);
-    if (!isWhiteStone && !isBlackStone) {
-        return;
-    }
-    const Board::StoneMask allyMask = isWhiteStone ? board.getGridWhite() : board.getGridBlack();
-    Board::StoneMask& enemyMask = isWhiteStone ? board.getGridBlack() : board.getGridWhite();
+    const Board::StoneMask allyMask = isBlack ? board.getGridBlack() : board.getGridWhite();
+    const Board::StoneMask& enemyMask = isBlack ? board.getGridWhite() : board.getGridBlack();
 
-    const bool ex1 = Board::isStoneAt(enemyMask, row + dx, col + dy);
-    const bool ex2 = Board::isStoneAt(enemyMask, row + dx * 2, col + dy * 2);
-    const bool ex3 = Board::isStoneAt(allyMask, row + dx * 3, col + dy * 3);
-    const bool isThereACapture = ex1 && ex2 && ex3;
-    if (!isThereACapture) return;
-    Board::removeStoneAt(enemyMask, row + dx, col + dy);
-    Board::removeStoneAt(enemyMask, row + dx * 2, col + dy * 2);
+    const bool ex1 = Board::isStoneAt(allyMask, Position{pos.x + dir.x, pos.y + dir.y});
+    const bool ex2 = Board::isStoneAt(enemyMask, Position{pos.x + dir.x * 2, pos.y + dir.y * 2});
+    const bool ex3 = Board::isStoneAt(enemyMask, Position{pos.x - dir.x, pos.y - dir.y});
+    return ex1 && ex2 && ex3;
 }
-
-
-

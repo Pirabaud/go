@@ -4,43 +4,52 @@
 #include <iostream>
 
 
-IllegalMoves::Type CheckMoveService::isLegalMove(const int& x, const int& y,
-                                                 const std::array<uint32_t, Board::SIZE>& gridBlack,
-                                                 const std::array<uint32_t, Board::SIZE>& gridWhite,
-                                                 const bool& isBlack) {
-    if (notInBoard(x, y)) {
+#include "CaptureService.hpp"
+
+
+IllegalMoves::Type CheckMoveService::isLegalMove(Position pos,
+                                                 Board &board,
+                                                 const bool &isBlack) {
+    if (notInBoard(pos)) {
         return IllegalMoves::Type::NOT_IN_BOARD;
     }
-    if (alreadyStone(x, y, gridBlack, gridWhite)) {
+    if (alreadyStone(pos, board.getGridBlack(), board.getGridWhite())) {
         return IllegalMoves::Type::OCCUPIED;
     }
-    if (checkDirectionCreatingCapture(
-        x,
-        y,
-        isBlack ? gridBlack : gridWhite,
-        isBlack ? gridWhite : gridBlack)) {
+    if (CaptureService::resolveCaptureAtPosition(board, pos, isBlack)) {
         return IllegalMoves::Type::CREATE_CAPTURE;
     }
+
+    // if (CaptureService::resolveCaptureAtPosition(board, pos)) {
+    //     return IllegalMoves::Type::NONE;
+    // }
+
+    // if (checkDoubleThree(pos,
+    //     isBlack ? board.getGridBlack() : board.getGridWhite(),
+    //     isBlack ? board.getGridWhite() : board.getGridBlack())) {
+    //     return IllegalMoves::Type::DOUBLE_FREE_CAPTURE;
+    // }
+
     return IllegalMoves::Type::NONE;
 }
 
-bool CheckMoveService::notInBoard(const int& x, const int& y) {
-    if (x < 0 || x >= Board::SIZE || y < 0 || y >= Board::SIZE) {
+bool CheckMoveService::notInBoard(Position pos) {
+    if (pos.x < 0 || pos.x >= Board::SIZE || pos.y < 0 || pos.y >= Board::SIZE) {
         return true;
     }
     return false;
 }
 
-bool CheckMoveService::alreadyStone(const int& x, const int& y, const std::array<uint32_t, Board::SIZE>& gridBlack,
-                                    const std::array<uint32_t, Board::SIZE>& gridWhite) {
-    uint32_t checkStone = 1u << (Board::SIZE - 1 - y);
-    if (checkStone & gridBlack.at(x) || checkStone & gridWhite.at(x)) {
+bool CheckMoveService::alreadyStone(Position pos, const Board::StoneMask& gridBlack,
+                                   Board::StoneMask& gridWhite) {
+    uint32_t checkStone = 1u << (Board::SIZE - 1 - pos.y);
+    if (checkStone & gridBlack.at(pos.x) || checkStone & gridWhite.at(pos.x)) {
         return true;
     }
     return false;
 }
 
-bool CheckMoveService::checkDirectionCreatingCapture(const int& x, const int& y,
+bool CheckMoveService::checkDirectionCreatingCapture(Position pos,
                                                      const std::array<uint32_t, Board::SIZE>& gridColor,
                                                      const std::array<uint32_t, Board::SIZE>& gridOpposite) {
     std::array directions = {
@@ -51,10 +60,10 @@ bool CheckMoveService::checkDirectionCreatingCapture(const int& x, const int& y,
     };
 
     for (auto& [dx, dy] : directions) {
-        if (checkCapture(x, y, gridColor, gridOpposite, dx, dy)) {
+        if (checkCapture(pos, gridColor, gridOpposite, Position{dx, dy})) {
             return true;
         }
-        if (checkCapture(x, y, gridColor, gridOpposite, -dx, -dy)) {
+        if (checkCapture(pos, gridColor, gridOpposite, Position{-dx, -dy})) {
             return true;
         }
     }
@@ -65,24 +74,23 @@ inline bool checkBitSet(const uint32_t& val, const int& bit) {
     return bit >= 0 && bit < Board::SIZE && val & (1u << bit);
 }
 
-bool CheckMoveService::checkCapture(const int& x, const int& y, const std::array<uint32_t, Board::SIZE>& gridColor,
-                                    const std::array<uint32_t, Board::SIZE>& gridOpposite, const int& dx,
-                                    const int& dy) {
-    if (x + dx < 0 ||
-        x - dx < 0 ||
-        x + dx * 2 < 0 ||
-        x + dx * 2 >= Board::SIZE ||
-        x - dx >= Board::SIZE)
+bool CheckMoveService::checkCapture(Position pos, const std::array<uint32_t, Board::SIZE>& gridColor,
+                                    const std::array<uint32_t, Board::SIZE>& gridOpposite, Position direction) {
+    if (pos.x + direction.x < 0 ||
+        pos.x - direction.x < 0 ||
+        pos.x + direction.x * 2 < 0 ||
+        pos.x + direction.x * 2 >= Board::SIZE ||
+        pos.x - direction.x >= Board::SIZE)
         return false;
 
-    const uint32_t lineColorAdjacent = gridColor.at(x + dx);
-    const uint32_t lineOppositeAdjacent1 = gridOpposite.at(x + dx * 2);
-    const uint32_t lineOppositeAdjacent2 = gridOpposite.at(x - dx);
-    const int bitPos = Board::SIZE - y - 1;
+    const uint32_t lineColorAdjacent = gridColor.at(pos.x + direction.x);
+    const uint32_t lineOppositeAdjacent1 = gridOpposite.at(pos.x + direction.x * 2);
+    const uint32_t lineOppositeAdjacent2 = gridOpposite.at(pos.x - direction.x);
+    const int bitPos = Board::SIZE - pos.y - 1;
 
-    const int maskColorAdjacent = bitPos - dy;
-    const int maskOppositeAdjacent1 = bitPos - dy * 2;
-    const int maskOppositeAdjacent2 = bitPos - dy * -1;
+    const int maskColorAdjacent = bitPos - direction.y;
+    const int maskOppositeAdjacent1 = bitPos - direction.y * 2;
+    const int maskOppositeAdjacent2 = bitPos - direction.y * -1;
 
     if (checkBitSet(lineColorAdjacent, maskColorAdjacent)
         && checkBitSet(lineOppositeAdjacent1, maskOppositeAdjacent1)
@@ -91,4 +99,38 @@ bool CheckMoveService::checkCapture(const int& x, const int& y, const std::array
     }
     return false;
 }
+
+// bool CheckMoveService::checkDoubleThree(Position pos, Board::StoneMask grid, Board::StoneMask gridOpposite) {
+//
+//     if (AlignmentChecker::detectAlignment(pos, 3, grid, gridOpposite) == Alignment::FREE) {
+//         return false;
+//     }
+//
+//     std::array directions = {
+//         std::make_pair(0, 1),
+//         std::make_pair(1, 0),
+//         std::make_pair(1, -1),
+//         std::make_pair(1, 1),
+//         std::make_pair(0, -1),
+//         std::make_pair(-1, 0),
+//         std::make_pair(-1, 1),
+//         std::make_pair(-1, -1),
+//     };
+//
+//     for (auto& [dx, dy] : directions) {
+//         Position nextPos = {
+//             .x = pos.x + dx,
+//             .y = pos.y + dy,
+//         };
+//         if (alreadyStone(nextPos, grid, gridOpposite)) {
+//             continue;
+//         }
+//         if (AlignmentChecker::detectAlignment(pos, 3, grid, gridOpposite) != Alignment::FREE) {
+//             return true;
+//         }
+//     }
+//     return false;
+// }
+
+
 
