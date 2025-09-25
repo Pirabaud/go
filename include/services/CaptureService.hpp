@@ -6,7 +6,7 @@
 
 class CaptureService {
 public:
-    static bool resolveCaptureAtPosition(Board &board, Position pos, bool color);
+    static bool resolveCaptureAtPosition(Board &board, Position pos, bool isBlack);
 
 private:
     static bool resolveCaptureAtPositionInDirection(Board &board, Position pos, Position dir, bool color);

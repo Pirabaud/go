@@ -9,7 +9,7 @@
 #include "Position.hpp"
 #include "SFML/Graphics/Color.hpp"
 
-bool CaptureService::resolveCaptureAtPosition(Board & board, const Position pos, const bool color) {
+bool CaptureService::resolveCaptureAtPosition(Board & board, const Position pos, const bool isBlack) {
     std::array directions = {
         std::make_pair(0, 1),
         std::make_pair(1, 0),
@@ -18,17 +18,17 @@ bool CaptureService::resolveCaptureAtPosition(Board & board, const Position pos,
     };
 
     for (auto& [x, y] : directions) {
-        if (resolveCaptureAtPositionInDirection(board, pos, Position(x, y), color)) {
+        if (resolveCaptureAtPositionInDirection(board, pos, Position{x, y}, isBlack)) {
             return true;
         }
-         if (resolveCaptureAtPositionInDirection(board, pos, Position(-x, -y), color)) {
+         if (resolveCaptureAtPositionInDirection(board, pos, Position{-x, -y}, isBlack)) {
             return true;
         }
     }
     return false;
 }
 
-bool CaptureService::resolveCaptureAtPositionInDirection(Board &board, const Position pos, const Position dir, const bool color) {
+bool CaptureService::resolveCaptureAtPositionInDirection(Board &board, const Position pos, const Position dir, const bool isBlack) {
     // Check overflow
     if (pos.x + dir.x > Board::SIZE - 1 || pos.x + dir.x < 0 ||
         pos.x + dir.x * 2 > Board::SIZE - 1 || pos.x + dir.x * 2 < 0 ||
@@ -39,11 +39,11 @@ bool CaptureService::resolveCaptureAtPositionInDirection(Board &board, const Pos
         return false;
     }
 
-    const Board::StoneMask allyMask = color ? board.getGridWhite() : board.getGridBlack();
-    const Board::StoneMask& enemyMask = color ? board.getGridBlack() : board.getGridWhite();
+    const Board::StoneMask allyMask = isBlack ? board.getGridBlack() : board.getGridWhite();
+    const Board::StoneMask& enemyMask = isBlack ? board.getGridWhite() : board.getGridBlack();
 
-    const bool ex1 = Board::isStoneAt(allyMask, Position(pos.x + dir.x,pos.y + dir.y));
-    const bool ex2 = Board::isStoneAt(enemyMask, Position(pos.x + dir.x * 2, pos.y + dir.y * 2));
-    const bool ex3 = Board::isStoneAt(enemyMask, Position(pos.x - dir.x, pos.y - dir.y));
+    const bool ex1 = Board::isStoneAt(allyMask, Position{pos.x + dir.x, pos.y + dir.y});
+    const bool ex2 = Board::isStoneAt(enemyMask, Position{pos.x + dir.x * 2, pos.y + dir.y * 2});
+    const bool ex3 = Board::isStoneAt(enemyMask, Position{pos.x - dir.x, pos.y - dir.y});
     return ex1 && ex2 && ex3;
 }
