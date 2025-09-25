@@ -61,7 +61,7 @@ bool FreeThreeService::checkDirectionFreeThree(Board::StoneMask &grid, Board::St
     if (((gridOpposite.at(cx) >> (Board::SIZE - 1 - cy)) & 1) == 1) {
         return false;
     }
-    if (count == 3 && pos.x > 0 && pos.y > 0 && pos.x < Board::SIZE && pos.y < Board::SIZE) {
+    if (count == 3 && pos.x - dir.x >= 0 && pos.y - dir.y >= 0 && pos.x + dir.x < Board::SIZE && pos.y + dir.y < Board::SIZE) {
         return true;
     }
     return false;

@@ -139,7 +139,7 @@ TEST_CASE_METHOD(BoardFixture, "Check no free three board white edge left") {
 
 TEST_CASE_METHOD(BoardFixture, "Check free three col right white") {
     for (int x = 0; x < Board::SIZE; x++) {
-        for (int y = 0; y < Board::SIZE - 3; y++) {
+        for (int y = 1; y < Board::SIZE - 3; y++) {
             setupCreateBoardWhite (Position{y, x}, Position{y + 1, x}, Position{y + 2, x}, true);
         }
     }
@@ -156,7 +156,7 @@ TEST_CASE_METHOD(BoardFixture, "Check free three col right with hole in 1 case w
 TEST_CASE_METHOD(BoardFixture, "Check free three col right with hole in 2 case white") {
     for (int x = 0; x < Board::SIZE; x++) {
         for (int y = 1; y < Board::SIZE - 4; y++) {
-            setupCreateBoardWhite (Position{y, x}, Position{y, x + 1}, Position{y, x + 3}, true);
+            setupCreateBoardWhite (Position{y, x}, Position{y + 1, x }, Position{y + 3, x}, true);
         }
     }
 }
