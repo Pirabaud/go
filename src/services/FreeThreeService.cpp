@@ -37,10 +37,10 @@ bool FreeThreeService::isFreeThree(Board &board, Position pos) {
 bool FreeThreeService::checkDirectionFreeThree(Board::StoneMask &grid, Board::StoneMask &gridOpposite, Position pos, Position dir) {
 
     int hole = 0;
-    int count = 0;
+    int count = 1;
     int cx = pos.x  + dir.x;
     int cy = pos.y + dir.y;
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 2; i++) {
         if ( cx < 0 || cx >= Board::SIZE || cy < 0 || cy >= Board::SIZE) {
             break;
         }
@@ -52,7 +52,6 @@ bool FreeThreeService::checkDirectionFreeThree(Board::StoneMask &grid, Board::St
             break;
         }
         count++;
-        std::cout << count << std::endl;
         cx += dir.x;
         cy += dir.y;
     }
@@ -62,7 +61,7 @@ bool FreeThreeService::checkDirectionFreeThree(Board::StoneMask &grid, Board::St
     if (((gridOpposite.at(cx) >> (Board::SIZE - 1 - cy)) & 1) == 1) {
         return false;
     }
-    if (count == 3) {
+    if (count == 3 && pos.x > 0 && pos.y > 0 && pos.x < Board::SIZE && pos.y < Board::SIZE) {
         return true;
     }
     return false;

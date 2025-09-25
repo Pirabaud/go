@@ -19,6 +19,7 @@ const sf::Color* CheckWinService::isWin(Board& board)
 
 bool CheckWinService::isColorWin(const Board::StoneMask& grid)
 {
+    //TODO check autour de la pierre posée
     //TODO voir pour optimiser cette fonction avec un pattern different par direction
 
     const std::vector<std::pair<int, int>> directions = {

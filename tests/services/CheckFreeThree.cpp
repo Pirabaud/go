@@ -40,7 +40,7 @@ struct BoardFixture {
 TEST_CASE_METHOD(BoardFixture, "Check free three line right white") {
     for (int x = 0; x < Board::SIZE; x++) {
         for (int y = 1; y < Board::SIZE - 3; y++) {
-            setupCreateBoardWhite(Position(x, y), Position(x, y + 1), Position(x, y + 2), true);
+            setupCreateBoardWhite (Position{x, y}, Position{x, y + 1}, Position{x, y + 2}, true);
         }
     }
 }
@@ -48,7 +48,7 @@ TEST_CASE_METHOD(BoardFixture, "Check free three line right white") {
 TEST_CASE_METHOD(BoardFixture, "Check free three line right with hole in 1 case white") {
     for (int x = 0; x < Board::SIZE; x++) {
         for (int y = 1; y < Board::SIZE - 4; y++) {
-            setupCreateBoardWhite(Position(x, y), Position(x, y + 2), Position(x, y + 3), true);
+            setupCreateBoardWhite (Position{x, y}, Position{x, y + 2}, Position{x, y + 3}, true);
         }
     }
 }
@@ -56,7 +56,7 @@ TEST_CASE_METHOD(BoardFixture, "Check free three line right with hole in 1 case 
 TEST_CASE_METHOD(BoardFixture, "Check free three line right with hole in 2 case white") {
     for (int x = 0; x < Board::SIZE; x++) {
         for (int y = 1; y < Board::SIZE - 4; y++) {
-            setupCreateBoardWhite(Position(x, y), Position(x, y + 1), Position(x, y + 3), true);
+            setupCreateBoardWhite (Position{x, y}, Position{x, y + 1}, Position{x, y + 3}, true);
         }
     }
 }
@@ -64,7 +64,7 @@ TEST_CASE_METHOD(BoardFixture, "Check free three line right with hole in 2 case 
 TEST_CASE_METHOD(BoardFixture, "Check free three line left white") {
     for (int x = 0; x < Board::SIZE; x++) {
         for (int y = Board::SIZE - 3; y > 3; y--) {
-            setupCreateBoardWhite(Position(x, y), Position(x, y - 1), Position(x, y - 2), true);
+            setupCreateBoardWhite (Position{x, y}, Position{x, y - 1}, Position{x, y - 2}, true);
         }
     }
 }
@@ -72,7 +72,7 @@ TEST_CASE_METHOD(BoardFixture, "Check free three line left white") {
 TEST_CASE_METHOD(BoardFixture, "Check free three line left with hole in 1 case white") {
     for (int x = 0; x < Board::SIZE; x++) {
         for (int y = Board::SIZE - 3; y > 3; y--) {
-            setupCreateBoardWhite(Position(x, y), Position(x, y - 2), Position(x, y - 3), true);
+            setupCreateBoardWhite (Position{x, y}, Position{x, y - 2}, Position{x, y - 3}, true);
         }
     }
 }
@@ -80,7 +80,7 @@ TEST_CASE_METHOD(BoardFixture, "Check free three line left with hole in 1 case w
 TEST_CASE_METHOD(BoardFixture, "Check free three line left with hole in 2 case white") {
     for (int x = 0; x < Board::SIZE; x++) {
         for (int y = Board::SIZE - 3; y > 3; y--) {
-            setupCreateBoardWhite(Position(x, y), Position(x, y - 1), Position(x, y - 3), true);
+            setupCreateBoardWhite (Position{x, y}, Position{x, y - 1}, Position{x, y - 3}, true);
         }
     }
 }
@@ -88,7 +88,7 @@ TEST_CASE_METHOD(BoardFixture, "Check free three line left with hole in 2 case w
 TEST_CASE_METHOD(BoardFixture, "Check free three line left black") {
     for (int x = 0; x < Board::SIZE; x++) {
         for (int y = Board::SIZE - 3; y > 3; y--) {
-            setupCreateBoardBlack(Position(x, y), Position(x, y - 1), Position(x, y - 2), true);
+            setupCreateBoardBlack (Position{x, y}, Position{x, y - 1}, Position{x, y - 2}, true);
         }
     }
 }
@@ -96,7 +96,7 @@ TEST_CASE_METHOD(BoardFixture, "Check free three line left black") {
 TEST_CASE_METHOD(BoardFixture, "Check free three line left with hole in 1 case black") {
     for (int x = 0; x < Board::SIZE; x++) {
         for (int y = Board::SIZE - 3; y > 3; y--) {
-            setupCreateBoardBlack(Position(x, y), Position(x, y - 2), Position(x, y - 3), true);
+            setupCreateBoardBlack (Position{x, y}, Position{x, y - 2}, Position{x, y - 3}, true);
         }
     }
 }
@@ -104,7 +104,7 @@ TEST_CASE_METHOD(BoardFixture, "Check free three line left with hole in 1 case b
 TEST_CASE_METHOD(BoardFixture, "Check free three line left with hole in 2 case black") {
     for (int x = 0; x < Board::SIZE; x++) {
         for (int y = Board::SIZE - 3; y > 3; y--) {
-            setupCreateBoardBlack(Position(x, y), Position(x, y - 1), Position(x, y - 3), true);
+            setupCreateBoardBlack (Position{x, y}, Position{x, y - 1}, Position{x, y - 3}, true);
         }
     }
 }
@@ -112,7 +112,7 @@ TEST_CASE_METHOD(BoardFixture, "Check free three line left with hole in 2 case b
 TEST_CASE_METHOD(BoardFixture, "Check free three line right black") {
     for (int x = 0; x < Board::SIZE; x++) {
         for (int y = 1; y < Board::SIZE - 3; y++) {
-            setupCreateBoardBlack(Position(x, y), Position(x, y + 1), Position(x, y + 2), true);
+            setupCreateBoardBlack (Position{x, y}, Position{x, y + 1}, Position{x, y + 2}, true);
         }
     }
 }
@@ -120,7 +120,7 @@ TEST_CASE_METHOD(BoardFixture, "Check free three line right black") {
 TEST_CASE_METHOD(BoardFixture, "Check free three line right with hole in 1 case black") {
     for (int x = 0; x < Board::SIZE; x++) {
         for (int y = 1; y < Board::SIZE - 3; y++) {
-            setupCreateBoardBlack(Position(x, y), Position(x, y + 1), Position(x, y + 2), true);
+            setupCreateBoardBlack (Position{x, y}, Position{x, y + 1}, Position{x, y + 2}, true);
         }
     }
 }
@@ -128,7 +128,35 @@ TEST_CASE_METHOD(BoardFixture, "Check free three line right with hole in 1 case 
 TEST_CASE_METHOD(BoardFixture, "Check free three line right with hole in 2 case black") {
     for (int x = 0; x < Board::SIZE; x++) {
         for (int y = 1; y < Board::SIZE - 3; y++) {
-            setupCreateBoardBlack(Position(x, y), Position(x, y + 1), Position(x, y + 2), true);
+            setupCreateBoardBlack (Position{x, y}, Position{x, y + 1}, Position{x, y + 2}, true);
+        }
+    }
+}
+
+TEST_CASE_METHOD(BoardFixture, "Check no free three board white edge left") {
+    //TODO
+}
+
+TEST_CASE_METHOD(BoardFixture, "Check free three col right white") {
+    for (int x = 0; x < Board::SIZE; x++) {
+        for (int y = 0; y < Board::SIZE - 3; y++) {
+            setupCreateBoardWhite (Position{y, x}, Position{y + 1, x}, Position{y + 2, x}, true);
+        }
+    }
+}
+
+TEST_CASE_METHOD(BoardFixture, "Check free three col right with hole in 1 case white") {
+    for (int x = 0; x < Board::SIZE; x++) {
+        for (int y = 1; y < Board::SIZE - 4; y++) {
+            setupCreateBoardWhite (Position{y, x}, Position{y + 2, x}, Position{y + 3, x}, true);
+        }
+    }
+}
+
+TEST_CASE_METHOD(BoardFixture, "Check free three col right with hole in 2 case white") {
+    for (int x = 0; x < Board::SIZE; x++) {
+        for (int y = 1; y < Board::SIZE - 4; y++) {
+            setupCreateBoardWhite (Position{y, x}, Position{y, x + 1}, Position{y, x + 3}, true);
         }
     }
 }

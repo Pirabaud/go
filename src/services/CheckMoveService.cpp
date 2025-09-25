@@ -60,10 +60,10 @@ bool CheckMoveService::checkDirectionCreatingCapture(Position pos,
     };
 
     for (auto& [dx, dy] : directions) {
-        if (checkCapture(pos, gridColor, gridOpposite, Position(dx, dy))) {
+        if (checkCapture(pos, gridColor, gridOpposite, Position{dx, dy})) {
             return true;
         }
-        if (checkCapture(pos, gridColor, gridOpposite, Position(-dx, -dy))) {
+        if (checkCapture(pos, gridColor, gridOpposite, Position{-dx, -dy})) {
             return true;
         }
     }

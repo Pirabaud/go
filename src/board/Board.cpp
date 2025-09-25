@@ -29,7 +29,7 @@ bool Board::resolveCaptureAtPosition(const Position pos) {
     };
 
     for (auto& [x, y] : directions) {
-        const bool result = resolveCaptureAtPositionInDirection(pos, Position(x, y));
+        const bool result = resolveCaptureAtPositionInDirection(pos, Position{x, y});
         if (result) {
             return true;
         }
@@ -38,8 +38,10 @@ bool Board::resolveCaptureAtPosition(const Position pos) {
 }
 
 void Board::removeSToneCaptureAtPosition(StoneMask & enemyMask , const Position pos, const Position dir) {
-    removeStoneAt(enemyMask, Position(pos.x + dir.x, pos.y + dir.y));
-    removeStoneAt(enemyMask, Position(pos.x + dir.x * 2, pos.y + dir.y * 2));
+    removeStoneAt(enemyMask, Position{pos.x + dir.x, pos.y + dir.y});
+    removeStoneAt(enemyMask, Position{pos.x + dir.x * 2, pos.y + dir.y * 2
+});
+
 }
 
 bool Board::resolveCaptureAtPositionInDirection(const Position pos, const Position dir) {
@@ -56,9 +58,9 @@ bool Board::resolveCaptureAtPositionInDirection(const Position pos, const Positi
     const StoneMask allyMask = isWhiteStoneAt(pos) ? getGridWhite() : getGridBlack();
     StoneMask& enemyMask = isWhiteStoneAt(pos) ? getGridBlack() : getGridWhite();
 
-    const bool ex1 = isStoneAt(enemyMask, Position(pos.x + dir.x,pos.y + dir.y));
-    const bool ex2 = isStoneAt(enemyMask, Position(pos.x + dir.x * 2, pos.y + dir.y * 2));
-    const bool ex3 = isStoneAt(allyMask, Position(pos.x + dir.x * 3, pos.y + dir.y * 3));
+    const bool ex1 = isStoneAt(enemyMask, Position{pos.x + dir.x,pos.y + dir.y});
+    const bool ex2 = isStoneAt(enemyMask, Position{pos.x + dir.x * 2, pos.y + dir.y * 2});
+    const bool ex3 = isStoneAt(allyMask, Position{pos.x + dir.x * 3, pos.y + dir.y * 3});
     if (ex1 && ex2 && ex3) {
         removeSToneCaptureAtPosition(enemyMask, pos, dir);
         return true;
@@ -68,18 +70,18 @@ bool Board::resolveCaptureAtPositionInDirection(const Position pos, const Positi
 
 void Board::emptyColumn(const int col) {
     for (int row = 0; row < SIZE; row++) {
-        if (isWhiteStoneAt(Position(col, row)))
-            removeStoneAt(gridWhite, Position(col, row));
-        else if (isBlackStoneAt(Position(col, row)))
-            removeStoneAt(gridBlack, Position(col, row));
+        if (isWhiteStoneAt(Position{col, row}))
+            removeStoneAt(gridWhite, Position{col, row});
+        else if (isBlackStoneAt(Position{col, row}))
+            removeStoneAt(gridBlack, Position{col, row});
     }
 }
 void Board::emptyLine(const int row) {
     for (int col = 0; col < SIZE; col++) {
-        if (isWhiteStoneAt(Position(col, row)))
-            removeStoneAt(gridWhite, Position(col, row));
-        else if (isBlackStoneAt(Position(col, row)))
-            removeStoneAt(gridBlack, Position(col, row));
+        if (isWhiteStoneAt(Position{col, row}))
+            removeStoneAt(gridWhite, Position{col, row});
+        else if (isBlackStoneAt(Position{col, row}))
+            removeStoneAt(gridBlack, Position{col, row});
     }
 }
 
@@ -88,10 +90,10 @@ void Board::printBoard() const {
     for (int row = 0; row < SIZE; row++) {
         std::cout << row << ": ";
         for (int col = 0; col < SIZE; col++) {
-            if (isWhiteStoneAt(Position(row, col))) {
+            if (isWhiteStoneAt(Position{row, col})) {
                 std::cout << 'W';
             }
-            else if (isBlackStoneAt(Position(row, col))) {
+            else if (isBlackStoneAt(Position{row, col})) {
                 std::cout << 'B';
             }
             else {
@@ -137,8 +139,8 @@ void Board::removeBlackStoneAt(const Position pos) {
 void Board::resolveCaptures()  {
     for (int x = 0; x < SIZE; x++) {
         for (int y = 0; y < SIZE; y++) {
-            if (isStoneAt(gridBlack, Position(x, y)) || isStoneAt(gridWhite, Position(x, y))) {
-                resolveCaptureAtPosition(Position(x, y));
+            if (isStoneAt(gridBlack, Position{x, y}) || isStoneAt(gridWhite, Position{x, y})) {
+                resolveCaptureAtPosition(Position{x, y});
             }
         }
     }
@@ -157,7 +159,7 @@ std::ostream& operator<<(std::ostream& os, Board& board) {
 }
 
 bool Board::isStoneAt(const StoneMask& grid, const Position pos) {
-    if (pos.x >= Board::SIZE || pos.y >= Board::SIZE) return false;
+    if (pos.x >= SIZE || pos.y >= SIZE) return false;
     const auto row = grid.at(pos.x);
     const auto stone = 1 << (SIZE - pos.y - 1);
     return (row & stone) != 0;
