@@ -47,3 +47,20 @@ TEST_CASE("Board - Remove stone at position") {
         }
     }
 }
+
+TEST_CASE("Board - Test save and restore methods") {
+    Board board;
+
+    board.addStoneBlack({1, 1});
+    board.addStoneWhite({1, 2});
+    const Board::StoneMask whiteMask = board.getGridWhite();
+    const Board::StoneMask blackMask = board.getGridBlack();
+    board.save();
+    board.addStoneBlack({2, 2});
+    board.addStoneWhite({2, 3});
+    REQUIRE_FALSE(board.getGridBlack() == blackMask);
+    REQUIRE_FALSE(board.getGridWhite() == whiteMask);
+    board.restore();
+    REQUIRE(board.getGridBlack() == blackMask);
+    REQUIRE(board.getGridWhite() == whiteMask);
+}
