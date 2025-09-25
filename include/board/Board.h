@@ -33,6 +33,9 @@ public:
 
     void resolveCaptures();
 
+    void save();
+    void restore();
+
     [[nodiscard]] bool isBlackStoneAt(Position pos) const;
     [[nodiscard]] bool isWhiteStoneAt(Position pos) const;
     void emptyColumn(int col);
@@ -47,14 +50,16 @@ public:
 
 private:
     StoneMask gridWhite{};
-
     StoneMask gridBlack{};
+
+    StoneMask saveGridWhite{};
+    StoneMask saveGridBlack{};
 
     std::set<uint32_t> candidatesPositionsWhite;
 
     std::set<uint32_t> candidatesPositionsBlack;
 
-    static void removeSToneCaptureAtPosition(StoneMask &enemyMask, Position pos, Position dir);
+    static void removeStoneCaptureAtPosition(StoneMask &enemyMask, Position pos, Position dir);
     bool resolveCaptureAtPosition(Position pos);
     bool resolveCaptureAtPositionInDirection(Position pos, Position dir);
 };
