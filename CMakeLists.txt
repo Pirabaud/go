@@ -62,6 +62,7 @@ set(SERVICES_FILES
         src/services/CheckMoveService.cpp
         src/services/CheckWinService.cpp
         src/services/AlignmentChecker.cpp
+        src/services/HeuristicService.cpp
 )
 
 set(SOURCE_FILES
