@@ -2,17 +2,17 @@ cmake_minimum_required(VERSION 3.29)
 
 add_executable(GomokuTests
         board/BoardTest.cpp
-        services/test_checkMoveService.cpp
+        services/CheckLegalMoveTest.cpp
         services/CheckWinServiceTest.cpp
-        services/CheckAlignmentChecker.cpp
+        services/CheckAlignmentCheckerTest.cpp
         ../src/services/AlignmentChecker.cpp
-        ../src/services/CheckMoveService.cpp
+        ../src/services/CheckLegalMove.cpp
         ../src/services/CheckWinService.cpp
         ../src/services/CaptureService.cpp
         ../src/board/Board.cpp
         ../src/services/FreeThreeService.cpp
         ../include/services/FreeThreeService.h
-        services/CheckFreeThree.cpp
+        services/CheckFreeThreeTest.cpp
 )
 
 target_link_libraries(GomokuTests PRIVATE SFML::Graphics)

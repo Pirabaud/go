@@ -7,7 +7,7 @@
 
 #include "catch2/benchmark/catch_benchmark.hpp"
 #include "IllegalMoves.hpp"
-#include "CheckMoveService.hpp"
+#include "CheckLegalMove.hpp"
 
 bool isValidPosition(int x, int y) {
     return x >= 0 && x < Board::SIZE && y >= 0 && y < Board::SIZE;
@@ -24,10 +24,10 @@ struct BoardFixture {
                                  const IllegalMoves::Type &expected) {
         board = Board();
 
-        if (CheckMoveService::notInBoard(posPlay) ||
-            CheckMoveService::notInBoard(posOppColor1) ||
-            CheckMoveService::notInBoard(posOppColor2) ||
-            CheckMoveService::notInBoard(posColor)) {
+        if (CheckLegalMove::notInBoard(posPlay) ||
+            CheckLegalMove::notInBoard(posOppColor1) ||
+            CheckLegalMove::notInBoard(posOppColor2) ||
+            CheckLegalMove::notInBoard(posColor)) {
             return;
         }
 
@@ -36,7 +36,7 @@ struct BoardFixture {
         board.addStoneBlack(posOppColor2);
 
         REQUIRE(
-            CheckMoveService::isLegalMove(posPlay, board, false) == expected);
+            CheckLegalMove::isLegalMove(posPlay, board, false) == expected);
     }
 
     void setupCheckAlreadyInBoard(Position pos, bool color) {
@@ -48,12 +48,56 @@ struct BoardFixture {
             board.addStoneWhite(pos);
         }
         CHECK(
-            CheckMoveService::isLegalMove(pos, board, true)
+            CheckLegalMove::isLegalMove(pos, board, true)
             == IllegalMoves::OCCUPIED);
 
         CHECK(
-            CheckMoveService::isLegalMove(pos,board, false)
+            CheckLegalMove::isLegalMove(pos,board, false)
             == IllegalMoves::OCCUPIED);
+    }
+
+    void setupDoubleFreeThree(bool color) {
+        board = Board();
+
+        if (color) {
+            board.addStoneWhite({0, 0});
+            board.addStoneWhite({1, 1});
+            board.addStoneWhite({3, 4});
+            board.addStoneWhite({3, 5});
+            CHECK(CheckLegalMove::isLegalMove({3, 3}, board, false)
+                == IllegalMoves::DOUBLE_FREE_CAPTURE);
+        }
+        else {
+            board.addStoneBlack({0, 0});
+            board.addStoneBlack({1, 1});
+            board.addStoneBlack({3, 4});
+            board.addStoneBlack({3, 5});
+            CHECK(CheckLegalMove::isLegalMove({3, 3}, board, true)
+                == IllegalMoves::DOUBLE_FREE_CAPTURE);
+        }
+    }
+
+    void setupNotDoubleFreeThree(bool color) {
+        board = Board();
+
+        if (color) {
+            board.addStoneWhite({0, 0});
+            board.addStoneWhite({1, 1});
+            board.addStoneWhite({3, 4});
+            board.addStoneWhite({3, 5});
+            board.addStoneBlack({3, 2});
+            CHECK(CheckLegalMove::isLegalMove({3, 3}, board, false)
+                == IllegalMoves::NONE);
+        }
+        else {
+            board.addStoneBlack({0, 0});
+            board.addStoneBlack({1, 1});
+            board.addStoneBlack({3, 4});
+            board.addStoneBlack({3, 5});
+            board.addStoneWhite({3, 2});
+            CHECK(CheckLegalMove::isLegalMove({3, 3}, board, true)
+                == IllegalMoves::NONE);
+        }
     }
 };
 
@@ -169,4 +213,14 @@ TEST_CASE_METHOD(BoardFixture, "Check stone already in board for white") {
             setupCheckAlreadyInBoard (Position{x, y}, false);
         }
     }
+}
+
+TEST_CASE_METHOD(BoardFixture, "Check double free three") {
+    setupDoubleFreeThree(false);
+    setupDoubleFreeThree(true);
+}
+
+TEST_CASE_METHOD(BoardFixture, "Check not double free three") {
+    setupNotDoubleFreeThree(false);
+    setupNotDoubleFreeThree(true);
 }

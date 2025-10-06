@@ -1,5 +1,5 @@
 #include "Board.h"
-#include "CheckMoveService.hpp"
+#include "CheckLegalMove.hpp"
 #include "FreeThreeService.h"
 #include "catch2/catch_test_macros.hpp"
 
@@ -9,9 +9,9 @@ struct BoardFixture {
     void setupCreateBoardWhite(const Position pos1, const Position& pos2, const Position& pos3, const bool expected){
         board = Board();
 
-        if (CheckMoveService::notInBoard(pos1),
-            CheckMoveService::notInBoard(pos2),
-            CheckMoveService::notInBoard(pos3)) {
+        if (CheckLegalMove::notInBoard(pos1),
+            CheckLegalMove::notInBoard(pos2),
+            CheckLegalMove::notInBoard(pos3)) {
             return;
         }
         board.addStoneWhite(pos1);
@@ -24,9 +24,9 @@ struct BoardFixture {
     void setupCreateBoardBlack(const Position pos1, const Position& pos2, const Position& pos3, const bool expected){
         board = Board();
 
-        if (CheckMoveService::notInBoard(pos1),
-            CheckMoveService::notInBoard(pos2),
-            CheckMoveService::notInBoard(pos3)) {
+        if (CheckLegalMove::notInBoard(pos1),
+            CheckLegalMove::notInBoard(pos2),
+            CheckLegalMove::notInBoard(pos3)) {
             return;
             }
         board.addStoneBlack(pos1);

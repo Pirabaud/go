@@ -3,7 +3,7 @@
 #include <iostream>
 
 #include "CaptureService.hpp"
-#include "CheckMoveService.hpp"
+#include "CheckLegalMove.hpp"
 #include "../../../include/services/CheckWinService.hpp"
 #include "SFML/Graphics/Text.hpp"
 #include "utils/getSharedFont.hpp"
@@ -56,7 +56,7 @@ bool PvPScene::handleStonePlacement(const std::optional<sf::Event>& event, sf::R
             illegalMove = IllegalMoves::Type::NOT_IN_BOARD;
             return false;
         }
-        illegalMove = CheckMoveService::isLegalMove(Position{row, col}, board, colorToPlay == sf::Color::Black);
+        illegalMove = CheckLegalMove::isLegalMove(Position{row, col}, board, colorToPlay == sf::Color::Black);
 
         if (illegalMove != IllegalMoves::Type::NONE) {
             return false;
