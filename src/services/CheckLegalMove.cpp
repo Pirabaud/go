@@ -20,10 +20,6 @@ IllegalMoves::Type CheckLegalMove::isLegalMove(Position pos,
         return IllegalMoves::Type::CREATE_CAPTURE;
     }
 
-    // if (CaptureService::resolveCaptureAtPosition(board, pos)) {
-    //     return IllegalMoves::Type::NONE;
-    // }
-    board.printBoard();
      if (checkDoubleThree(pos,
          isBlack ? board.getGridBlack() : board.getGridWhite(),
          isBlack ? board.getGridWhite() : board.getGridBlack())) {
@@ -125,39 +121,6 @@ bool CheckLegalMove::checkDoubleThree(Position pos, Board::StoneMask grid, Board
 
     return false;
 }
-
-
-// bool CheckMoveService::checkDoubleThree(Position pos, Board::StoneMask grid, Board::StoneMask gridOpposite) {
-//
-//     if (AlignmentChecker::detectAlignment(pos, 3, grid, gridOpposite) == Alignment::FREE) {
-//         return false;
-//     }
-//
-//     std::array directions = {
-//         std::make_pair(0, 1),
-//         std::make_pair(1, 0),
-//         std::make_pair(1, -1),
-//         std::make_pair(1, 1),
-//         std::make_pair(0, -1),
-//         std::make_pair(-1, 0),
-//         std::make_pair(-1, 1),
-//         std::make_pair(-1, -1),
-//     };
-//
-//     for (auto& [dx, dy] : directions) {
-//         Position nextPos = {
-//             .x = pos.x + dx,
-//             .y = pos.y + dy,
-//         };
-//         if (alreadyStone(nextPos, grid, gridOpposite)) {
-//             continue;
-//         }
-//         if (AlignmentChecker::detectAlignment(pos, 3, grid, gridOpposite) != Alignment::FREE) {
-//             return true;
-//         }
-//     }
-//     return false;
-// }
 
 
 
