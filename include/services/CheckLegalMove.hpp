@@ -13,13 +13,11 @@ public:
         Position pos, Board &board, const bool &isBlack);
     static bool notInBoard(Position pos);
     static bool checkDirectionAlignStone(const int &x, const int &y, const int &count, std::array<uint32_t, Board::SIZE>&grid);
+    static bool alreadyStone(Position pos,
+                             const Board::StoneMask &gridBlack, Board::StoneMask &gridWhite);
 
 private:
-
     static bool checkAlignStone(const int &x, const int &y, const int &dx, const int &dy, const int &count, std::array<uint32_t, Board::SIZE>&grid);
-
-    static bool alreadyStone(Position pos,
-                             const std::array<unsigned, 19> &gridBlack, Board::StoneMask &gridWhite);
 
     static bool checkDirectionCreatingCapture(
         Position pos,

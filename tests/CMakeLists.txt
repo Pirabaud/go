@@ -13,6 +13,8 @@ add_executable(GomokuTests
         ../src/services/FreeThreeService.cpp
         ../include/services/FreeThreeService.h
         services/CheckFreeThreeTest.cpp
+        ../src/services/AIService.cpp
+        ../include/services/AIService.hpp
 )
 
 target_link_libraries(GomokuTests PRIVATE SFML::Graphics)

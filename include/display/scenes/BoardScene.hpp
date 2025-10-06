@@ -1,6 +1,7 @@
 #ifndef BOARD_SCENE_HPP
 #define BOARD_SCENE_HPP
 #include "AbstractScene.hpp"
+#include "AiPlay.hpp"
 #include "Board.h"
 #include "structs/IllegalMoves.hpp"
 
@@ -20,6 +21,7 @@ protected:
     Board board;
     sf::Color colorToPlay = sf::Color::Black;
     bool threeDetected = false;
+    AiPlay aiPlay{};
     BoardScene(sf::RenderWindow& window);
 
     virtual void drawTexts(sf::RenderWindow& window) = 0;

@@ -2,6 +2,7 @@
 
 #include "BoardScene.hpp"
 #include "DisplayService.hpp"
+#include "PvEScene.hpp"
 #include "PvPScene.hpp"
 
 MainMenuScene::MainMenuScene(sf::RenderWindow& win):
@@ -9,9 +10,9 @@ MainMenuScene::MainMenuScene(sf::RenderWindow& win):
     {
         DisplayService::changeScene(new PvPScene(win));
     }),
-    pveButton({200, 50}, {300, 200}, "PvE", [this]()
+    pveButton({200, 50}, {300, 200}, "PvE", [this, &win]()
     {
-        backgroundColor = sf::Color::Green;
+        DisplayService::changeScene(new PvEScene(win));
     }),
     simulationButton({200, 50}, {300, 300}, "Simulation Test", [this]()
     {
