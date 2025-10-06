@@ -1,7 +1,7 @@
 #include <bitset>
 #include <iostream>
 #include "catch2/catch_test_macros.hpp"
-#include "CheckMoveService.hpp"
+#include "CheckLegalMove.hpp"
 #include "catch2/internal/catch_stdstreams.hpp"
 
 struct BoardFixture {
@@ -718,7 +718,7 @@ TEST_CASE_METHOD(BoardFixture, "Check alignment semi-blocked right diag top righ
 TEST_CASE_METHOD(BoardFixture, "Check alignment semi-blocked left diag top right white") {
     for (int i = 4; i < Board::SIZE ; i++) {
         for (int j = 0; j < Board::SIZE - 4; j += 4) {
-            if (!CheckMoveService::notInBoard (Position{i + 1, j - 1})) {
+            if (!CheckLegalMove::notInBoard (Position{i + 1, j - 1})) {
                 std::cout << "black : " << i + 1 << " " << j - 1 << std::endl;
                 board.addStoneBlack (Position{i + 1, j - 1});
             }
@@ -738,7 +738,7 @@ TEST_CASE_METHOD(BoardFixture, "Check alignment semi-blocked left diag top right
 TEST_CASE_METHOD(BoardFixture, "Check alignment semi-blocked left diag top right black") {
     for (int i = 4; i < Board::SIZE ; i++) {
         for (int j = 0; j < Board::SIZE - 4; j += 4) {
-            if (!CheckMoveService::notInBoard (Position{i + 1, j - 1})) {
+            if (!CheckLegalMove::notInBoard (Position{i + 1, j - 1})) {
                 std::cout << "white : " << i + 1 << " " << j - 1 << std::endl;
                 board.addStoneWhite (Position{i + 1, j - 1});
             }
@@ -890,7 +890,7 @@ TEST_CASE_METHOD(BoardFixture, "Check alignment semi-blocked left diag top left 
 TEST_CASE_METHOD(BoardFixture, "Check alignment semi-blocked right diag top left white") {
     for (int i = Board::SIZE - 1; i >= 4  ; i--) {
         for (int j = Board::SIZE - 1; j >= 4; j -= 4) {
-            if (!CheckMoveService::notInBoard (Position{i + 1, j + 1})) {
+            if (!CheckLegalMove::notInBoard (Position{i + 1, j + 1})) {
                 std::cout << "black : " << i + 1 << " " << j + 1 << std::endl;
                 board.addStoneBlack (Position{i + 1, j + 1});
             }
@@ -910,7 +910,7 @@ TEST_CASE_METHOD(BoardFixture, "Check alignment semi-blocked right diag top left
 TEST_CASE_METHOD(BoardFixture, "Check alignment semi-blocked right diag top left black") {
     for (int i = Board::SIZE - 1; i >= 4  ; i--) {
         for (int j = Board::SIZE - 1; j >= 4; j -= 4) {
-            if (!CheckMoveService::notInBoard (Position{i + 1, j + 1})) {
+            if (!CheckLegalMove::notInBoard (Position{i + 1, j + 1})) {
                 std::cout << "white : " << i + 1 << " " << j + 1 << std::endl;
                 board.addStoneWhite (Position{i + 1, j + 1});
             }
@@ -1062,7 +1062,7 @@ TEST_CASE_METHOD(BoardFixture, "Check alignment semi-blocked left diag down left
 TEST_CASE_METHOD(BoardFixture, "Check alignment semi-blocked right diag down left white") {
     for (int i = 4; i < Board::SIZE - 4 ; i++) {
         for (int j = Board::SIZE - 2; j > 4; j -= 4) {
-            if (!CheckMoveService::notInBoard (Position{i - 1, j + 1})) {
+            if (!CheckLegalMove::notInBoard (Position{i - 1, j + 1})) {
                 std::cout << "black : " << i - 1 << " " << j + 1 << std::endl;
                 board.addStoneBlack (Position{i - 1, j + 1});
             }
@@ -1082,7 +1082,7 @@ TEST_CASE_METHOD(BoardFixture, "Check alignment semi-blocked right diag down lef
 TEST_CASE_METHOD(BoardFixture, "Check alignment semi-blocked right diag down left black") {
     for (int i = 4; i < Board::SIZE - 4 ; i++) {
         for (int j = Board::SIZE - 2; j > 4; j -= 4) {
-            if (!CheckMoveService::notInBoard (Position{i - 1, j + 1})) {
+            if (!CheckLegalMove::notInBoard (Position{i - 1, j + 1})) {
                 std::cout << "white : " << i + 1 << " " << j - 1 << std::endl;
                 board.addStoneWhite (Position{i - 1, j + 1});
             }
@@ -1233,7 +1233,7 @@ TEST_CASE_METHOD(BoardFixture, "Check alignment semi-blocked right diag down rig
 TEST_CASE_METHOD(BoardFixture, "Check alignment semi-blocked left diag down right white") {
     for (int i = 4; i < Board::SIZE - 4; i++) {
         for (int j = 1; j < Board::SIZE - 4; j += 4) {
-            if (!CheckMoveService::notInBoard (Position{i - 1, j - 1})) {
+            if (!CheckLegalMove::notInBoard (Position{i - 1, j - 1})) {
                 std::cout << "black : " << i - 1 << " " << j - 1 << std::endl;
                 board.addStoneBlack (Position{i - 1, j - 1});
             }
@@ -1252,7 +1252,7 @@ TEST_CASE_METHOD(BoardFixture, "Check alignment semi-blocked left diag down righ
 TEST_CASE_METHOD(BoardFixture, "Check alignment semi-blocked left diag down right black") {
     for (int i = 4; i < Board::SIZE - 4; i++) {
         for (int j = 1; j < Board::SIZE - 4; j += 4) {
-            if (!CheckMoveService::notInBoard (Position{i - 1, j - 1})) {
+            if (!CheckLegalMove::notInBoard (Position{i - 1, j - 1})) {
                 std::cout << "white : " << i - 1 << " " << j - 1 << std::endl;
                 board.addStoneWhite (Position{i - 1, j - 1});
             }

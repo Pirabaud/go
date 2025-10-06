@@ -2,7 +2,7 @@
 
 #include "Board.h"
 #include "CaptureService.hpp"
-#include "services/CheckMoveService.hpp"
+#include "services/CheckLegalMove.hpp"
 #include "DisplayService.hpp"
 #include "SFML/Window/Window.hpp"
 int main() {

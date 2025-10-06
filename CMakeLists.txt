@@ -59,7 +59,7 @@ set(DISPLAY_FILES
 
 set(SERVICES_FILES
         src/services/CaptureService.cpp
-        src/services/CheckMoveService.cpp
+        src/services/CheckLegalMove.cpp
         src/services/CheckWinService.cpp
         src/services/AlignmentChecker.cpp
 )

@@ -7,7 +7,7 @@
 #include "AlignmentChecker.hpp"
 
 
-class CheckMoveService {
+class CheckLegalMove {
 public:
     static IllegalMoves::Type isLegalMove(
         Position pos, Board &board, const bool &isBlack);
@@ -31,7 +31,7 @@ private:
     static bool checkDoubleThree(Position pos, Board::StoneMask grid, Board::StoneMask gridOpposite);
 
 
-    CheckMoveService() = default;
+    CheckLegalMove() = default;
 };
 
 
