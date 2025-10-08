@@ -21,11 +21,12 @@ protected:
     Board board;
     sf::Color colorToPlay = sf::Color::Black;
     bool threeDetected = false;
-    AiPlay aiPlay{};
+    AiPlay aiPlay;
     BoardScene(sf::RenderWindow& window);
 
     virtual void drawTexts(sf::RenderWindow& window) = 0;
     virtual bool handleStonePlacement(const std::optional<sf::Event>& event, sf::RenderWindow& window) = 0;
+    virtual void Ai(sf::RenderWindow& window) = 0;
 
     void drawBoard(sf::RenderWindow& window);
     void drawStones(sf::RenderWindow& window);

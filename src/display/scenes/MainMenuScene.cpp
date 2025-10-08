@@ -42,3 +42,6 @@ void MainMenuScene::draw(sf::RenderWindow& window)
     simulationButton.draw(window);
     window.display();
 }
+
+void MainMenuScene::Ai(sf::RenderWindow &window) {
+}

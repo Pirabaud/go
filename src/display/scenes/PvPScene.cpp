@@ -43,6 +43,9 @@ void PvPScene::drawTexts(sf::RenderWindow& window) {
     }
 }
 
+void PvPScene::Ai(sf::RenderWindow &window) {
+}
+
 bool PvPScene::handleStonePlacement(const std::optional<sf::Event>& event, sf::RenderWindow& window) {
     if (!event || !event->is<sf::Event::MouseButtonPressed>()) {
         return false;

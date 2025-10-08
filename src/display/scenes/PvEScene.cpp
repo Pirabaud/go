@@ -15,17 +15,23 @@
 
 void PvEScene::handleEvent(const std::optional<sf::Event>& event, sf::RenderWindow& window) {
     if (winningColor) return;
-    const bool playerPlay = handleStonePlacement(event, window);
+    playerPlay = handleStonePlacement(event, window);
     if (playerPlay) {
         winningColor = CheckWinService::isWin(board);
         if (winningColor) {
             std::cout << "Player " << (*winningColor == sf::Color::White ? "White" : "Black") << " wins!" << std::endl;
         }
     }
-    AIPlay(window);
-    winningColor = CheckWinService::isWin(board);
-    if (winningColor) {
-        std::cout << "AI " << (*winningColor == sf::Color::White ? "White" : "Black") << " wins!" << std::endl;
+}
+
+void PvEScene::Ai(sf::RenderWindow& window) {
+    if (playerPlay) {
+        AIPlay();
+        winningColor = CheckWinService::isWin(board);
+        if (winningColor) {
+            std::cout << "AI " << (*winningColor == sf::Color::White ? "White" : "Black") << " wins!" << std::endl;
+        }
+        playerPlay = false;
     }
 }
 
@@ -51,17 +57,13 @@ void PvEScene::drawTexts(sf::RenderWindow& window) {
 
         window.draw(illegalMoveText);
     }
-    if (this->aiPlay.Time != 0) {
-        sf::Text illegalMoveText(getSharedFont(),
+    sf::Text illegalMoveText(getSharedFont(),
    "ai time to play: " + std::string(std::to_string(aiPlay.Time)) +
        ".");
         illegalMoveText.setCharacterSize(18);
         illegalMoveText.setFillColor(sf::Color::Green);
-        illegalMoveText.setPosition({BOARD_SIZE_WITH_PADDING + 20, PADDING + 20});
-        std::cout << "ai time to play: " + std::string(std::to_string(aiPlay.Time)) +
-            "." << std::endl;
+        illegalMoveText.setPosition({BOARD_SIZE_WITH_PADDING, PADDING + 80});
         window.draw(illegalMoveText);
-    }
 }
 
 bool PvEScene::handleStonePlacement(const std::optional<sf::Event>& event, sf::RenderWindow& window) {
@@ -89,8 +91,8 @@ bool PvEScene::handleStonePlacement(const std::optional<sf::Event>& event, sf::R
     return false;
 }
 
-bool PvEScene::AIPlay(sf::RenderWindow &window) {
-    this->aiPlay = AIService::AIPlay(board);
+bool PvEScene::AIPlay() {
+    aiPlay = AIService::AIPlay(board);
     playMove(aiPlay.pos);
     board.resolveCaptures();
     return true;
