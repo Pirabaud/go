@@ -1,17 +1,22 @@
-#include "PvPScene.hpp"
+//
+// Created by Pierre Rabaud on 06/10/2025.
+//
+
+#include "PvEScene.hpp"
+#include "CheckWinService.hpp"
+#include "SFML/Graphics/Text.hpp"
 
 #include <iostream>
 
-#include "CaptureService.hpp"
+#include "AiPlay.hpp"
+#include "AIService.hpp"
 #include "CheckLegalMove.hpp"
-#include "../../../include/services/CheckWinService.hpp"
-#include "SFML/Graphics/Text.hpp"
 #include "utils/getSharedFont.hpp"
 
-void PvPScene::handleEvent(const std::optional<sf::Event>& event, sf::RenderWindow& window) {
+void PvEScene::handleEvent(const std::optional<sf::Event>& event, sf::RenderWindow& window) {
     if (winningColor) return;
-    const bool doesStoneHaveBeenPlaced = handleStonePlacement(event, window);
-    if (doesStoneHaveBeenPlaced) {
+    playerPlay = handleStonePlacement(event, window);
+    if (playerPlay) {
         winningColor = CheckWinService::isWin(board);
         if (winningColor) {
             std::cout << "Player " << (*winningColor == sf::Color::White ? "White" : "Black") << " wins!" << std::endl;
@@ -19,7 +24,20 @@ void PvPScene::handleEvent(const std::optional<sf::Event>& event, sf::RenderWind
     }
 }
 
-void PvPScene::drawTexts(sf::RenderWindow& window) {
+void PvEScene::Ai(sf::RenderWindow& window) {
+    if (playerPlay) {
+        winningColor = CheckWinService::isWin(board);
+        if (winningColor) {
+            std::cout << "AI " << (*winningColor == sf::Color::White ? "White" : "Black") << " wins!" << std::endl;
+        }
+        else {
+            AIPlay();
+        }
+        playerPlay = false;
+    }
+}
+
+void PvEScene::drawTexts(sf::RenderWindow& window) {
 
     if (winningColor) {
         sf::Text winText(getSharedFont(),
@@ -41,12 +59,16 @@ void PvPScene::drawTexts(sf::RenderWindow& window) {
 
         window.draw(illegalMoveText);
     }
+    sf::Text illegalMoveText(getSharedFont(),
+   "ai time to play: " + std::string(std::to_string(aiPlay.Time)) +
+       " seconds.");
+        illegalMoveText.setCharacterSize(18);
+        illegalMoveText.setFillColor(sf::Color::Green);
+        illegalMoveText.setPosition({BOARD_SIZE_WITH_PADDING, PADDING + 80});
+        window.draw(illegalMoveText);
 }
 
-void PvPScene::Ai(sf::RenderWindow &window) {
-}
-
-bool PvPScene::handleStonePlacement(const std::optional<sf::Event>& event, sf::RenderWindow& window) {
+bool PvEScene::handleStonePlacement(const std::optional<sf::Event>& event, sf::RenderWindow& window) {
     if (!event || !event->is<sf::Event::MouseButtonPressed>()) {
         return false;
     }
@@ -67,7 +89,14 @@ bool PvPScene::handleStonePlacement(const std::optional<sf::Event>& event, sf::R
         playMove(Position{row, col});
         board.resolveCaptures();
         return true;
-    }
+        }
     return false;
+}
+
+bool PvEScene::AIPlay() {
+    aiPlay = AIService::AIPlay(board);
+    playMove(aiPlay.pos);
+    board.resolveCaptures();
+    return true;
 }
 

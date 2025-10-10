@@ -62,6 +62,7 @@ set(SERVICES_FILES
         src/services/CheckLegalMove.cpp
         src/services/CheckWinService.cpp
         src/services/AlignmentChecker.cpp
+        src/services/AIService.cpp
 )
 
 set(SOURCE_FILES
@@ -77,6 +78,9 @@ set(ALL_SOURCE_FILES
         include/structs/LineBlockState.hpp
         include/services/AlignmentChecker.hpp
         include/structs/Position.hpp
+        src/display/scenes/PvEScene.cpp
+        include/display/scenes/PvEScene.hpp
+        include/structs/AiPlay.hpp
 )
 
 add_executable(${PROJECT_NAME} ${ALL_SOURCE_FILES})

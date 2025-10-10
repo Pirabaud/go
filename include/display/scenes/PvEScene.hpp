@@ -1,24 +1,18 @@
 //
-// Created by afaby on 6/20/25.
+// Created by Pierre Rabaud on 06/10/2025.
 //
 
-#ifndef PVP_SCENE_HPP
-#define PVP_SCENE_HPP
+#ifndef PVE_SCENE_HPP
+#define PVE_SCENE_HPP
+#include "AiPlay.hpp"
 #include "BoardScene.hpp"
-#include "Button.hpp"
-#include "DisplayService.hpp"
-#include "MainMenuScene.hpp"
 
-
-class PvPScene : public BoardScene
-{
+class PvEScene : public BoardScene {
 public:
-   explicit  PvPScene(sf::RenderWindow& window)
-        : BoardScene(window)
-    {
-        backgroundColor = sf::Color(206, 163, 70);
+    explicit PvEScene(sf::RenderWindow& window)
+        : BoardScene(window) {
+        backgroundColor = sf::Color(135, 206, 235);
     }
-
     void handleEvent(const std::optional<sf::Event>&, sf::RenderWindow& window) override;
     void drawTexts(sf::RenderWindow& window) override;
     void Ai(sf::RenderWindow& window) override;
@@ -26,7 +20,8 @@ public:
 
 private:
     const sf::Color* winningColor = nullptr;
+    bool playerPlay = false;
+    bool AIPlay();
 };
 
-
-#endif //PVP_SCENE_HPP
+#endif

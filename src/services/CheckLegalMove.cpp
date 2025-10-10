@@ -110,11 +110,15 @@ bool CheckLegalMove::checkDoubleThree(Position pos, Board::StoneMask grid, Board
     };
 
     for (auto& [dx, dy] : directions) {
-        if (AlignmentChecker::detectAlignment({pos.x + dx, pos.y + dy}, 3, grid, gridOpposite) != Alignment::NOTALIGN) {
+        if (alreadyStone({pos.x + dx, pos.y + dy},grid, gridOpposite) == false &&
+            AlignmentChecker::detectAlignment({pos.x + dx, pos.y + dy}, 3, grid, gridOpposite) != Alignment::NOTALIGN) {
+            std::cout << "1" << std::endl;
             return true;
         }
 
-        if (AlignmentChecker::detectAlignment({pos.x - dx, pos.y - dy}, 3, grid, gridOpposite) != Alignment::NOTALIGN) {
+        if (alreadyStone({pos.x - dx, pos.y - dy},grid, gridOpposite) == false &&
+            AlignmentChecker::detectAlignment({pos.x - dx, pos.y - dy}, 3, grid, gridOpposite) != Alignment::NOTALIGN) {
+            std::cout << "2" << std::endl;
             return true;
         }
     }
