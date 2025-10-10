@@ -21,10 +21,10 @@ private:
 
     static bool checkDirectionCreatingCapture(
         Position pos,
-        const std::array<unsigned, 19> &gridColor, const std::array<unsigned, 19> &gridOpposite);
+        const std::array<unsigned, Board::SIZE> &gridColor, const std::array<unsigned, Board::SIZE> &gridOpposite);
 
     static bool checkCapture(Position pos,
-                             const std::array<unsigned, 19> &gridColor, const std::array<unsigned, 19> &gridOpposite, Position direction);
+                             const std::array<unsigned, Board::SIZE> &gridColor, const std::array<unsigned, Board::SIZE> &gridOpposite, Position direction);
 
     static bool checkDoubleThree(Position pos, Board::StoneMask grid, Board::StoneMask gridOpposite);
 

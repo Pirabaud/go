@@ -13,7 +13,7 @@
 
 class Board {
 public:
-    static constexpr int SIZE = 19;
+    static constexpr int SIZE = 9;
     static constexpr int MAXCANDIDATESPOSITIONS = 3;
     static constexpr int FULL_ROW = 0b11111111111111111111111111111111;
 

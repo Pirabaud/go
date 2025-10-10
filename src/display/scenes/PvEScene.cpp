@@ -26,10 +26,12 @@ void PvEScene::handleEvent(const std::optional<sf::Event>& event, sf::RenderWind
 
 void PvEScene::Ai(sf::RenderWindow& window) {
     if (playerPlay) {
-        AIPlay();
         winningColor = CheckWinService::isWin(board);
         if (winningColor) {
             std::cout << "AI " << (*winningColor == sf::Color::White ? "White" : "Black") << " wins!" << std::endl;
+        }
+        else {
+            AIPlay();
         }
         playerPlay = false;
     }
@@ -59,7 +61,7 @@ void PvEScene::drawTexts(sf::RenderWindow& window) {
     }
     sf::Text illegalMoveText(getSharedFont(),
    "ai time to play: " + std::string(std::to_string(aiPlay.Time)) +
-       ".");
+       " seconds.");
         illegalMoveText.setCharacterSize(18);
         illegalMoveText.setFillColor(sf::Color::Green);
         illegalMoveText.setPosition({BOARD_SIZE_WITH_PADDING, PADDING + 80});
