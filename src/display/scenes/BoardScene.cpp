@@ -3,6 +3,8 @@
 #include <iostream>
 
 #include "DisplayService.hpp"
+#include "minimax.hpp"
+#include "MinMax.hpp"
 #include "SFML/Graphics/CircleShape.hpp"
 
 float BoardScene::PADDING = 40.0f;
@@ -86,11 +88,25 @@ std::pair<int, int> BoardScene::getCellFromMousePosition(const sf::Vector2i& mou
 
 
 void BoardScene::playMove(Position pos) {
+    // TODO peut être que le bot peut jouer les noirs aussi ?
+    sf::Color botColor = sf::Color::White;
+
     if (colorToPlay == sf::Color::White) {
         board.addStoneWhite(pos);
-    }
-    else {
+        nextTurn();
+        board.save();
+        GameState *gameState = new GameState(nullptr, board, pos, botColor == sf::Color::White);
+        Position bestMove = gameState->getBestMove();
+        board.restore();
+        board.addStoneBlack(bestMove);
+    } else {
         board.addStoneBlack(pos);
+        nextTurn();
+        board.save();
+        GameState *gameState = new GameState(nullptr, board, pos, botColor == sf::Color::White);
+        Position bestMove = gameState->getBestMove();
+        board.restore();
+        board.addStoneWhite(bestMove);
     }
     nextTurn();
 }

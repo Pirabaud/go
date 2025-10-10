@@ -8,6 +8,7 @@
 #include <cstdint>
 #include <iosfwd>
 #include <set>
+#include <vector>
 
 #include "Position.hpp"
 
@@ -52,8 +53,8 @@ private:
     StoneMask gridWhite{};
     StoneMask gridBlack{};
 
-    StoneMask saveGridWhite{};
-    StoneMask saveGridBlack{};
+    std::vector<StoneMask> saveGridWhite;
+    std::vector<StoneMask>  saveGridBlack;
 
     std::set<uint32_t> candidatesPositionsWhite;
 

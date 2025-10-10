@@ -39,11 +39,17 @@ int HeuristicService::getHeuristicValue(Board& board)  {
             if (AlignmentChecker::detectAlignment({x, y}, 3, board.getGridBlack(), board.getGridWhite()) == Alignment::FREE) {
                 heuristicValue += -FREE_THREE_WEIGHT;
             }
-            if (AlignmentChecker::detectAlignment({x, y}, 2, board.getGridWhite(), board.getGridBlack()) == Alignment::FREE) {
+            Alignment whiteDoubleAlignment = AlignmentChecker::detectAlignment({x, y}, 2, board.getGridWhite(), board.getGridBlack());
+            if (whiteDoubleAlignment == Alignment::FREE) {
                 heuristicValue += DOUBLE_WEIGHT ;
+            } else if (whiteDoubleAlignment == Alignment::SEMIBLOCKED) {
+                heuristicValue += DOUBLE_WEIGHT / 2 ;
             }
-            if (AlignmentChecker::detectAlignment({x, y}, 2, board.getGridBlack(), board.getGridWhite()) == Alignment::FREE) {
-                heuristicValue += -DOUBLE_WEIGHT;
+            Alignment blackDoubleAlignment = AlignmentChecker::detectAlignment({x, y}, 2, board.getGridBlack(), board.getGridWhite());
+            if (blackDoubleAlignment == Alignment::FREE) {
+                heuristicValue += DOUBLE_WEIGHT ;
+            } else if (blackDoubleAlignment == Alignment::SEMIBLOCKED) {
+                heuristicValue += DOUBLE_WEIGHT / 2 ;
             }
 
         }

@@ -147,13 +147,16 @@ void Board::resolveCaptures()  {
 }
 
 void Board::save() {
-    saveGridBlack = gridBlack;
-    saveGridWhite = gridWhite;
+    saveGridBlack.push_back(gridBlack);
+    saveGridWhite.push_back(gridWhite);
+    std::cout << saveGridBlack.size() << std::endl;
 }
 
 void Board::restore() {
-    gridBlack = saveGridBlack;
-    gridWhite = saveGridWhite;
+    gridBlack = saveGridBlack.back();
+    gridWhite = saveGridWhite.back();
+    saveGridBlack.pop_back();
+    saveGridWhite.pop_back();
 }
 
 std::ostream& operator<<(std::ostream& os, Board& board) {

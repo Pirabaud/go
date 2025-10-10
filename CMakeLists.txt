@@ -40,21 +40,19 @@ set(BOARD_FILES
         src/board/Board.cpp
 )
 
-set(DISPLAY_COMPONENTS_FILES
+set(DISPLAY_FILES
         src/display/components/Button.cpp
-        src/display/utils/getSharedFont.cpp
-)
-
-set(DISPLAY_SCENES_FILES
         src/display/scenes/BoardScene.cpp
         src/display/scenes/MainMenuScene.cpp
         src/display/scenes/PvPScene.cpp
+        src/display/utils/getSharedFont.cpp
+        src/display/DisplayService.cpp
 )
 
-set(DISPLAY_FILES
-        ${DISPLAY_COMPONENTS_FILES}
-        ${DISPLAY_SCENES_FILES}
-        src/display/DisplayService.cpp
+set(MINMAX_FILES
+        src/minmax/MinMax.cpp
+        src/minmax/GameState.cpp
+        src/minmax/minimax.cpp
 )
 
 set(SERVICES_FILES
@@ -74,6 +72,7 @@ set(ALL_SOURCE_FILES
         ${BOARD_FILES}
         ${DISPLAY_FILES}
         ${SERVICES_FILES}
+        ${MINMAX_FILES}
         ${SOURCE_FILES}
         include/structs/LineBlockState.hpp
         include/services/AlignmentChecker.hpp
@@ -88,6 +87,8 @@ target_include_directories(${PROJECT_NAME}
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/display
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/display/components
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/display/scenes
+        PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/display/utils
+        PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/minmax
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/services
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/structs
 )

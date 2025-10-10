@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.29)
 
 add_executable(GomokuTests
         board/BoardTest.cpp
+        minmax/MinMaxTest.cpp
         services/test_checkMoveService.cpp
         services/CheckWinServiceTest.cpp
         services/CheckAlignmentChecker.cpp
@@ -10,9 +11,13 @@ add_executable(GomokuTests
         ../src/services/CheckWinService.cpp
         ../src/services/CaptureService.cpp
         ../src/board/Board.cpp
+        ../src/minmax/MinMax.cpp
         ../src/services/FreeThreeService.cpp
         ../include/services/FreeThreeService.h
         services/CheckFreeThree.cpp
+        ../src/minmax/GameState.cpp
+        ../include/minmax/GameState.hpp
+        ../src/minmax/minimax.cpp
 )
 
 target_link_libraries(GomokuTests PRIVATE SFML::Graphics)
@@ -25,6 +30,7 @@ target_link_libraries(GomokuTests
 target_include_directories(GomokuTests
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../include
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../include/board
+        PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../include/minmax
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../include/structs
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../include/services
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../cmake-build-debug/_deps/sfml-src/include
