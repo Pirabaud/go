@@ -1,6 +1,6 @@
 #include "MinMax.hpp"
 
-int MinMax::MAX_DEPTH = 3;
+int MinMax::MAX_DEPTH = 10;
 
 MinMax::MinMax(Board &board) : board(board) {
 }

@@ -91,7 +91,7 @@ std::vector<Position> GameState::getPossibleMoves() const {
     for (int x = std::max(0, move.x - 4); x < std::min(Board::SIZE, move.x + 4); ++x) {
         for (int y = std::max(0, move.y - 4); y < std::min(Board::SIZE, move.y + 4); ++y) {
             if (move.x == x && move.y == y) continue;
-            if (CheckMoveService::isLegalMove({x, y}, board, !maximizing)) continue;
+            if (CheckMoveService::isLegalMove({x, y}, board, !maximizing) != IllegalMoves::NONE) continue;
             possibleMoves.push_back({x, y});
         }
     }
