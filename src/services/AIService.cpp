@@ -6,10 +6,15 @@
 
 
 #include <algorithm>
+#include <fstream>
 #include <unordered_set>
 #include <iostream>
 #include <list>
 #include <random>
+#include <nlohmann/json.hpp>
+
+#include "JsonService.hpp"
+using nlohmann::json;
 
 #include "CheckLegalMove.hpp"
 #include "CheckWinService.hpp"
@@ -105,21 +110,34 @@ int evaluation(Board& board, Position pos, bool color) {
     return result;
     }
 
-int negamax(Position pos, Board& board, int alpha, int beta, int depth, int color) {
+int negamax(const Position pos, Board& board, int alpha, const int beta, const int depth, const int color, json& tree,
+            JsonService::IdGen& ids, const std::optional<std::string>& parentId) {
+    int score = 0;
     if (CheckWinService::isWin(board)) {
-        return 10000 * color;
+        score = 10000 * color;
+        std::string id = ids.make();
+        JsonService::pushNode(tree, id, pos, /*depth*/ depth, parentId, /*heuristic*/ score);
+        return score;
     }
     if (depth == 0) {
-        return color * evaluation(board, pos, color);
+        score = color * evaluation(board, pos, /*color=*/ color == +1);
+        std::string id = ids.make();
+        JsonService::pushNode(tree, id, pos, /*depth*/ depth, parentId, /*heuristic*/ score);
+        return score;
     }
     int value = -std::numeric_limits<int>::max();
     const std::vector<Position> positions = newPos(board, color);
     if (positions.empty()) {
+        score = 0;
+        std::string id = ids.make();
+        JsonService::pushNode(tree, id, pos, /*depth*/ depth, parentId, /*heuristic*/ score);
         return 0;
     }
    for (const auto position : positions) {
         color ? board.addStoneWhite(position) : board.addStoneBlack(position);
-        value = std::max(value, -negamax(position, board, -beta, -alpha, depth - 1, -color));
+       std::string id = ids.make();
+       JsonService::pushNode(tree, id, pos, /*depth*/ depth, parentId, /*heuristic*/ score);
+        value = std::max(value, -negamax(position, board, -beta, -alpha, depth - 1, -color, tree, ids, id));
         color ? board.removeWhiteStoneAt(position) : board.removeBlackStoneAt(position);
         if (value >= beta) {
             return value;
@@ -129,22 +147,29 @@ int negamax(Position pos, Board& board, int alpha, int beta, int depth, int colo
     return value;
 }
 
-Position bestMove(Board& board, bool color) {
+Position bestMove(Board& board, const bool color) {
+    json tree = json::array();
+    JsonService::IdGen ids;
     const std::vector<Position> positions = newPos(board, color);
     Position bestMove = {-1, -1};
     int bestEvaluation = -10000;
     int  value = -10000;
     int alpha = -10000;
     int beta = 10000;
+    std::string rootId = ids.make();
+    JsonService::pushNode(tree, rootId, /*fake*/ Position{-1,-1}, /*depth*/ 3, /*parent*/ std::nullopt, /*heuristic*/ std::nullopt);
     for (const auto position : positions) {
         color ? board.addStoneWhite(position) : board.addStoneBlack(position);
-        value = std::max(value, -negamax(position, board, alpha, beta, 10, 1));
+        std::string childId = ids.make();
+        JsonService::pushNode(tree, childId, position, /*depth*/ 3, /*parent*/ rootId, /*heuristic*/ std::nullopt);
+        value = std::max(value, -negamax(position, board, alpha, beta, 3-1, 1, tree, ids, childId));
         color ? board.removeWhiteStoneAt(position) : board.removeBlackStoneAt(position);
         if (value > bestEvaluation) {
             bestMove = position;
             bestEvaluation = value;
         }
     }
+    std::ofstream out("search_tree.json");
     return bestMove;
 }
 
