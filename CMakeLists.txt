@@ -94,6 +94,8 @@ set(ALL_SOURCE_FILES
         include/structs/AiPlay.hpp
         src/services/JsonService.cpp
         include/services/JsonService.hpp
+        src/services/EvaluationService.cpp
+        include/services/EvaluationService.hpp
 )
 
 add_executable(${PROJECT_NAME} ${ALL_SOURCE_FILES})

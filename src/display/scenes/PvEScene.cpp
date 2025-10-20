@@ -14,7 +14,7 @@
 #include "utils/getSharedFont.hpp"
 
 void PvEScene::handleEvent(const std::optional<sf::Event>& event, sf::RenderWindow& window) {
-    if (winningColor) return;
+    if (winningColor || AITurn) return;
     playerPlay = handleStonePlacement(event, window);
     if (playerPlay) {
         winningColor = CheckWinService::isWin(board);
@@ -31,7 +31,9 @@ void PvEScene::Ai(sf::RenderWindow& window) {
             std::cout << "AI " << (*winningColor == sf::Color::White ? "White" : "Black") << " wins!" << std::endl;
         }
         else {
+            AITurn = true;
             AIPlay();
+            AITurn = false;
         }
         playerPlay = false;
     }

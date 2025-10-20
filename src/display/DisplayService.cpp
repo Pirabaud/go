@@ -25,7 +25,6 @@ void DisplayService::start() {
     while (window.isOpen()) {
         if (selectedScene) {
             selectedScene->draw(window);
-            selectedScene->Ai(window);
         }
 
         while (const std::optional event = window.pollEvent()) {
@@ -33,6 +32,8 @@ void DisplayService::start() {
             handleKeyboardEvents(window);
             if (selectedScene) {
                 selectedScene->handleEvent(event, window);
+                selectedScene->Ai(window);
+
             }
         }
     }

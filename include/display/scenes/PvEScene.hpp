@@ -20,6 +20,7 @@ public:
 
 private:
     const sf::Color* winningColor = nullptr;
+    bool AITurn = false;
     bool playerPlay = false;
     bool AIPlay();
 };

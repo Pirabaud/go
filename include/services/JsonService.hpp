@@ -14,10 +14,7 @@ using nlohmann::json;
 
 class JsonService {
 public:
-    struct IdGen {
-        unsigned long long next = 1;
-        std::string make() { return std::to_string(next++); }
-    };
+        static std::string make(const Position& pos, int depth);
 
     static std::string toMoveStr(const Position& p);
 
@@ -28,6 +25,7 @@ public:
                          const std::optional<std::string>& parent,
                          const std::optional<int>& heuristic);
 
+    static void setHeuristic(json &tree, const std::string &id, int value);
 };
 
 

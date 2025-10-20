@@ -13,6 +13,7 @@
 #include <random>
 #include <nlohmann/json.hpp>
 
+#include "EvaluationService.hpp"
 #include "JsonService.hpp"
 using nlohmann::json;
 
@@ -20,28 +21,21 @@ using nlohmann::json;
 #include "CheckWinService.hpp"
 #include "../../cmake-build-debug/_deps/catch2-src/src/catch2/internal/catch_stdstreams.hpp"
 
-int randomBetween(const int min, const int max) {
-    // Générateur aléatoire basé sur un vrai random device
-    std::random_device rd;
-    std::mt19937 gen(rd()); // Mersenne Twister
-    std::uniform_int_distribution<> dist(min, max); // distribution uniforme
-    return dist(gen);
-}
-
-std::vector<Position> posFromDir(Position pos, Position dir, Board board) {
+std::vector<Position> posFromDir(const Position pos, const Position dir, Board& board) {
     std::vector<Position> result;
+    Position temp = {};
 
-    for (int i = 0; i < 2; i++) {
-        pos = {pos.x + dir.x, pos.y + dir.y * i};
-        if (CheckLegalMove::notInBoard(pos) || CheckLegalMove::alreadyStone(pos, board.getGridBlack(), board.getGridWhite())) {
+    for (int i = 1; i < 3; i++) {
+        temp = {pos.x + dir.x * i, pos.y + dir.y * i};
+        if (CheckLegalMove::notInBoard(temp) || CheckLegalMove::alreadyStone(temp, board.getGridBlack(), board.getGridWhite())) {
             continue;
         }
-        result.push_back(pos);
+        result.push_back(temp);
     }
     return result;
 }
 
-std::vector<Position> posFromPos(Position pos, Board board) {
+std::vector<Position> posFromPos(Position pos, Board& board) {
     std::vector<Position> result;
     std::vector<Position> positions;
     std::array directions = {
@@ -60,122 +54,128 @@ std::vector<Position> posFromPos(Position pos, Board board) {
     return result;
 }
 
-
-
-std::vector<Position> newPos(Board& board, bool color) {
+std::vector<Position> newPos(Board& board) {
     std::vector<Position> result;
     std::vector<Position> newPositions;
     for (int x = 0; x < Board::SIZE; x++) {
         for (int y = 0; y < Board::SIZE; y++) {
             if (CheckLegalMove::alreadyStone({x,y}, board.getGridBlack(), board.getGridWhite())) {
-                newPositions = posFromPos({x, y}, board);
+                continue;;
+                //newPositions = posFromPos({x, y}, board);
             }
+            result.push_back({x,y});
+            //result.insert(result.end(), newPositions.begin(), newPositions.end());
         }
-        result.insert(result.end(), newPositions.begin(), newPositions.end());
-        std::sort(result.begin(), result.end());
-        result.erase(std::ranges::unique(result).begin(), result.end());
     }
+    //std::sort(result.begin(), result.end());
+    //result.erase(std::ranges::unique(result).begin(), result.end());
     return result;
 }
 
-int evaluation(Board& board, Position pos, bool color) {
-    Board::StoneMask grid = color == 1 ? board.getGridWhite() : board.getGridBlack();
-    Board::StoneMask gridOpposite = color == 1 ? board.getGridBlack() : board.getGridWhite();
-    int result = 0;
-    AlignmentChecker::Result countAlignment1;
-    AlignmentChecker::Result countAlignment2;
-    std::array directions = {
-        std::make_pair(0, 1),
-        std::make_pair(1, 0),
-        std::make_pair(1, -1),
-        std::make_pair(1, 1),
-    };
+// Hypothèses : Board::SIZE == 3, et ces helpers existent :
+// bool isWhiteStoneAt({x, y}); bool isBlackStoneAt({x, y});
 
-    for (auto [dx, dy] : directions) {
-        countAlignment1 = AlignmentChecker::countDirection(pos, {dx, dy}, 5, grid, gridOpposite);
-        countAlignment2 = AlignmentChecker::countDirection(pos, {-dx, -dy}, 5, grid, gridOpposite);
-
-        switch (countAlignment1.blocked + countAlignment2.blocked) {
-                case 1:
-                    result += countAlignment1.count * 20;
-                    result += countAlignment2.count * 20;
-                case 2:
-                    result += countAlignment1.count * 10;
-                    result += countAlignment2.count * 10;
-                default:
-                    result += countAlignment1.count * 40;
-                    result += countAlignment2.count * 40;
-            }
+namespace {
+    int evalTriplet(const Board& b, bool color,
+                    std::array<std::pair<int,int>,3> cells) {
+        int mine = 0, opp = 0;
+        for (auto [x,y] : cells) {
+            bool w = b.isWhiteStoneAt({x,y});
+            bool bl = b.isBlackStoneAt({x,y});
+            if (w && bl) return 0;            // Cas impossible normalement, sécurité
+            if (w) (color ? mine : opp)++;
+            if (bl) (color ? opp  : mine)++;
         }
-    return result;
-    }
 
-int negamax(const Position pos, Board& board, int alpha, const int beta, const int depth, const int color, json& tree,
-            JsonService::IdGen& ids, const std::optional<std::string>& parentId) {
-    int score = 0;
-    if (CheckWinService::isWin(board)) {
-        score = 10000 * color;
-        std::string id = ids.make();
-        JsonService::pushNode(tree, id, pos, /*depth*/ depth, parentId, /*heuristic*/ score);
-        return score;
-    }
-    if (depth == 0) {
-        score = color * evaluation(board, pos, /*color=*/ color == +1);
-        std::string id = ids.make();
-        JsonService::pushNode(tree, id, pos, /*depth*/ depth, parentId, /*heuristic*/ score);
-        return score;
-    }
-    int value = -std::numeric_limits<int>::max();
-    const std::vector<Position> positions = newPos(board, color);
-    if (positions.empty()) {
-        score = 0;
-        std::string id = ids.make();
-        JsonService::pushNode(tree, id, pos, /*depth*/ depth, parentId, /*heuristic*/ score);
+        if (mine > 0 && opp > 0) return 0;    // Ligne bloquée
+
+        if (mine == 3) return +100;
+        if (opp  == 3) return -100;
+        if (mine == 2) return +10;
+        if (opp  == 2) return -10;
+        // Optionnel : récompenser un pion isolé non bloqué
+        // if (mine == 1) return +1;
+        // if (opp  == 1) return -1;
         return 0;
     }
-   for (const auto position : positions) {
-        color ? board.addStoneWhite(position) : board.addStoneBlack(position);
-       std::string id = ids.make();
-       JsonService::pushNode(tree, id, pos, /*depth*/ depth, parentId, /*heuristic*/ score);
-        value = std::max(value, -negamax(position, board, -beta, -alpha, depth - 1, -color, tree, ids, id));
-        color ? board.removeWhiteStoneAt(position) : board.removeBlackStoneAt(position);
-        if (value >= beta) {
-            return value;
-        }
-        alpha = std::max(alpha, value);
+}
+
+int evaluation(const Board& b, bool color) {
+    static int count = 0;
+    int score = 0;
+
+    // Lignes
+    for (int r = 0; r < Board::SIZE; ++r) {
+        score += evalTriplet(b, color, {{{0,r},{1,r},{2,r}}});
     }
-    return value;
+    // Colonnes
+    for (int c = 0; c < Board::SIZE; ++c) {
+        score += evalTriplet(b, color, {{{c,0},{c,1},{c,2}}});
+    }
+    // Diagonales
+    score += evalTriplet(b, color, {{{0,0},{1,1},{2,2}}});
+    score += evalTriplet(b, color, {{{0,2},{1,1},{2,0}}});
+
+    return score;
+}
+
+
+int minimax(const Position pos, Board &board, const int depth, const bool isMax) {
+    int score = 0;
+    if (CheckWinService::isWin(board)) {
+        score = 1000 * (isMax ? -1 : 1) - depth;
+        return score;
+    }
+    if (depth == 3) {
+        return evaluation(board, isMax) - depth;
+    }
+    const std::vector<Position> positions = posFromPos(pos, board);
+    if (positions.empty()) {
+        return 0;
+    }
+
+    if (isMax) {
+        score = std::numeric_limits<int>::min();
+        for (auto &position : positions) {
+            board.addStoneWhite(position);
+            score = std::max(score, minimax(position, board, depth + 1, false));
+            //std::cout << "max: " << score << " depth: " << depth << std::endl;
+            board.removeWhiteStoneAt(position);
+        }
+    }
+    else {
+        score = std::numeric_limits<int>::max();
+        for (auto &position : positions) {
+            board.addStoneBlack(position);
+            score = std::min(score, minimax(position, board, depth + 1, true));
+            //std::cout << "min: " << score << " depth: " << depth << std::endl;
+            board.removeBlackStoneAt(position);
+        }
+    }
+    return score;
 }
 
 Position bestMove(Board& board, const bool color) {
-    json tree = json::array();
-    JsonService::IdGen ids;
-    const std::vector<Position> positions = newPos(board, color);
-    Position bestMove = {-1, -1};
-    int bestEvaluation = -10000;
-    int  value = -10000;
-    int alpha = -10000;
-    int beta = 10000;
-    std::string rootId = ids.make();
-    JsonService::pushNode(tree, rootId, /*fake*/ Position{-1,-1}, /*depth*/ 3, /*parent*/ std::nullopt, /*heuristic*/ std::nullopt);
+    const std::vector<Position> positions = newPos(board);
+    int bestValue = std::numeric_limits<int>::min();
+    Position bestPosition = {0, 0};
     for (const auto position : positions) {
         color ? board.addStoneWhite(position) : board.addStoneBlack(position);
-        std::string childId = ids.make();
-        JsonService::pushNode(tree, childId, position, /*depth*/ 3, /*parent*/ rootId, /*heuristic*/ std::nullopt);
-        value = std::max(value, -negamax(position, board, alpha, beta, 3-1, 1, tree, ids, childId));
+        const int tmpValue = minimax(position, board, 0, false);
+        std::cout << tmpValue << std::endl;
         color ? board.removeWhiteStoneAt(position) : board.removeBlackStoneAt(position);
-        if (value > bestEvaluation) {
-            bestMove = position;
-            bestEvaluation = value;
+        if (tmpValue > bestValue) {
+            bestValue = tmpValue;
+            bestPosition = position;
         }
     }
-    std::ofstream out("search_tree.json");
-    return bestMove;
+    std::cout << bestPosition.x << " " << bestPosition.y << std::endl;
+    return bestPosition;
 }
 
 AiPlay AIService::AIPlay(Board board) {
     const clock_t start = clock();
-    Position pos = bestMove(board, false);
+    const Position pos = bestMove(board, true);
     const clock_t end = clock();
     const double time = static_cast<double>(end - start) / CLOCKS_PER_SEC;
     return {pos, time};
