@@ -37,7 +37,7 @@ bool Board::resolveCaptureAtPosition(const Position pos) {
     return false;
 }
 
-void Board::removeSToneCaptureAtPosition(StoneMask & enemyMask , const Position pos, const Position dir) {
+void Board::removeStoneCaptureAtPosition(StoneMask & enemyMask , const Position pos, const Position dir) {
     removeStoneAt(enemyMask, Position{pos.x + dir.x, pos.y + dir.y});
     removeStoneAt(enemyMask, Position{pos.x + dir.x * 2, pos.y + dir.y * 2
 });
@@ -62,7 +62,7 @@ bool Board::resolveCaptureAtPositionInDirection(const Position pos, const Positi
     const bool ex2 = isStoneAt(enemyMask, Position{pos.x + dir.x * 2, pos.y + dir.y * 2});
     const bool ex3 = isStoneAt(allyMask, Position{pos.x + dir.x * 3, pos.y + dir.y * 3});
     if (ex1 && ex2 && ex3) {
-        removeSToneCaptureAtPosition(enemyMask, pos, dir);
+        removeStoneCaptureAtPosition(enemyMask, pos, dir);
         return true;
     }
     return false;
@@ -144,6 +144,19 @@ void Board::resolveCaptures()  {
             }
         }
     }
+}
+
+void Board::save() {
+    saveGridBlack.push_back(gridBlack);
+    saveGridWhite.push_back(gridWhite);
+    std::cout << saveGridBlack.size() << std::endl;
+}
+
+void Board::restore() {
+    gridBlack = saveGridBlack.back();
+    gridWhite = saveGridWhite.back();
+    saveGridBlack.pop_back();
+    saveGridWhite.pop_back();
 }
 
 std::ostream& operator<<(std::ostream& os, Board& board) {
