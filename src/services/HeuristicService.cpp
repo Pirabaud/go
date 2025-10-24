@@ -12,9 +12,6 @@
 // #define FREE_THREE_WEIGHT 1000
 // #define DOUBLE_WEIGHT 100
 
-#define WIN_WEIGHT 100
-#define TWO_IN_ROW_WEIGHT 10
-#define ONE_IN_ROW_WEIGHT 1
 
 int HeuristicService::evaluateLines(Board& board) {
     int score = 0;

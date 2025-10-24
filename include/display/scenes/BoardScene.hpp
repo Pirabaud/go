@@ -1,6 +1,7 @@
 #ifndef BOARD_SCENE_HPP
 #define BOARD_SCENE_HPP
 #include "AbstractScene.hpp"
+#include "JsonService.hpp"
 #include "Board.h"
 #include "structs/IllegalMoves.hpp"
 
@@ -31,6 +32,9 @@ protected:
                               const sf::Color& color);
 
     [[nodiscard]] std::pair<int, int> getCellFromMousePosition(const sf::Vector2i& mousePos) const;
+
+    void handleAITurn(Position playerMove, json& decisionTree);
+
     void playMove(Position pos);
     void nextTurn();
 };

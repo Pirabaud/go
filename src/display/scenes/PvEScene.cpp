@@ -11,6 +11,7 @@
 #include "CheckLegalMove.hpp"
 #include "HeuristicService.h"
 #include "utils/getSharedFont.hpp"
+#include "JsonService.hpp"
 
 void PvEScene::handleEvent(const std::optional<sf::Event>& event, sf::RenderWindow& window) {
     if (winningColor) return;
@@ -65,8 +66,13 @@ bool PvEScene::handleStonePlacement(const std::optional<sf::Event>& event, sf::R
         if (illegalMove != IllegalMoves::Type::NONE) {
             return false;
         }
-        playMove(Position{row, col});
+        json decisionTree = json::array();
+        Position playerMove = Position(row, col);
+
+        playMove(playerMove);
         std::cout << "Heuristic : " << HeuristicService::getHeuristicValue(board) << std::endl;
+        board.resolveCaptures();
+        handleAITurn(playerMove, decisionTree);
         board.resolveCaptures();
         return true;
         }

@@ -6,6 +6,9 @@
 #define GOMOKU_HEURISTIC_SERVICE_H
 #include "Board.h"
 
+#define WIN_WEIGHT 100
+#define TWO_IN_ROW_WEIGHT 10
+#define ONE_IN_ROW_WEIGHT 1
 
 class HeuristicService {
 public:

@@ -86,6 +86,15 @@ std::pair<int, int> BoardScene::getCellFromMousePosition(const sf::Vector2i& mou
     return {-1, -1}; // Return an invalid position if no stone was placed
 }
 
+void BoardScene::handleAITurn(Position playerMove, json& decisionTree) {
+    if (colorToPlay == sf::Color::White) { // L'IA joue les blancs
+        const MinMax ai(board);
+        Position aiMove = ai.run(playerMove, decisionTree);
+        if (aiMove.x != -1 && aiMove.y != -1) {
+            playMove(aiMove);
+        }
+    }
+}
 
 void BoardScene::playMove(Position pos) {
     colorToPlay == sf::Color::White ? board.addStoneWhite(pos) : board.addStoneBlack(pos);
