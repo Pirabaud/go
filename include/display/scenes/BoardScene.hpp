@@ -22,6 +22,7 @@ protected:
     sf::Color colorToPlay = sf::Color::Black;
     bool threeDetected = false;
     BoardScene(sf::RenderWindow& window);
+    long lastAITimeMs = 0;
 
     virtual void drawTexts(sf::RenderWindow& window) = 0;
     virtual bool handleStonePlacement(const std::optional<sf::Event>& event, sf::RenderWindow& window) = 0;
@@ -33,7 +34,7 @@ protected:
 
     [[nodiscard]] std::pair<int, int> getCellFromMousePosition(const sf::Vector2i& mousePos) const;
 
-    void handleAITurn(Position playerMove, json& decisionTree);
+    void handleAITurn(Position playerMove, json& decisionTree,  std::vector<Position>& moveHistory);
 
     void playMove(Position pos);
     void nextTurn();

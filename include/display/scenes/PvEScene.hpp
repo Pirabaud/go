@@ -18,7 +18,7 @@ public:
 
 private:
     const sf::Color* winningColor = nullptr;
-    bool playerPlay = false;
+    std::vector<Position> moveHistory;
 };
 
 #endif

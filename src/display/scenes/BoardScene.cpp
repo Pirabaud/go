@@ -1,7 +1,4 @@
 #include "BoardScene.hpp"
-#include "display/scenes/BoardScene.hpp"
-
-#include <iostream>
 
 #include "DisplayService.hpp"
 #include "MinMax.hpp"
@@ -86,10 +83,12 @@ std::pair<int, int> BoardScene::getCellFromMousePosition(const sf::Vector2i& mou
     return {-1, -1}; // Return an invalid position if no stone was placed
 }
 
-void BoardScene::handleAITurn(Position playerMove, json& decisionTree) {
+void BoardScene::handleAITurn(Position playerMove, json& decisionTree,  std::vector<Position>& moveHistory) {
     if (colorToPlay == sf::Color::White) { // L'IA joue les blancs
         const MinMax ai(board);
-        Position aiMove = ai.run(playerMove, decisionTree);
+        auto [aiMove, elapsedTimeMS] = ai.run(playerMove, decisionTree, moveHistory);
+        lastAITimeMs = elapsedTimeMS;
+        moveHistory.push_back(aiMove);
         if (aiMove.x != -1 && aiMove.y != -1) {
             playMove(aiMove);
         }

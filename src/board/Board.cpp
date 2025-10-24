@@ -39,9 +39,12 @@ bool Board::resolveCaptureAtPosition(const Position pos) {
 
 void Board::removeStoneCaptureAtPosition(StoneMask & enemyMask , const Position pos, const Position dir) {
     removeStoneAt(enemyMask, Position{pos.x + dir.x, pos.y + dir.y});
-    removeStoneAt(enemyMask, Position{pos.x + dir.x * 2, pos.y + dir.y * 2
-});
-
+    removeStoneAt(enemyMask, Position{pos.x + dir.x * 2, pos.y + dir.y * 2});
+    if (enemyMask == gridWhite) {
+        whiteStoneCaptured += 2;
+    } else {
+        blackStoneCaptured += 2;
+    }
 }
 
 bool Board::resolveCaptureAtPositionInDirection(const Position pos, const Position dir) {
@@ -102,6 +105,14 @@ void Board::printBoard() const {
         }
         std::cout << std::endl;
     }
+}
+
+int Board::getWhiteCaptured() const {
+    return this->whiteStoneCaptured;
+}
+
+int Board::getBlackCaptured() const {
+    return this->blackStoneCaptured;
 }
 
 Board::StoneMask& Board::getGridWhite(){

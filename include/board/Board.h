@@ -14,9 +14,8 @@
 
 class Board {
 public:
-    static constexpr int SIZE = 3;
-    static constexpr int MAXCANDIDATESPOSITIONS = 3;
-    static constexpr int FULL_ROW = 0b111;
+    static constexpr int SIZE = 19;
+    static constexpr int FULL_ROW = 0b1111111111111111111;
 
     typedef std::array<uint32_t, SIZE> StoneMask;
 
@@ -44,6 +43,10 @@ public:
 
     void printBoard() const;
 
+    int getWhiteCaptured() const;
+
+    int getBlackCaptured() const;
+
 
     Board();
 
@@ -54,13 +57,12 @@ private:
     StoneMask gridBlack{};
 
     std::vector<StoneMask> saveGridWhite;
-    std::vector<StoneMask>  saveGridBlack;
+    std::vector<StoneMask> saveGridBlack;
 
-    std::set<uint32_t> candidatesPositionsWhite;
+    int blackStoneCaptured = 0;
+    int whiteStoneCaptured = 0;
 
-    std::set<uint32_t> candidatesPositionsBlack;
-
-    static void removeStoneCaptureAtPosition(StoneMask &enemyMask, Position pos, Position dir);
+    void removeStoneCaptureAtPosition(StoneMask &enemyMask, Position pos, Position dir);
     bool resolveCaptureAtPosition(Position pos);
     bool resolveCaptureAtPositionInDirection(Position pos, Position dir);
 };

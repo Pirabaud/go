@@ -3,11 +3,7 @@
 //
 
 #include "CaptureService.hpp"
-
-#include <iostream>
-
 #include "Position.hpp"
-#include "SFML/Graphics/Color.hpp"
 
 bool CaptureService::resolveCaptureAtPosition(Board & board, const Position pos, const bool isBlack) {
     std::array directions = {

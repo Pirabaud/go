@@ -1,22 +1,26 @@
-//
-// Created by pirabaud on 9/25/25.
-//
-
 #ifndef GOMOKU_HEURISTIC_SERVICE_H
 #define GOMOKU_HEURISTIC_SERVICE_H
 #include "Board.h"
 
-#define WIN_WEIGHT 100
-#define TWO_IN_ROW_WEIGHT 10
-#define ONE_IN_ROW_WEIGHT 1
+#define WIN_WEIGHT 1000000
+#define CAPTURE_WEIGHT 8000
+#define CAPTURE_THREAT_WEIGHT 2000
+#define FOUR_OPEN_WEIGHT 5000
+#define THREE_OPEN_WEIGHT 1000
+#define TWO_OPEN_WEIGHT 100
 
 class HeuristicService {
 public:
     HeuristicService() = delete;
 
     static int getHeuristicValue(Board& board);
-    static int evaluateLines(Board& board);
-    static int evaluateLine(Board& board, int starX, int startY, int dx, int dy);
+    static int evaluateStonePatterns(Board& board, Position pos, bool isWhite);
+    static int evaluateImmediateCaptureThreats(Board& board);
+    static int evaluatePlayerCaptureThreats(Board& board, bool isWhite);
+    static int evaluateCapturePatterns(Board& board, Position emptyPos, bool isWhite);
+    static bool isCapturePattern(Board& board, Position pos, Position dir,
+                                       const Board::StoneMask& allyMask,
+                                       const Board::StoneMask& enemyMask);
 };
 
 

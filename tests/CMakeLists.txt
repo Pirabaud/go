@@ -14,10 +14,12 @@ add_executable(GomokuTests
         ../src/board/Board.cpp
         ../src/minmax/MinMax.cpp
         ../src/services/FreeThreeService.cpp
+        ../src/services/HeuristicService.cpp
+        ../src/services/JsonService.cpp
         services/CheckFreeThreeTest.cpp
 )
 
-target_link_libraries(GomokuTests PRIVATE SFML::Graphics)
+target_link_libraries(GomokuTests PRIVATE SFML::Graphics nlohmann_json::nlohmann_json)
 
 target_link_libraries(GomokuTests
         PRIVATE Catch2::Catch2WithMain
