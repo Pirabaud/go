@@ -12,6 +12,8 @@ public:
     HeuristicService() = delete;
 
     static int getHeuristicValue(Board& board);
+    static int evaluateLines(Board& board);
+    static int evaluateLine(Board& board, int starX, int startY, int dx, int dy);
 };
 
 

@@ -41,7 +41,7 @@ bool CheckWinService::isColorWin(const Board::StoneMask& grid)
                     ((grid[cy] >> cx) & 1))
                 {
                     count++;
-                    if (count == 5) return true;
+                    if (count == 3) return true;
                     cx += dx;
                     cy += dy;
                 }

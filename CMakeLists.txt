@@ -27,6 +27,15 @@ FetchContent_Declare(SFML
 FetchContent_MakeAvailable(SFML)
 
 FetchContent_Declare(
+        nlohmann_json
+        GIT_REPOSITORY https://github.com/nlohmann/json.git
+        GIT_TAG v3.11.3
+        GIT_SHALLOW ON
+        EXCLUDE_FROM_ALL
+)
+FetchContent_MakeAvailable(nlohmann_json)
+
+FetchContent_Declare(
         Catch2
         GIT_REPOSITORY https://github.com/catchorg/Catch2.git
         GIT_TAG v3.5.4
@@ -40,10 +49,11 @@ set(BOARD_FILES
         src/board/Board.cpp
 )
 
-set(DISPLAY_COMPONENTS_FILES
+set(DISPLAY_FILES
         src/display/components/Button.cpp
         src/display/scenes/BoardScene.cpp
         src/display/scenes/MainMenuScene.cpp
+        src/display/scenes/PvEScene.cpp
         src/display/scenes/PvPScene.cpp
         src/display/utils/getSharedFont.cpp
         src/display/DisplayService.cpp
@@ -51,36 +61,28 @@ set(DISPLAY_COMPONENTS_FILES
 
 set(MINMAX_FILES
         src/minmax/MinMax.cpp
-        src/minmax/GameState.cpp
-        src/minmax/minimax.cpp
 )
 
 set(SERVICES_FILES
+        src/services/AlignmentChecker.cpp
         src/services/CaptureService.cpp
         src/services/CheckLegalMove.cpp
         src/services/CheckWinService.cpp
-        src/services/AlignmentChecker.cpp
+        src/services/FreeThreeService.cpp
         src/services/HeuristicService.cpp
-        src/services/AIService.cpp
+        src/services/JsonService.cpp
 )
 
 set(SOURCE_FILES
         src/main.cpp
-        src/board/Board.cpp
 )
 
 set(ALL_SOURCE_FILES
         ${BOARD_FILES}
         ${DISPLAY_FILES}
-        ${SERVICES_FILES}
         ${MINMAX_FILES}
+        ${SERVICES_FILES}
         ${SOURCE_FILES}
-        include/structs/LineBlockState.hpp
-        include/services/AlignmentChecker.hpp
-        include/structs/Position.hpp
-        src/display/scenes/PvEScene.cpp
-        include/display/scenes/PvEScene.hpp
-        include/structs/AiPlay.hpp
 )
 
 add_executable(${PROJECT_NAME} ${ALL_SOURCE_FILES})
@@ -97,7 +99,10 @@ target_include_directories(${PROJECT_NAME}
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/structs
 )
 
-target_link_libraries(${PROJECT_NAME} PRIVATE SFML::Graphics)
+target_link_libraries(${PROJECT_NAME}
+        PRIVATE SFML::Graphics
+        nlohmann_json::nlohmann_json
+)
 
 
 option(ENABLE_TESTS "Enable tests" ON)

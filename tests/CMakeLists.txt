@@ -3,10 +3,10 @@ cmake_minimum_required(VERSION 3.29)
 add_executable(GomokuTests
         board/BoardTest.cpp
         minmax/MinMaxTest.cpp
-        services/test_checkMoveService.cpp
+        services/CheckAlignmentCheckerTest.cpp
+        services/CheckFreeThreeTest.cpp
         services/CheckLegalMoveTest.cpp
         services/CheckWinServiceTest.cpp
-        services/CheckAlignmentCheckerTest.cpp
         ../src/services/AlignmentChecker.cpp
         ../src/services/CheckLegalMove.cpp
         ../src/services/CheckWinService.cpp
@@ -14,11 +14,7 @@ add_executable(GomokuTests
         ../src/board/Board.cpp
         ../src/minmax/MinMax.cpp
         ../src/services/FreeThreeService.cpp
-        services/CheckFreeThree.cpp
-        ../src/minmax/GameState.cpp
-        ../src/minmax/minimax.cpp
         services/CheckFreeThreeTest.cpp
-        ../src/services/AIService.cpp
 )
 
 target_link_libraries(GomokuTests PRIVATE SFML::Graphics)

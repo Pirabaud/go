@@ -1,7 +1,6 @@
 #ifndef MINMAX_HPP
 #define MINMAX_HPP
 #include "Board.h"
-#include "GameState.hpp"
 
 
 class MinMax {
@@ -11,11 +10,10 @@ public:
     explicit MinMax(Board& board);
     ~MinMax();
 
-    Board& getBoard();
+    Board& getBoard() const;
     Position run() const;
 private:
     Board& board;
-    GameState *root = nullptr;
 };
 
 

@@ -5,8 +5,8 @@
 #include "CaptureService.hpp"
 #include "CheckLegalMove.hpp"
 #include "../../../include/services/CheckWinService.hpp"
+#include "display/utils/getSharedFont.hpp"
 #include "SFML/Graphics/Text.hpp"
-#include "utils/getSharedFont.hpp"
 
 void PvPScene::handleEvent(const std::optional<sf::Event>& event, sf::RenderWindow& window) {
     if (winningColor) return;
@@ -41,9 +41,6 @@ void PvPScene::drawTexts(sf::RenderWindow& window) {
 
         window.draw(illegalMoveText);
     }
-}
-
-void PvPScene::Ai(sf::RenderWindow &window) {
 }
 
 bool PvPScene::handleStonePlacement(const std::optional<sf::Event>& event, sf::RenderWindow& window) {

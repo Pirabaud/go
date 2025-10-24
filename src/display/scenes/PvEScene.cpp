@@ -8,9 +8,8 @@
 
 #include <iostream>
 
-#include "AiPlay.hpp"
-#include "AIService.hpp"
 #include "CheckLegalMove.hpp"
+#include "HeuristicService.h"
 #include "utils/getSharedFont.hpp"
 
 void PvEScene::handleEvent(const std::optional<sf::Event>& event, sf::RenderWindow& window) {
@@ -21,19 +20,6 @@ void PvEScene::handleEvent(const std::optional<sf::Event>& event, sf::RenderWind
         if (winningColor) {
             std::cout << "Player " << (*winningColor == sf::Color::White ? "White" : "Black") << " wins!" << std::endl;
         }
-    }
-}
-
-void PvEScene::Ai(sf::RenderWindow& window) {
-    if (playerPlay) {
-        winningColor = CheckWinService::isWin(board);
-        if (winningColor) {
-            std::cout << "AI " << (*winningColor == sf::Color::White ? "White" : "Black") << " wins!" << std::endl;
-        }
-        else {
-            AIPlay();
-        }
-        playerPlay = false;
     }
 }
 
@@ -59,13 +45,6 @@ void PvEScene::drawTexts(sf::RenderWindow& window) {
 
         window.draw(illegalMoveText);
     }
-    sf::Text illegalMoveText(getSharedFont(),
-   "ai time to play: " + std::string(std::to_string(aiPlay.Time)) +
-       " seconds.");
-        illegalMoveText.setCharacterSize(18);
-        illegalMoveText.setFillColor(sf::Color::Green);
-        illegalMoveText.setPosition({BOARD_SIZE_WITH_PADDING, PADDING + 80});
-        window.draw(illegalMoveText);
 }
 
 bool PvEScene::handleStonePlacement(const std::optional<sf::Event>& event, sf::RenderWindow& window) {
@@ -87,16 +66,10 @@ bool PvEScene::handleStonePlacement(const std::optional<sf::Event>& event, sf::R
             return false;
         }
         playMove(Position{row, col});
+        std::cout << "Heuristic : " << HeuristicService::getHeuristicValue(board) << std::endl;
         board.resolveCaptures();
         return true;
         }
     return false;
-}
-
-bool PvEScene::AIPlay() {
-    aiPlay = AIService::AIPlay(board);
-    playMove(aiPlay.pos);
-    board.resolveCaptures();
-    return true;
 }
 

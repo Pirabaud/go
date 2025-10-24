@@ -6,10 +6,9 @@ MinMax::MinMax(Board &board) : board(board) {
 }
 
 MinMax::~MinMax() {
-    delete root;
 }
 
-Board & MinMax::getBoard() {
+Board & MinMax::getBoard() const {
     return board;
 }
 
