@@ -36,6 +36,17 @@ public:
     void save();
     void restore();
 
+    struct MoveUndo {
+        Position move;
+        bool isWhite;
+        std::vector<Position> capturedStones;
+        int prevWhiteCaptured;
+        int prevBlackCaptured;
+    };
+
+    MoveUndo makeMove(Position pos, bool isWhite);
+    void undoMove(const MoveUndo& undo);
+
     [[nodiscard]] bool isBlackStoneAt(Position pos) const;
     [[nodiscard]] bool isWhiteStoneAt(Position pos) const;
     void emptyColumn(int col);
@@ -61,6 +72,8 @@ private:
 
     int blackStoneCaptured = 0;
     int whiteStoneCaptured = 0;
+
+    std::vector<Position> getCapturesForMove(Position pos, bool isWhite);
 
     void removeStoneCaptureAtPosition(StoneMask &enemyMask, Position pos, Position dir);
     bool resolveCaptureAtPosition(Position pos);

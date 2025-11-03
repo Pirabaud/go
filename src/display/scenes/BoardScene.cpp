@@ -85,8 +85,8 @@ std::pair<int, int> BoardScene::getCellFromMousePosition(const sf::Vector2i& mou
 
 void BoardScene::handleAITurn(Position playerMove, json& decisionTree,  std::vector<Position>& moveHistory) {
     if (colorToPlay == sf::Color::White) { // L'IA joue les blancs
-        const MinMax ai(board);
-        auto [aiMove, elapsedTimeMS] = ai.run(playerMove, decisionTree, moveHistory);
+        MinMax ai(board);
+        auto [aiMove, elapsedTimeMS] = ai.run(500);
         lastAITimeMs = elapsedTimeMS;
         moveHistory.push_back(aiMove);
         if (aiMove.x != -1 && aiMove.y != -1) {

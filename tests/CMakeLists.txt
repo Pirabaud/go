@@ -13,6 +13,11 @@ add_executable(GomokuTests
         ../src/services/CaptureService.cpp
         ../src/board/Board.cpp
         ../src/minmax/MinMax.cpp
+        ../src/minmax/ZobristHash.cpp
+        ../src/minmax/TranspositionTable.cpp
+        ../src/minmax/MoveGenerator.cpp
+        ../src/minmax/MoveOrdering.cpp
+        ../src/minmax/FastEvaluator.cpp
         ../src/services/FreeThreeService.cpp
         ../src/services/HeuristicService.cpp
         ../src/services/JsonService.cpp

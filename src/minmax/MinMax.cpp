@@ -1,189 +1,287 @@
 #include "MinMax.hpp"
-
-#include <fstream>
+#include "MoveGenerator.hpp"
+#include "FastEvaluator.hpp"
 #include <iostream>
-#include <limits.h>
-#include "JsonService.hpp"
-#include "CheckWinService.hpp"
-#include "HeuristicService.h"
+#include <limits>
+#include <algorithm>
 
-int MinMax::MAX_DEPTH = 1;
+int MinMax::MAX_DEPTH = 10;
 
-MinMax::MinMax(Board &board) : board(board) {
+MinMax::MinMax(Board& board, bool playingWhite)
+    : board(board)
+    , isWhite(playingWhite)
+    , ttable(128)
+    , moveOrdering()
+    , zobrist(ZobristHash::getInstance())
+    , nodesSearched(0)
+    , timeLimit(5000)
+    , timeExpired(false)
+{
 }
 
 MinMax::~MinMax() {
 }
 
-Board & MinMax::getBoard() const {
-    return board;
-}
+std::pair<Position, long> MinMax::run(int timeLimitMs) {
+    auto start = std::chrono::high_resolution_clock::now();
+    startTime = start;
+    timeLimit = timeLimitMs;
+    timeExpired = false;
+    nodesSearched = 0;
 
-std::pair<Position, long> MinMax::run(Position playerMove, json& decisionTree, std::vector<Position>& moveHistory) const {
-    auto startTime = std::chrono::high_resolution_clock::now();
+    Position bestMove = iterativeDeepening(MAX_DEPTH, timeLimitMs);
 
-    int bestValue = INT_MIN;
-    Position bestMove{-1, -1};
-    const int rootHeuristic = HeuristicService::getHeuristicValue(board);
-
-    auto possibleMoves = generatePossibleMoves(board);
-    #ifdef JSON_DEBUG
-    json children = json::array();
-    #endif
-
-    for (const auto& move : possibleMoves) {
-        Board newBoard = board;
-        newBoard.addStoneWhite(move);
-
-        json childTree = json::array();
-        int moveValue = minimax(newBoard, 1, INT_MIN, INT_MAX, false, childTree);
-
-        #ifdef JSON_DEBUG
-        JsonService::pushNode(children, moveValue, 1, INT_MIN, INT_MAX, move, childTree);
-        #endif
-
-        if (moveValue > bestValue) {
-            bestValue = moveValue;
-            bestMove = move;
-        }
-    }
-
-    // Créer la racine avec le coup du joueur
-    #ifdef JSON_DEBUG
-    JsonService::pushNode(decisionTree, rootHeuristic, 0, INT_MIN, INT_MAX, playerMove, children);
-    json historyArray = json::array();
-    for (const auto& [x, y] : moveHistory) {
-        historyArray.push_back({x, y});
-    }
-    decisionTree.push_back(historyArray);
-    #endif
-
-    auto endTime = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
+    auto end = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
     long elapsedMs = duration.count();
 
-    #ifdef JSON_DEBUG
-    saveDecisionTree(decisionTree);
-    #endif
-    std::cout << "IA joue en (" << bestMove.x << ", " << bestMove.y << ") avec score: " << bestValue << std::endl;
+    std::cout << "IA joue en (" << bestMove.x << ", " << bestMove.y << ") "
+              << "| Nodes: " << nodesSearched
+              << " | Time: " << elapsedMs << "ms" << std::endl;
+
     return {bestMove, elapsedMs};
 }
 
+Position MinMax::iterativeDeepening(int maxDepth, int timeLimitMs) {
+    Position bestMove{-1, -1};
+    int bestScore = std::numeric_limits<int>::min();
 
-int MinMax::minimax(Board& currentBoard, int depth, int alpha, int beta, bool isMaximizing, json& tree) {
-    // Évaluation de la position actuelle
-    int currentHeuristic = HeuristicService::getHeuristicValue(currentBoard);
+    moveOrdering.clearHistory();
 
-    // Condition d'arrêt - NE PAS CRÉER DE NŒUD POUR LES FEUILLES
-    if (depth >= MAX_DEPTH || abs(currentHeuristic) >= WIN_WEIGHT || generatePossibleMoves(currentBoard).empty()) {
-        return currentHeuristic; // Juste retourner la valeur, pas de nœud créé
+    int stoneCount = 0;
+    for (int x = 0; x < Board::SIZE; x++) {
+        for (int y = 0; y < Board::SIZE; y++) {
+            if (board.isWhiteStoneAt({x, y}) || board.isBlackStoneAt({x, y})) {
+                stoneCount++;
+            }
+        }
     }
 
-    auto possibleMoves = generatePossibleMoves(currentBoard);
-    #ifdef JSON_DEBUG
-    json children = json::array();
-    #endif
-    int resultValue;
+    for (int depth = 1; depth <= maxDepth; depth++) {
+        if (isTimeUp()) {
+            std::cout << "Time limit reached at depth " << depth - 1 << std::endl;
+            break;
+        }
+
+        uint64_t hash = zobrist.getHash(board);
+        int searchRadius = 2;  // Augmenté pour capturer les positions défensives éloignées
+        std::vector<Position> moves = MoveGenerator::generateMoves(board, searchRadius);
+
+        if (moves.empty()) {
+            moves.push_back({Board::SIZE / 2, Board::SIZE / 2});
+            return moves[0];
+        }
+
+        Position hashMove{-1, -1};
+        int dummyScore;
+        ttable.probe(hash, depth, std::numeric_limits<int>::min(), std::numeric_limits<int>::max(), dummyScore, hashMove);
+
+        moveOrdering.orderMoves(moves, 0, hashMove, board, isWhite);
+
+        Position depthBestMove = moves[0];
+        int depthBestScore = std::numeric_limits<int>::min();
+
+        int alpha = std::numeric_limits<int>::min();
+        int beta = std::numeric_limits<int>::max();
+
+        if (depth > 1 && bestMove.x != -1) {
+            alpha = bestScore - 100000;
+            beta = bestScore + 100000;
+        }
+
+        bool needFullSearch = false;
+
+        for (const auto& move : moves) {
+            if (isTimeUp()) break;
+
+            auto undo = board.makeMove(move, isWhite);
+            uint64_t newHash = zobrist.updateHash(hash, move, isWhite);
+
+            int score;
+
+            if (needFullSearch || depth <= 1) {
+                score = -pvs(board, depth - 1, -beta, -alpha, !isWhite, move, newHash);
+            } else {
+                score = -pvs(board, depth - 1, -beta, -alpha, !isWhite, move, newHash);
+                if (score <= alpha || score >= beta) {
+                    needFullSearch = true;
+                    alpha = std::numeric_limits<int>::min();
+                    beta = std::numeric_limits<int>::max();
+                    score = -pvs(board, depth - 1, -beta, -alpha, !isWhite, move, newHash);
+                }
+            }
+
+            // CRITICAL: Add massive bonus for immediate captures at root level
+            // This ensures we ALWAYS take free captures, even if deep search finds false wins
+            int captureCount = undo.capturedStones.size() / 2;
+            if (captureCount > 0) {
+                score += 2000000;  // Large enough to beat any score (including WIN_SCORE)
+            }
+
+            board.undoMove(undo);
+
+            if (score > depthBestScore) {
+                depthBestScore = score;
+                depthBestMove = move;
+            }
+
+            alpha = std::max(alpha, score);
+        }
+
+        if (!timeExpired) {
+            bestMove = depthBestMove;
+            bestScore = depthBestScore;
+
+            ttable.store(hash, bestScore, depth, NodeType::EXACT, bestMove);
+
+            std::cout << "Depth " << depth << " complete | Best move: (" << bestMove.x << ", " << bestMove.y << ") | Score: " << bestScore << std::endl;
+        }
+    }
+
+    return bestMove;
+}
+
+int MinMax::pvs(Board& board, int depth, int alpha, int beta, bool currentPlayerIsWhite, Position lastMove, uint64_t hash) {
+    nodesSearched++;
+    bool isMaximizing = currentPlayerIsWhite;  // White maximise, Black minimise
+
+    if (isTimeUp()) {
+        return FastEvaluator::evaluate(board);
+    }
+
+    int alphaOrig = alpha;
+    Position ttMove{-1, -1};
+    int ttScore;
+
+    if (ttable.probe(hash, depth, alpha, beta, ttScore, ttMove)) {
+        return ttScore;
+    }
+
+    if (depth <= 0 || FastEvaluator::isWinningPosition(board, !currentPlayerIsWhite)) {
+        int score = FastEvaluator::evaluateMove(board, lastMove, !currentPlayerIsWhite);
+        if (abs(score) < 100000) {
+            score += FastEvaluator::evaluate(board);
+        }
+
+        // Add depth penalty for distant gains - prefer immediate captures over distant wins
+        // depth = MAX_DEPTH at root, depth = 0 deep in tree
+        // So (MAX_DEPTH - depth) = moves away from root
+        int movesAway = MAX_DEPTH - depth;
+        if (abs(score) < 900000 && movesAway > 0) {  // Don't penalize actual win positions
+            int penalty = movesAway * 150;
+            score = score > 0 ? score - penalty : score + penalty;
+        }
+
+        return score;
+    }
+
+    std::vector<Position> moves = MoveGenerator::generateMoves(board, 2);  // Radius 2 pour couverture tactique
+
+    if (moves.empty()) {
+        return FastEvaluator::evaluate(board);
+    }
+
+    moveOrdering.orderMoves(moves, MAX_DEPTH - depth, ttMove, board, isMaximizing);
+
+    Position bestMove = moves[0];
+    bool firstMove = true;
 
     if (isMaximizing) {
-        int maxEval = INT_MIN;
-        for (const auto& move : possibleMoves) {
-            Board newBoard = currentBoard;
-            newBoard.addStoneWhite(move);
+        int maxEval = std::numeric_limits<int>::min();
 
-            json childTree = json::array();
-            int eval = minimax(newBoard, depth + 1, alpha, beta, false, childTree);
+        for (const auto& move : moves) {
+            if (isTimeUp()) break;
 
-#ifdef JSON_DEBUG
-            JsonService::pushNode(tree, eval, depth + 1, alpha, beta, move, childTree);
-            #endif
-            // Si childTree est vide, c'est une feuille - on ne crée pas de nœud spécial
+            auto undo = board.makeMove(move, currentPlayerIsWhite);
+            uint64_t newHash = zobrist.updateHash(hash, move, currentPlayerIsWhite);
+            int eval;
 
-            maxEval = std::max(maxEval, eval);
+            if (firstMove) {
+                eval = -pvs(board, depth - 1, -beta, -alpha, !currentPlayerIsWhite, move, newHash);
+                firstMove = false;
+            } else {
+                eval = -pvs(board, depth - 1, -alpha - 1, -alpha, !currentPlayerIsWhite, move, newHash);
+                if (eval > alpha && eval < beta) {
+                    eval = -pvs(board, depth - 1, -beta, -eval, !currentPlayerIsWhite, move, newHash);
+                }
+            }
+
+            board.undoMove(undo);
+
+            if (eval > maxEval) {
+                maxEval = eval;
+                bestMove = move;
+            }
+
             alpha = std::max(alpha, eval);
 
-            if (beta <= alpha) break;
+            if (beta <= alpha) {
+                moveOrdering.addKillerMove(MAX_DEPTH - depth, move);
+                moveOrdering.updateHistory(move, depth);
+                break;
+            }
         }
-        resultValue = maxEval;
+
+        NodeType type = (maxEval <= alphaOrig) ? NodeType::UPPER_BOUND :
+                        (maxEval >= beta) ? NodeType::LOWER_BOUND : NodeType::EXACT;
+        ttable.store(hash, maxEval, depth, type, bestMove);
+
+        return maxEval;
     } else {
-        int minEval = INT_MAX;
-        for (const auto& move : possibleMoves) {
-            Board newBoard = currentBoard;
-            newBoard.addStoneBlack(move);
+        int minEval = std::numeric_limits<int>::max();
 
-            json childTree = json::array();
-            int eval = minimax(newBoard, depth + 1, alpha, beta, true, childTree);
+        for (const auto& move : moves) {
+            if (isTimeUp()) break;
 
-            // Créer un nœud enfant seulement si ce coup a des sous-arbres
-            #ifdef JSON_DEBUG
-            JsonService::pushNode(tree, eval, depth + 1, alpha, beta, move, childTree);
-            #endif
-            // Si childTree est vide, c'est une feuille - on ne crée pas de nœud spécial
+            auto undo = board.makeMove(move, currentPlayerIsWhite);
+            uint64_t newHash = zobrist.updateHash(hash, move, currentPlayerIsWhite);
+            int eval;
 
-            minEval = std::min(minEval, eval);
+            if (firstMove) {
+                eval = -pvs(board, depth - 1, -beta, -alpha, !currentPlayerIsWhite, move, newHash);
+                firstMove = false;
+            } else {
+                eval = -pvs(board, depth - 1, -alpha - 1, -alpha, !currentPlayerIsWhite, move, newHash);
+                if (eval > alpha && eval < beta) {
+                    eval = -pvs(board, depth - 1, -beta, -eval, !currentPlayerIsWhite, move, newHash);
+                }
+            }
+
+            board.undoMove(undo);
+
+            if (eval < minEval) {
+                minEval = eval;
+                bestMove = move;
+            }
+
             beta = std::min(beta, eval);
 
-            if (beta <= alpha) break;
-        }
-        resultValue = minEval;
-    }
-
-    // Créer le nœud courant seulement s'il a des enfants
-    // Si pas d'enfants, tree reste vide = c'est une feuille
-
-    return resultValue;
-}
-
-void MinMax::saveDecisionTree(const json& tree) {
-    std::ofstream file("data.json");
-    if (file.is_open()) {
-        file << tree.dump(2);  // Pretty print avec indentation
-        file.close();
-        std::cout << "Arbre de décision sauvegardé dans data.json" << std::endl;
-    } else {
-        std::cerr << "Erreur: Impossible de sauvegarder l'arbre de décision" << std::endl;
-    }
-}
-std::vector<Position> MinMax::generatePossibleMoves(Board& currentBoard) {
-    std::vector<Position> moves;
-
-    // Stratégie : seulement les cases autour des pierres existantes
-    // pour réduire l'espace de recherche
-    int searchRadius = 2; // Chercher dans un rayon de 2 cases autour des pierres
-
-    for (int x = 0; x < Board::SIZE; ++x) {
-        for (int y = 0; y < Board::SIZE; ++y) {
-            Position pos{x, y};
-            if (!currentBoard.isWhiteStoneAt(pos) && !currentBoard.isBlackStoneAt(pos)) {
-                // Vérifier si cette case est proche d'une pierre existante
-                if (isNearExistingStone(currentBoard, pos, searchRadius)) {
-                    moves.push_back(pos);
-                }
+            if (beta <= alpha) {
+                moveOrdering.addKillerMove(MAX_DEPTH - depth, move);
+                moveOrdering.updateHistory(move, depth);
+                break;
             }
         }
-    }
 
-    // Si pas de pierres sur le board (début de partie), jouer au centre
-    if (moves.empty()) {
-        moves.push_back({Board::SIZE/2, Board::SIZE/2});
-    }
+        NodeType type = (minEval >= beta) ? NodeType::LOWER_BOUND :
+                        (minEval <= alpha) ? NodeType::UPPER_BOUND : NodeType::EXACT;
+        ttable.store(hash, minEval, depth, type, bestMove);
 
-    return moves;
+        return minEval;
+    }
 }
 
-bool MinMax::isNearExistingStone(Board& board, Position pos, int radius) {
-    for (int dx = -radius; dx <= radius; ++dx) {
-        for (int dy = -radius; dy <= radius; ++dy) {
-            int checkX = pos.x + dx;
-            int checkY = pos.y + dy;
+bool MinMax::isTimeUp() {
+    if (timeExpired) return true;
 
-            if (checkX >= 0 && checkX < Board::SIZE && checkY >= 0 && checkY < Board::SIZE) {
-                Position checkPos{checkX, checkY};
-                if (board.isWhiteStoneAt(checkPos) || board.isBlackStoneAt(checkPos)) {
-                    return true;
-                }
-            }
+    if (nodesSearched % 1000 == 0) {
+        auto now = std::chrono::high_resolution_clock::now();
+        auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - startTime);
+        if (elapsed.count() >= timeLimit * 0.93) {
+            timeExpired = true;
+            return true;
         }
     }
+
     return false;
 }

@@ -197,5 +197,83 @@ bool Board::isWhiteStoneAt(const Position pos) const {
     return isStoneAt(gridWhite, pos);
 }
 
+Board::MoveUndo Board::makeMove(Position pos, bool isWhite) {
+    MoveUndo undo;
+    undo.move = pos;
+    undo.isWhite = isWhite;
+    undo.prevWhiteCaptured = whiteStoneCaptured;
+    undo.prevBlackCaptured = blackStoneCaptured;
+
+    if (isWhite) {
+        addStoneWhite(pos);
+    } else {
+        addStoneBlack(pos);
+    }
+
+    undo.capturedStones = getCapturesForMove(pos, isWhite);
+
+    return undo;
+}
+
+void Board::undoMove(const MoveUndo& undo) {
+    if (undo.isWhite) {
+        removeWhiteStoneAt(undo.move);
+    } else {
+        removeBlackStoneAt(undo.move);
+    }
+
+    for (const auto& capturedPos : undo.capturedStones) {
+        if (undo.isWhite) {
+            addStoneBlack(capturedPos);
+        } else {
+            addStoneWhite(capturedPos);
+        }
+    }
+
+    whiteStoneCaptured = undo.prevWhiteCaptured;
+    blackStoneCaptured = undo.prevBlackCaptured;
+}
+
+std::vector<Position> Board::getCapturesForMove(Position pos, bool isWhite) {
+    std::vector<Position> captured;
+    std::array directions = {
+        std::make_pair(0, 1),
+        std::make_pair(1, 0),
+        std::make_pair(1, -1),
+        std::make_pair(1, 1),
+    };
+
+    for (auto& [dx, dy] : directions) {
+        Position dir{dx, dy};
+
+        if (pos.x + dir.x * 3 > SIZE - 1 || pos.x + dir.x * 3 < 0 ||
+            pos.y + dir.y * 3 > SIZE - 1 || pos.y + dir.y * 3 < 0) {
+            continue;
+        }
+
+        const StoneMask& allyMask = isWhite ? gridWhite : gridBlack;
+        StoneMask& enemyMask = isWhite ? gridBlack : gridWhite;
+
+        Position p1{pos.x + dir.x, pos.y + dir.y};
+        Position p2{pos.x + dir.x * 2, pos.y + dir.y * 2};
+        Position p3{pos.x + dir.x * 3, pos.y + dir.y * 3};
+
+        if (isStoneAt(enemyMask, p1) && isStoneAt(enemyMask, p2) && isStoneAt(allyMask, p3)) {
+            removeStoneAt(enemyMask, p1);
+            removeStoneAt(enemyMask, p2);
+            captured.push_back(p1);
+            captured.push_back(p2);
+
+            if (isWhite) {
+                blackStoneCaptured += 2;
+            } else {
+                whiteStoneCaptured += 2;
+            }
+        }
+    }
+
+    return captured;
+}
+
 
 

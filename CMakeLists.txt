@@ -61,6 +61,11 @@ set(DISPLAY_FILES
 
 set(MINMAX_FILES
         src/minmax/MinMax.cpp
+        src/minmax/ZobristHash.cpp
+        src/minmax/TranspositionTable.cpp
+        src/minmax/MoveGenerator.cpp
+        src/minmax/MoveOrdering.cpp
+        src/minmax/FastEvaluator.cpp
 )
 
 set(SERVICES_FILES
@@ -112,4 +117,25 @@ if (ENABLE_TESTS)
     enable_testing()
     add_subdirectory(tests)
 endif ()
+
+add_executable(GomokuBenchmark
+        benchmark.cpp
+        ${BOARD_FILES}
+        ${MINMAX_FILES}
+        ${SERVICES_FILES}
+)
+
+target_include_directories(GomokuBenchmark
+        PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include
+        PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/board
+        PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/minmax
+        PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/services
+        PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/structs
+)
+
+target_link_libraries(GomokuBenchmark
+        PRIVATE SFML::Graphics
+        nlohmann_json::nlohmann_json
+)
+
 
