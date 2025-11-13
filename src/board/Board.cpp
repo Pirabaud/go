@@ -37,11 +37,14 @@ bool Board::resolveCaptureAtPosition(const Position pos) {
     return false;
 }
 
-void Board::removeSToneCaptureAtPosition(StoneMask & enemyMask , const Position pos, const Position dir) {
-    removeStoneAt(enemyMask, Position{pos.x + dir.x, pos.y + dir.y});
-    removeStoneAt(enemyMask, Position{pos.x + dir.x * 2, pos.y + dir.y * 2
-});
-
+void Board::removeStoneCaptureAtPosition(const Position pos, const Position dir, bool isBlack ) {
+    if (isBlack) {
+        removeBlackStoneAt({pos.x + dir.x, pos.y + dir.y});
+        removeBlackStoneAt({pos.x + dir.x * 2, pos.y + dir.y * 2});
+    } else {
+        removeWhiteStoneAt({pos.x + dir.x, pos.y + dir.y});
+        removeWhiteStoneAt({pos.x + dir.x * 2, pos.y + dir.y * 2});
+    }
 }
 
 bool Board::resolveCaptureAtPositionInDirection(const Position pos, const Position dir) {
@@ -62,7 +65,7 @@ bool Board::resolveCaptureAtPositionInDirection(const Position pos, const Positi
     const bool ex2 = isStoneAt(enemyMask, Position{pos.x + dir.x * 2, pos.y + dir.y * 2});
     const bool ex3 = isStoneAt(allyMask, Position{pos.x + dir.x * 3, pos.y + dir.y * 3});
     if (ex1 && ex2 && ex3) {
-        removeSToneCaptureAtPosition(enemyMask, pos, dir);
+        removeStoneCaptureAtPosition(pos, dir, isBlackStoneAt(pos));
         return true;
     }
     return false;
@@ -71,17 +74,18 @@ bool Board::resolveCaptureAtPositionInDirection(const Position pos, const Positi
 void Board::emptyColumn(const int col) {
     for (int row = 0; row < SIZE; row++) {
         if (isWhiteStoneAt(Position{col, row}))
-            removeStoneAt(gridWhite, Position{col, row});
+            removeWhiteStoneAt({col, row});
         else if (isBlackStoneAt(Position{col, row}))
-            removeStoneAt(gridBlack, Position{col, row});
+            removeBlackStoneAt({col, row});
     }
 }
+
 void Board::emptyLine(const int row) {
     for (int col = 0; col < SIZE; col++) {
         if (isWhiteStoneAt(Position{col, row}))
-            removeStoneAt(gridWhite, Position{col, row});
+            removeWhiteStoneAt({col, row});
         else if (isBlackStoneAt(Position{col, row}))
-            removeStoneAt(gridBlack, Position{col, row});
+            removeBlackStoneAt({col, row});
     }
 }
 
@@ -112,14 +116,25 @@ Board::StoneMask& Board::getGridBlack(){
     return this->gridBlack;
 }
 
+int Board::getNumberOfBlackStones() const {
+    return numberOfBlackStones;
+}
+
+int Board::getNumberOfWhiteStones() const {
+    return numberOfWhiteStones;
+}
+
+
 void Board::addStoneWhite(const Position pos) {
     const uint32_t newStone = 1u << (SIZE - 1 - pos.y);
     this->getGridWhite().at(pos.x) = this->getGridWhite().at(pos.x) | newStone;
+    ++numberOfWhiteStones;
 }
 
 void Board::addStoneBlack(const Position pos) {
     const uint32_t newStone = 1u << (SIZE - 1 - pos.y);
     this->getGridBlack().at(pos.x) = this->getGridBlack().at(pos.x) | newStone;
+    ++numberOfBlackStones;
 }
 
 void Board::removeStoneAt(StoneMask& mask, const Position pos) {
@@ -130,10 +145,12 @@ void Board::removeStoneAt(StoneMask& mask, const Position pos) {
 
 void Board::removeWhiteStoneAt(const Position pos) {
     removeStoneAt(gridWhite, pos);
+    --numberOfWhiteStones;
 }
 
 void Board::removeBlackStoneAt(const Position pos) {
     removeStoneAt(gridBlack,pos);
+    --numberOfBlackStones;
 }
 
 void Board::resolveCaptures()  {

@@ -73,7 +73,7 @@ std::vector<Position> newPos(Board& board, bool color) {
     return result;
 }
 
-int evaluation(Board& board, Position pos, bool color) {
+int evaluation(Board& board, Position pos, int color) {
     Board::StoneMask grid = color == 1 ? board.getGridWhite() : board.getGridBlack();
     Board::StoneMask gridOpposite = color == 1 ? board.getGridBlack() : board.getGridWhite();
     int result = 0;
@@ -102,10 +102,13 @@ int evaluation(Board& board, Position pos, bool color) {
                     result += countAlignment2.count * 40;
             }
         }
-    return result;
-    }
+    return result + color == 1 ? board.getNumberOfWhiteStones() : board.getNumberOfBlackStones();
+}
 
 int negamax(Position pos, Board& board, int alpha, int beta, int depth, int color) {
+    static int counter = 0;
+    counter++;
+    std::cout << "Counter: " << counter << std::endl;
     if (CheckWinService::isWin(board)) {
         return 10000 * color;
     }
@@ -118,9 +121,9 @@ int negamax(Position pos, Board& board, int alpha, int beta, int depth, int colo
         return 0;
     }
    for (const auto position : positions) {
-        color ? board.addStoneWhite(position) : board.addStoneBlack(position);
+        color == 1 ? board.addStoneWhite(position) : board.addStoneBlack(position);
         value = std::max(value, -negamax(position, board, -beta, -alpha, depth - 1, -color));
-        color ? board.removeWhiteStoneAt(position) : board.removeBlackStoneAt(position);
+        color == 1 ? board.removeWhiteStoneAt(position) : board.removeBlackStoneAt(position);
         if (value >= beta) {
             return value;
         }
@@ -138,7 +141,7 @@ Position bestMove(Board& board, bool color) {
     int beta = 10000;
     for (const auto position : positions) {
         color ? board.addStoneWhite(position) : board.addStoneBlack(position);
-        value = std::max(value, -negamax(position, board, alpha, beta, 10, 1));
+        value = std::max(value, -negamax(position, board, alpha, beta, 3, 1));
         color ? board.removeWhiteStoneAt(position) : board.removeBlackStoneAt(position);
         if (value > bestEvaluation) {
             bestMove = position;

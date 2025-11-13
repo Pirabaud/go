@@ -24,12 +24,15 @@ public:
 
     [[nodiscard]] StoneMask& getGridWhite();
     [[nodiscard]] StoneMask& getGridBlack();
+    [[nodiscard]] int getNumberOfWhiteStones() const;
+    [[nodiscard]] int getNumberOfBlackStones() const;
 
     void addStoneWhite(Position pos);
     void addStoneBlack(Position pos);
 
     void removeWhiteStoneAt(Position pos);
     void removeBlackStoneAt(Position pos);
+
 
     void resolveCaptures();
 
@@ -54,7 +57,10 @@ private:
 
     std::set<uint32_t> candidatesPositionsBlack;
 
-    static void removeSToneCaptureAtPosition(StoneMask &enemyMask, Position pos, Position dir);
+    int numberOfBlackStones = 0;
+    int numberOfWhiteStones = 0;
+
+    void removeStoneCaptureAtPosition(Position pos, Position dir, bool isBlack);
     bool resolveCaptureAtPosition(Position pos);
     bool resolveCaptureAtPositionInDirection(Position pos, Position dir);
 };
