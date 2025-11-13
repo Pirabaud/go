@@ -1,7 +1,7 @@
 #ifndef BOARD_SCENE_HPP
 #define BOARD_SCENE_HPP
 #include "AbstractScene.hpp"
-#include "AiPlay.hpp"
+#include "JsonService.hpp"
 #include "Board.h"
 #include "structs/IllegalMoves.hpp"
 
@@ -21,12 +21,11 @@ protected:
     Board board;
     sf::Color colorToPlay = sf::Color::Black;
     bool threeDetected = false;
-    AiPlay aiPlay;
     BoardScene(sf::RenderWindow& window);
+    long lastAITimeMs = 0;
 
     virtual void drawTexts(sf::RenderWindow& window) = 0;
     virtual bool handleStonePlacement(const std::optional<sf::Event>& event, sf::RenderWindow& window) = 0;
-    virtual void Ai(sf::RenderWindow& window) = 0;
 
     void drawBoard(sf::RenderWindow& window);
     void drawStones(sf::RenderWindow& window);
@@ -34,6 +33,9 @@ protected:
                               const sf::Color& color);
 
     [[nodiscard]] std::pair<int, int> getCellFromMousePosition(const sf::Vector2i& mousePos) const;
+
+    void handleAITurn(Position playerMove, json& decisionTree,  std::vector<Position>& moveHistory);
+
     void playMove(Position pos);
     void nextTurn();
 };

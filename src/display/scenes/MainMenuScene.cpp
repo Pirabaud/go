@@ -43,5 +43,3 @@ void MainMenuScene::draw(sf::RenderWindow& window)
     window.display();
 }
 
-void MainMenuScene::Ai(sf::RenderWindow &window) {
-}

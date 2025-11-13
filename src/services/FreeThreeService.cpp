@@ -5,10 +5,7 @@
 #include "../../include/services/FreeThreeService.h"
 
 #include <algorithm>
-#include <iostream>
-
 #include "AlignmentChecker.hpp"
-#include "catch2/internal/catch_clara.hpp"
 
 bool FreeThreeService::isFreeThree(Board &board, Position pos) {
 

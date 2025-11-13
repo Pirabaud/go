@@ -7,6 +7,7 @@
 #include "../board/Board.h"
 #include "SFML/Graphics/Color.hpp"
 
+#define WIN_LENGTH_CONDITION 5
 
 class CheckWinService
 {

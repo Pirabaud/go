@@ -8,14 +8,14 @@
 #include <cstdint>
 #include <iosfwd>
 #include <set>
+#include <vector>
 
 #include "Position.hpp"
 
 class Board {
 public:
-    static constexpr int SIZE = 9;
-    static constexpr int MAXCANDIDATESPOSITIONS = 3;
-    static constexpr int FULL_ROW = 0b11111111111111111111111111111111;
+    static constexpr int SIZE = 19;
+    static constexpr int FULL_ROW = 0b1111111111111111111;
 
     typedef std::array<uint32_t, SIZE> StoneMask;
 
@@ -24,8 +24,6 @@ public:
 
     [[nodiscard]] StoneMask& getGridWhite();
     [[nodiscard]] StoneMask& getGridBlack();
-    [[nodiscard]] int getNumberOfWhiteStones() const;
-    [[nodiscard]] int getNumberOfBlackStones() const;
 
     void addStoneWhite(Position pos);
     void addStoneBlack(Position pos);
@@ -33,8 +31,10 @@ public:
     void removeWhiteStoneAt(Position pos);
     void removeBlackStoneAt(Position pos);
 
-
     void resolveCaptures();
+
+    void save();
+    void restore();
 
     [[nodiscard]] bool isBlackStoneAt(Position pos) const;
     [[nodiscard]] bool isWhiteStoneAt(Position pos) const;
@@ -43,6 +43,10 @@ public:
 
     void printBoard() const;
 
+    int getWhiteCaptured() const;
+
+    int getBlackCaptured() const;
+
 
     Board();
 
@@ -50,17 +54,15 @@ public:
 
 private:
     StoneMask gridWhite{};
-
     StoneMask gridBlack{};
 
-    std::set<uint32_t> candidatesPositionsWhite;
+    std::vector<StoneMask> saveGridWhite;
+    std::vector<StoneMask> saveGridBlack;
 
-    std::set<uint32_t> candidatesPositionsBlack;
+    int blackStoneCaptured = 0;
+    int whiteStoneCaptured = 0;
 
-    int numberOfBlackStones = 0;
-    int numberOfWhiteStones = 0;
-
-    void removeStoneCaptureAtPosition(Position pos, Position dir, bool isBlack);
+    void removeStoneCaptureAtPosition(StoneMask &enemyMask, Position pos, Position dir);
     bool resolveCaptureAtPosition(Position pos);
     bool resolveCaptureAtPositionInDirection(Position pos, Position dir);
 };

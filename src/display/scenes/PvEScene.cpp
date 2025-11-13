@@ -8,32 +8,20 @@
 
 #include <iostream>
 
-#include "AiPlay.hpp"
-#include "AIService.hpp"
 #include "CheckLegalMove.hpp"
+#include "DisplayService.hpp"
+#include "HeuristicService.h"
 #include "utils/getSharedFont.hpp"
+#include "JsonService.hpp"
 
 void PvEScene::handleEvent(const std::optional<sf::Event>& event, sf::RenderWindow& window) {
     if (winningColor) return;
-    playerPlay = handleStonePlacement(event, window);
-    if (playerPlay) {
+
+    if (handleStonePlacement(event, window)) {
         winningColor = CheckWinService::isWin(board);
         if (winningColor) {
             std::cout << "Player " << (*winningColor == sf::Color::White ? "White" : "Black") << " wins!" << std::endl;
         }
-    }
-}
-
-void PvEScene::Ai(sf::RenderWindow& window) {
-    if (playerPlay) {
-        winningColor = CheckWinService::isWin(board);
-        if (winningColor) {
-            std::cout << "AI " << (*winningColor == sf::Color::White ? "White" : "Black") << " wins!" << std::endl;
-        }
-        else {
-            AIPlay();
-        }
-        playerPlay = false;
     }
 }
 
@@ -59,13 +47,13 @@ void PvEScene::drawTexts(sf::RenderWindow& window) {
 
         window.draw(illegalMoveText);
     }
-    sf::Text illegalMoveText(getSharedFont(),
-   "ai time to play: " + std::string(std::to_string(aiPlay.Time)) +
-       " seconds.");
-        illegalMoveText.setCharacterSize(18);
-        illegalMoveText.setFillColor(sf::Color::Green);
-        illegalMoveText.setPosition({BOARD_SIZE_WITH_PADDING, PADDING + 80});
-        window.draw(illegalMoveText);
+    sf::Text AITimeMs(getSharedFont(),
+                         "Time taken : " + (colorToPlay == sf::Color::Black ? std::to_string(lastAITimeMs) + " ms" : "playing..."));
+    AITimeMs.setCharacterSize(18);
+    AITimeMs.setFillColor(lastAITimeMs >= 500 ? sf::Color::Red : sf::Color(0,150,0));
+    AITimeMs.setPosition({BOARD_SIZE_WITH_PADDING, DisplayService::WINDOW_HEIGHT - PADDING - 20});
+
+    window.draw(AITimeMs);
 }
 
 bool PvEScene::handleStonePlacement(const std::optional<sf::Event>& event, sf::RenderWindow& window) {
@@ -86,17 +74,27 @@ bool PvEScene::handleStonePlacement(const std::optional<sf::Event>& event, sf::R
         if (illegalMove != IllegalMoves::Type::NONE) {
             return false;
         }
-        playMove(Position{row, col});
+        Position playerMove = Position(row, col);
+
+        playMove(playerMove);
+
+        std::cout << "Heuristic : " << HeuristicService::getHeuristicValue(board) << std::endl;
         board.resolveCaptures();
+        std::cout << "Black captured: " << board.getBlackCaptured() << std::endl;
+        std::cout << "White captured: " << board.getWhiteCaptured() << std::endl;
+        draw(window);
+        if (CheckWinService::isWin(board)) {
+            return true;
+        }
+
+        json decisionTree = json::array();
+        moveHistory.push_back(playerMove);
+        handleAITurn(playerMove, decisionTree, moveHistory);
+        board.resolveCaptures();
+        board.resolveCaptures();
+        std::cout << "Black captured: " << board.getBlackCaptured() << std::endl;
+        std::cout << "White captured: " << board.getWhiteCaptured() << std::endl;
         return true;
         }
     return false;
 }
-
-bool PvEScene::AIPlay() {
-    aiPlay = AIService::AIPlay(board);
-    playMove(aiPlay.pos);
-    board.resolveCaptures();
-    return true;
-}
-

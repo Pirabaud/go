@@ -37,13 +37,13 @@ bool Board::resolveCaptureAtPosition(const Position pos) {
     return false;
 }
 
-void Board::removeStoneCaptureAtPosition(const Position pos, const Position dir, bool isBlack ) {
-    if (isBlack) {
-        removeBlackStoneAt({pos.x + dir.x, pos.y + dir.y});
-        removeBlackStoneAt({pos.x + dir.x * 2, pos.y + dir.y * 2});
+void Board::removeStoneCaptureAtPosition(StoneMask & enemyMask , const Position pos, const Position dir) {
+    removeStoneAt(enemyMask, Position{pos.x + dir.x, pos.y + dir.y});
+    removeStoneAt(enemyMask, Position{pos.x + dir.x * 2, pos.y + dir.y * 2});
+    if (enemyMask == gridWhite) {
+        whiteStoneCaptured += 2;
     } else {
-        removeWhiteStoneAt({pos.x + dir.x, pos.y + dir.y});
-        removeWhiteStoneAt({pos.x + dir.x * 2, pos.y + dir.y * 2});
+        blackStoneCaptured += 2;
     }
 }
 
@@ -65,7 +65,7 @@ bool Board::resolveCaptureAtPositionInDirection(const Position pos, const Positi
     const bool ex2 = isStoneAt(enemyMask, Position{pos.x + dir.x * 2, pos.y + dir.y * 2});
     const bool ex3 = isStoneAt(allyMask, Position{pos.x + dir.x * 3, pos.y + dir.y * 3});
     if (ex1 && ex2 && ex3) {
-        removeStoneCaptureAtPosition(pos, dir, isBlackStoneAt(pos));
+        removeStoneCaptureAtPosition(enemyMask, pos, dir);
         return true;
     }
     return false;
@@ -74,18 +74,17 @@ bool Board::resolveCaptureAtPositionInDirection(const Position pos, const Positi
 void Board::emptyColumn(const int col) {
     for (int row = 0; row < SIZE; row++) {
         if (isWhiteStoneAt(Position{col, row}))
-            removeWhiteStoneAt({col, row});
+            removeStoneAt(gridWhite, Position{col, row});
         else if (isBlackStoneAt(Position{col, row}))
-            removeBlackStoneAt({col, row});
+            removeStoneAt(gridBlack, Position{col, row});
     }
 }
-
 void Board::emptyLine(const int row) {
     for (int col = 0; col < SIZE; col++) {
         if (isWhiteStoneAt(Position{col, row}))
-            removeWhiteStoneAt({col, row});
+            removeStoneAt(gridWhite, Position{col, row});
         else if (isBlackStoneAt(Position{col, row}))
-            removeBlackStoneAt({col, row});
+            removeStoneAt(gridBlack, Position{col, row});
     }
 }
 
@@ -108,6 +107,14 @@ void Board::printBoard() const {
     }
 }
 
+int Board::getWhiteCaptured() const {
+    return this->whiteStoneCaptured;
+}
+
+int Board::getBlackCaptured() const {
+    return this->blackStoneCaptured;
+}
+
 Board::StoneMask& Board::getGridWhite(){
     return this->gridWhite;
 }
@@ -116,25 +123,14 @@ Board::StoneMask& Board::getGridBlack(){
     return this->gridBlack;
 }
 
-int Board::getNumberOfBlackStones() const {
-    return numberOfBlackStones;
-}
-
-int Board::getNumberOfWhiteStones() const {
-    return numberOfWhiteStones;
-}
-
-
 void Board::addStoneWhite(const Position pos) {
     const uint32_t newStone = 1u << (SIZE - 1 - pos.y);
     this->getGridWhite().at(pos.x) = this->getGridWhite().at(pos.x) | newStone;
-    ++numberOfWhiteStones;
 }
 
 void Board::addStoneBlack(const Position pos) {
     const uint32_t newStone = 1u << (SIZE - 1 - pos.y);
     this->getGridBlack().at(pos.x) = this->getGridBlack().at(pos.x) | newStone;
-    ++numberOfBlackStones;
 }
 
 void Board::removeStoneAt(StoneMask& mask, const Position pos) {
@@ -145,12 +141,10 @@ void Board::removeStoneAt(StoneMask& mask, const Position pos) {
 
 void Board::removeWhiteStoneAt(const Position pos) {
     removeStoneAt(gridWhite, pos);
-    --numberOfWhiteStones;
 }
 
 void Board::removeBlackStoneAt(const Position pos) {
     removeStoneAt(gridBlack,pos);
-    --numberOfBlackStones;
 }
 
 void Board::resolveCaptures()  {
@@ -161,6 +155,19 @@ void Board::resolveCaptures()  {
             }
         }
     }
+}
+
+void Board::save() {
+    saveGridBlack.push_back(gridBlack);
+    saveGridWhite.push_back(gridWhite);
+    std::cout << saveGridBlack.size() << std::endl;
+}
+
+void Board::restore() {
+    gridBlack = saveGridBlack.back();
+    gridWhite = saveGridWhite.back();
+    saveGridBlack.pop_back();
+    saveGridWhite.pop_back();
 }
 
 std::ostream& operator<<(std::ostream& os, Board& board) {

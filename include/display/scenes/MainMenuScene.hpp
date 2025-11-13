@@ -19,7 +19,6 @@ public:
 
     void handleEvent(const std::optional<sf::Event>& event, sf::RenderWindow& window) override;
     void draw(sf::RenderWindow& window) override;
-    void Ai(sf::RenderWindow& window) override;
 };
 
 

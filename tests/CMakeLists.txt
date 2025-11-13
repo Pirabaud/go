@@ -2,22 +2,24 @@ cmake_minimum_required(VERSION 3.29)
 
 add_executable(GomokuTests
         board/BoardTest.cpp
+        minmax/MinMaxTest.cpp
+        services/CheckAlignmentCheckerTest.cpp
+        services/CheckFreeThreeTest.cpp
         services/CheckLegalMoveTest.cpp
         services/CheckWinServiceTest.cpp
-        services/CheckAlignmentCheckerTest.cpp
         ../src/services/AlignmentChecker.cpp
         ../src/services/CheckLegalMove.cpp
         ../src/services/CheckWinService.cpp
         ../src/services/CaptureService.cpp
         ../src/board/Board.cpp
+        ../src/minmax/MinMax.cpp
         ../src/services/FreeThreeService.cpp
-        ../include/services/FreeThreeService.h
+        ../src/services/HeuristicService.cpp
+        ../src/services/JsonService.cpp
         services/CheckFreeThreeTest.cpp
-        ../src/services/AIService.cpp
-        ../include/services/AIService.hpp
 )
 
-target_link_libraries(GomokuTests PRIVATE SFML::Graphics)
+target_link_libraries(GomokuTests PRIVATE SFML::Graphics nlohmann_json::nlohmann_json)
 
 target_link_libraries(GomokuTests
         PRIVATE Catch2::Catch2WithMain
@@ -27,6 +29,7 @@ target_link_libraries(GomokuTests
 target_include_directories(GomokuTests
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../include
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../include/board
+        PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../include/minmax
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../include/structs
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../include/services
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../cmake-build-debug/_deps/sfml-src/include

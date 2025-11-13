@@ -5,7 +5,12 @@
 const sf::Color* CheckWinService::isWin(Board& board)
 {
     //TODO Add condition win if a player has captured 10 opponents stones
-
+    if (board.getBlackCaptured() >= 10) {
+        return &sf::Color::White;
+    }
+    if (board.getWhiteCaptured() >= 10) {
+        return &sf::Color::Black;
+    }
     if (isColorWin(board.getGridBlack()))
     {
         return &sf::Color::Black;
@@ -41,7 +46,7 @@ bool CheckWinService::isColorWin(const Board::StoneMask& grid)
                     ((grid[cy] >> cx) & 1))
                 {
                     count++;
-                    if (count == 5) return true;
+                    if (count == WIN_LENGTH_CONDITION) return true;
                     cx += dx;
                     cy += dy;
                 }
