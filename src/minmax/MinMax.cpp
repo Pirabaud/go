@@ -7,7 +7,7 @@
 #include "CheckWinService.hpp"
 #include "HeuristicService.h"
 
-int MinMax::MAX_DEPTH = 1;
+int MinMax::MAX_DEPTH = 3;
 
 MinMax::MinMax(Board &board) : board(board) {
 }
@@ -32,14 +32,17 @@ std::pair<Position, long> MinMax::run(Position playerMove, json& decisionTree, s
     #endif
 
     for (const auto& move : possibleMoves) {
-        Board newBoard = board;
-        newBoard.addStoneWhite(move);
+
+        int oldLocalHeuristic = HeuristicService::getHeuristicFromPos(board, move, false);
+        board.addStoneWhite(move);
+        int newHeuristic = rootHeuristic - (oldLocalHeuristic + HeuristicService::getHeuristicFromPos(board, move, false));
 
         json childTree = json::array();
-        int moveValue = minimax(newBoard, 1, INT_MIN, INT_MAX, false, childTree);
+        int moveValue = minimax(board, 0, INT_MIN, INT_MAX, false, childTree, newHeuristic);
+        board.removeWhiteStoneAt(move);
 
         #ifdef JSON_DEBUG
-        JsonService::pushNode(children, moveValue, 1, INT_MIN, INT_MAX, move, childTree);
+        JsonService::pushNode(children, moveValue, 0, INT_MIN, INT_MAX, move, childTree);
         #endif
 
         if (moveValue > bestValue) {
@@ -70,9 +73,7 @@ std::pair<Position, long> MinMax::run(Position playerMove, json& decisionTree, s
 }
 
 
-int MinMax::minimax(Board& currentBoard, int depth, int alpha, int beta, bool isMaximizing, json& tree) {
-    // Évaluation de la position actuelle
-    int currentHeuristic = HeuristicService::getHeuristicValue(currentBoard);
+int MinMax::minimax(Board& currentBoard, int depth, int alpha, int beta, bool isMaximizing, json& tree, int currentHeuristic) {
 
     // Condition d'arrêt - NE PAS CRÉER DE NŒUD POUR LES FEUILLES
     if (depth >= MAX_DEPTH || abs(currentHeuristic) >= WIN_WEIGHT || generatePossibleMoves(currentBoard).empty()) {
@@ -80,6 +81,7 @@ int MinMax::minimax(Board& currentBoard, int depth, int alpha, int beta, bool is
     }
 
     auto possibleMoves = generatePossibleMoves(currentBoard);
+    std::cout << possibleMoves.size() << std::endl;
     #ifdef JSON_DEBUG
     json children = json::array();
     #endif
@@ -88,11 +90,13 @@ int MinMax::minimax(Board& currentBoard, int depth, int alpha, int beta, bool is
     if (isMaximizing) {
         int maxEval = INT_MIN;
         for (const auto& move : possibleMoves) {
-            Board newBoard = currentBoard;
-            newBoard.addStoneWhite(move);
+            const int oldLocalHeuristic = HeuristicService::getHeuristicFromPos(currentBoard, move, false);
+            currentBoard.addStoneWhite(move);
+            const int newHeuristic = currentHeuristic - (oldLocalHeuristic + HeuristicService::getHeuristicFromPos(currentBoard, move, false));
 
             json childTree = json::array();
-            int eval = minimax(newBoard, depth + 1, alpha, beta, false, childTree);
+            int eval = minimax(currentBoard, depth + 1, alpha, beta, false, childTree, newHeuristic);
+            currentBoard.removeWhiteStoneAt(move);
 
 #ifdef JSON_DEBUG
             JsonService::pushNode(tree, eval, depth + 1, alpha, beta, move, childTree);
@@ -108,11 +112,13 @@ int MinMax::minimax(Board& currentBoard, int depth, int alpha, int beta, bool is
     } else {
         int minEval = INT_MAX;
         for (const auto& move : possibleMoves) {
-            Board newBoard = currentBoard;
-            newBoard.addStoneBlack(move);
+            int oldLocalHeuristic = HeuristicService::getHeuristicFromPos(currentBoard, move, false);
+            currentBoard.addStoneBlack(move);
+            int newHeuristic = currentHeuristic - (oldLocalHeuristic + HeuristicService::getHeuristicFromPos(currentBoard, move, false));
 
             json childTree = json::array();
-            int eval = minimax(newBoard, depth + 1, alpha, beta, true, childTree);
+            int eval = minimax(currentBoard, depth + 1, alpha, beta, true, childTree, newHeuristic);
+            currentBoard.removeBlackStoneAt(move);
 
             // Créer un nœud enfant seulement si ce coup a des sous-arbres
             #ifdef JSON_DEBUG

@@ -21,6 +21,11 @@ public:
     static bool isCapturePattern(Board& board, Position pos, Position dir,
                                        const Board::StoneMask& allyMask,
                                        const Board::StoneMask& enemyMask);
+
+    static int getHeuristicFromPos(Board &board, Position pos, bool isBlack);
+
+    static int countAlignmentHeuristic(Board &board, const Position pos, const Board::StoneMask &grid, const Board::StoneMask &oppositeGrid);
+
 };
 
 
