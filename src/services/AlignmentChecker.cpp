@@ -1,52 +1,63 @@
 #include "AlignmentChecker.hpp"
 
+#include <algorithm>
 #include <bitset>
 #include <iostream>
 
-Alignment AlignmentChecker::detectAlignment(const Position pos, const int count, const Board::StoneMask &grid,
-                                            const Board::StoneMask &gridOpposite) {
-    std::array directions = {
-        std::make_pair(0, 1),
-        std::make_pair(1, 0),
-        std::make_pair(1, -1),
-        std::make_pair(1, 1),
+Alignment AlignmentChecker::detectAlignment(const Position pos, const Board::StoneMask &grid,
+                                            const Board::StoneMask &gridOpposite, const Position dir) {
+
+    Alignment result = {
+        .block = NOTALIGN,
+        .nbAlignment = 0
     };
-    for (auto& [dx, dy] : directions) {
-        const Result result1 = countDirection(pos, {dx, dy}, count, grid, gridOpposite);
-        const Result result2 = countDirection(pos, {-dx, -dy}, count, grid, gridOpposite);
+        const Result resultRight = countDirection(pos, dir, grid, gridOpposite);
+        const Result resultLeft = countDirection(pos, {-dir.x, -dir.y}, grid, gridOpposite);
 
+         result.nbAlignment = std::max(resultRight.countAfterHole + resultRight.countBeforeHole + resultLeft.countBeforeHole, resultLeft.countAfterHole + resultLeft.countBeforeHole + resultRight.countBeforeHole) + 1;
 
-        if (result1.count + result2.count + 1 >= count) {
-            switch (result1.blocked + result2.blocked) {
+            switch (resultRight.blocked + resultLeft.blocked) {
                 case 1:
-                    return Alignment::SEMIBLOCKED;
+                    result.block = BlockState::SEMIBLOCKED;
+                    break;
                 case 2:
-                    return Alignment::BLOCKED;
+                    result.block = BlockState::BLOCKED;
+                    break;
                 default:
-                    return Alignment::FREE;
+                    result.block = BlockState::FREE;
             }
-        }
-    }
-    return Alignment::NOTALIGN;
+    return result;
 }
 
-AlignmentChecker::Result AlignmentChecker::countDirection(Position pos, Position dir, int count, const Board::StoneMask &grid,
+AlignmentChecker::Result AlignmentChecker::countDirection(Position pos, Position dir, const Board::StoneMask &grid,
     const Board::StoneMask &gridOpposite) {
     Result result{};
+    int hole = 0;
 
     int cx = pos.x  + dir.x;
     int cy = pos.y + dir.y;
-    for (int i = 0; i < count; i++) {
+    while (hole < 2) {
+
+        if (Board::isStoneAt(gridOpposite, {cx, cy}) == 1) {
+            break;
+        }
 
         if ( cx < 0 || cx >= Board::SIZE || cy < 0 || cy >= Board::SIZE) {
             break;
         }
-        if (((grid.at(cx) >> (Board::SIZE - 1 - cy)) & 1) == 0) {
-            break;
+        if (Board::isStoneAt(grid, {cx, cy}) == 0) {
+            hole++;
         }
 
-        result.count++;
-
+        else if (hole == 1) {
+            result.countAfterHole++;
+        }
+        else {
+            result.countBeforeHole++;
+        }
+        if (hole == 2) {
+            break;
+        }
         cx += dir.x;
         cy += dir.y;
     }

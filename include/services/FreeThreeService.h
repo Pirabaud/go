@@ -12,9 +12,10 @@ class FreeThreeService {
 
 public:
     static bool isFreeThree(Board &board, Position pos);
+    static bool checkDirectionFreeThree(Board &board, Position pos, Position dir);
 
 private:
-    static bool checkDirectionFreeThree(Board::StoneMask &grid, Board::StoneMask &gridOpposite, Position pos, Position dir);
+    static bool checkNotFreeLine(const Board &board, Position pos, Position dir);
 
 };
 

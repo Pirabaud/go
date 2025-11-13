@@ -5,12 +5,12 @@
 #include "../../include/services/FreeThreeService.h"
 
 #include <algorithm>
+#include <iostream>
+
 #include "AlignmentChecker.hpp"
+#include "CheckLegalMove.hpp"
 
-bool FreeThreeService::isFreeThree(Board &board, Position pos) {
-
-    Board::StoneMask grid = board.isBlackStoneAt(pos) ? board.getGridBlack() : board.getGridWhite();
-    Board::StoneMask gridOpposite = board.isBlackStoneAt(pos) ? board.getGridWhite() : board.getGridBlack();
+bool FreeThreeService::isFreeThree(Board &board, const Position pos) {
 
     std::array directions = {
         std::make_pair(0, 1),
@@ -20,10 +20,10 @@ bool FreeThreeService::isFreeThree(Board &board, Position pos) {
     };
     board.printBoard();
     for (auto &[dx, dy] : directions) {
-        if (checkDirectionFreeThree(grid, gridOpposite, pos, {dx, dy})) {
+        if (checkDirectionFreeThree(board, pos, {dx, dy})) {
             return true;
         }
-        if (checkDirectionFreeThree(grid, gridOpposite, pos, {-dx, -dy})) {
+        if (checkDirectionFreeThree(board, pos, {-dx, -dy})) {
             return true;
         }
     }
@@ -31,37 +31,68 @@ bool FreeThreeService::isFreeThree(Board &board, Position pos) {
     return false;
 }
 
-bool FreeThreeService::checkDirectionFreeThree(Board::StoneMask &grid, Board::StoneMask &gridOpposite, Position pos, Position dir) {
-
+bool FreeThreeService::checkDirectionFreeThree(Board &board, const Position pos, const Position dir) {
     int hole = 0;
     int count = 1;
     int cx = pos.x  + dir.x;
     int cy = pos.y + dir.y;
+
+    //check free before count alignment
+    if (checkNotFreeLine(board, pos, {-dir.x, -dir.y})) {
+        return false;
+    }
+
+    //check alignment
     for (int i = 0; i < 2; i++) {
+
+        //check board
         if ( cx < 0 || cx >= Board::SIZE || cy < 0 || cy >= Board::SIZE) {
             break;
         }
-        if (((grid.at(cx) >> (Board::SIZE - 1 - cy)) & 1) == 0) {
-            hole++;
+
+        //check stone opp
+        bool oppStone = board.isBlackStoneAt(pos) ? board.isWhiteStoneAt({cx, cy}) : board.isBlackStoneAt({cx, cy});
+
+        board.printBoard();
+        if (oppStone) {
+            //std::cout << pos.x << " " << pos.y << std::endl;
+            return false;
         }
 
+        //check hole
+        if (!board.isBlackStoneAt({cx, cy}) && !board.isWhiteStoneAt({cx, cy})) {
+            hole++;
+        }
         if (hole == 2) {
             break;
         }
+
+        //board.printBoard();
+
+
         count++;
         cx += dir.x;
         cy += dir.y;
     }
-    if (cx < 0 || cx >= Board::SIZE || cy < 0 || cy >= Board::SIZE) {
-        return false;
-    }
-    if (((gridOpposite.at(cx) >> (Board::SIZE - 1 - cy)) & 1) == 1) {
-        return false;
-    }
-    if (count == 3 && pos.x - dir.x >= 0 && pos.y - dir.y >= 0 && pos.x + dir.x < Board::SIZE && pos.y + dir.y < Board::SIZE) {
+    //check free
+    if (!checkNotFreeLine(board, {cx, cy}, dir) && count == 3) {
         return true;
     }
     return false;
 }
+
+bool FreeThreeService::checkNotFreeLine(const Board &board, const Position pos, const Position dir) {
+    if (CheckLegalMove::notInBoard({pos.x + dir.x, pos.y + dir.y})) {
+        return true;
+    }
+
+    if (board.isBlackStoneAt(pos) ? board.isWhiteStoneAt({pos.x + dir.x, pos.y + dir.y}) : board.isBlackStoneAt({pos.x + dir.x, pos.y + dir.y})) {
+        return true;
+    }
+
+    return false;
+}
+
+
 
 

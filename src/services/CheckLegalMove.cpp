@@ -1,15 +1,17 @@
 #include "../../include/services/CheckLegalMove.hpp"
 
+#include <algorithm>
 #include <bitset>
 #include <iostream>
 
 
 #include "CaptureService.hpp"
+#include "FreeThreeService.h"
 
 
 IllegalMoves::Type CheckLegalMove::isLegalMove(Position pos,
-                                                 Board &board,
-                                                 const bool &isBlack) {
+                                               Board &board,
+                                               const bool &isBlack) {
     if (notInBoard(pos)) {
         return IllegalMoves::Type::NOT_IN_BOARD;
     }
@@ -21,8 +23,7 @@ IllegalMoves::Type CheckLegalMove::isLegalMove(Position pos,
     }
 
      if (checkDoubleThree(pos,
-         isBlack ? board.getGridBlack() : board.getGridWhite(),
-         isBlack ? board.getGridWhite() : board.getGridBlack())) {
+                          board, isBlack)) {
          return IllegalMoves::Type::DOUBLE_FREE_CAPTURE;
      }
 
@@ -96,11 +97,11 @@ bool CheckLegalMove::checkCapture(Position pos, const std::array<uint32_t, Board
     return false;
 }
 
-bool CheckLegalMove::checkDoubleThree(Position pos, Board::StoneMask grid, Board::StoneMask gridOpposite) {
+bool CheckLegalMove::checkDoubleThree(const Position pos, Board &board, bool isBlack) {
 
-    if (AlignmentChecker::detectAlignment(pos, 3, grid, gridOpposite) != Alignment::FREE) {
-        return false;
-    }
+    int countFreeThree = 0;
+    Board::StoneMask grid = isBlack ? board.getGridBlack() : board.getGridWhite();
+    Board::StoneMask gridOpposite = isBlack ? board.getGridWhite() : board.getGridBlack();
 
     std::array directions = {
         std::make_pair(0, 1),
@@ -110,15 +111,15 @@ bool CheckLegalMove::checkDoubleThree(Position pos, Board::StoneMask grid, Board
     };
 
     for (auto& [dx, dy] : directions) {
-        if (alreadyStone({pos.x + dx, pos.y + dy},grid, gridOpposite) == false &&
-            AlignmentChecker::detectAlignment({pos.x + dx, pos.y + dy}, 3, grid, gridOpposite) != Alignment::NOTALIGN) {
-            std::cout << "1" << std::endl;
-            return true;
+
+        Alignment alignment = AlignmentChecker::detectAlignment({pos.x, pos.y}, grid, gridOpposite, {dx, dy});
+
+        if (alignment.nbAlignment == 3 && alignment.block == BlockState::FREE) {
+
+            countFreeThree++;
         }
 
-        if (alreadyStone({pos.x - dx, pos.y - dy},grid, gridOpposite) == false &&
-            AlignmentChecker::detectAlignment({pos.x - dx, pos.y - dy}, 3, grid, gridOpposite) != Alignment::NOTALIGN) {
-            std::cout << "2" << std::endl;
+        if (countFreeThree >= 2) {
             return true;
         }
     }

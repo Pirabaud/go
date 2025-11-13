@@ -11,15 +11,16 @@
 class AlignmentChecker {
 
 public:
-    static Alignment detectAlignment(Position pos, int count, const Board::StoneMask &grid,  const Board::StoneMask &gridOpposite);
+    static Alignment detectAlignment(Position pos, const Board::StoneMask &grid, const Board::StoneMask &gridOpposite, Position dir);
 
 private:
     struct Result {
-        int count;
+        int countBeforeHole;
+        int countAfterHole;
         bool blocked;
     };
 
-    static Result countDirection(Position pos, Position dir, int count, const Board::StoneMask &grid, const Board::StoneMask &gridOpposite);
+    static Result countDirection(Position pos, Position dir, const Board::StoneMask &grid, const Board::StoneMask &gridOpposite);
 
 };
 

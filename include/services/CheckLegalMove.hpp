@@ -26,7 +26,7 @@ private:
     static bool checkCapture(Position pos,
                              const std::array<unsigned, Board::SIZE> &gridColor, const std::array<unsigned, Board::SIZE> &gridOpposite, Position direction);
 
-    static bool checkDoubleThree(Position pos, Board::StoneMask grid, Board::StoneMask gridOpposite);
+    static bool checkDoubleThree(Position pos, Board &board, bool isBlack);
 
 
     CheckLegalMove() = default;
