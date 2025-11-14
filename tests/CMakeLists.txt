@@ -4,7 +4,6 @@ add_executable(GomokuTests
         board/BoardTest.cpp
         minmax/MinMaxTest.cpp
         services/CheckAlignmentCheckerTest.cpp
-        services/CheckFreeThreeTest.cpp
         services/CheckLegalMoveTest.cpp
         services/CheckWinServiceTest.cpp
         ../src/services/AlignmentChecker.cpp
@@ -13,10 +12,8 @@ add_executable(GomokuTests
         ../src/services/CaptureService.cpp
         ../src/board/Board.cpp
         ../src/minmax/MinMax.cpp
-        ../src/services/FreeThreeService.cpp
         ../src/services/HeuristicService.cpp
         ../src/services/JsonService.cpp
-        services/CheckFreeThreeTest.cpp
 )
 
 target_link_libraries(GomokuTests PRIVATE SFML::Graphics nlohmann_json::nlohmann_json)

@@ -221,5 +221,5 @@ TEST_CASE_METHOD(BoardFixture, "Check double free three") {
 
 TEST_CASE_METHOD(BoardFixture, "Check not double free three") {
     setupNotDoubleFreeThree(false);
-    //setupNotDoubleFreeThree(true);
+    setupNotDoubleFreeThree(true);
 }

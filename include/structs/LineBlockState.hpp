@@ -1,16 +1,12 @@
 #ifndef LINEBLOCKSTATE_HPP
 #define LINEBLOCKSTATE_HPP
 
-enum BlockState {
-        NOTALIGN,
-        FREE,
-        SEMIBLOCKED,
-        BLOCKED
-};
-
 struct Alignment {
-        BlockState block;
-        int nbAlignment;
+        int blockDistanceRight;
+        int blockDistanceLeft;
+        int nbRealAlignment;
+        int nbPotentialAlignment;
+        int holeCount;
 };
 
 #endif //LINEBLOCKSTATE_HPP

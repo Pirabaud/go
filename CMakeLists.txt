@@ -68,7 +68,6 @@ set(SERVICES_FILES
         src/services/CaptureService.cpp
         src/services/CheckLegalMove.cpp
         src/services/CheckWinService.cpp
-        src/services/FreeThreeService.cpp
         src/services/HeuristicService.cpp
         src/services/JsonService.cpp
 )

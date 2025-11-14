@@ -107,6 +107,23 @@ void Board::printBoard() const {
     }
 }
 
+void Board::printGrid(StoneMask grid) const {
+    std::cout << "============================" << std::endl;
+    for (int row = 0; row < SIZE; row++) {
+        std::cout << row << ": ";
+        for (int col = 0; col < SIZE; col++) {
+            if (isStoneAt(grid, {row, col})) {
+                std::cout << 'S';
+            }
+            else {
+                std::cout << 'O';
+            }
+        }
+        std::cout << std::endl;
+    }
+
+}
+
 int Board::getWhiteCaptured() const {
     return this->whiteStoneCaptured;
 }

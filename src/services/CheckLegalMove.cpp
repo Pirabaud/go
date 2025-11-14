@@ -114,8 +114,7 @@ bool CheckLegalMove::checkDoubleThree(const Position pos, Board &board, bool isB
 
         Alignment alignment = AlignmentChecker::detectAlignment({pos.x, pos.y}, grid, gridOpposite, {dx, dy});
 
-        if (alignment.nbAlignment == 3 && alignment.block == BlockState::FREE) {
-
+        if (alignment.nbRealAlignment == 3 && alignment.blockDistanceRight != 1 && alignment.blockDistanceLeft != 1) {
             countFreeThree++;
         }
 

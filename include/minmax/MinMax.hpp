@@ -20,7 +20,7 @@ public:
 
     static bool isNearExistingStone(Board& board, Position pos, int radius);
 
-    static int minimax(Board& currentBoard, int depth, int alpha, int beta, bool isMaximizing, json& tree, int currentHeuristic);
+    static int minimax(Board &currentBoard, int depth, int alpha, int beta, bool isMaximizing, json &tree, Position pos);
 
     static void saveDecisionTree(const json& tree);
 private:

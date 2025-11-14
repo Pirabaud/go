@@ -14,7 +14,7 @@
 
 class Board {
 public:
-    static constexpr int SIZE = 19;
+    static constexpr int SIZE = 5;
     static constexpr int FULL_ROW = 0b1111111111111111111;
 
     typedef std::array<uint32_t, SIZE> StoneMask;
@@ -42,6 +42,7 @@ public:
     void emptyLine(int col);
 
     void printBoard() const;
+    void printGrid(StoneMask grid) const;
 
     int getWhiteCaptured() const;
 
