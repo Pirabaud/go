@@ -15,10 +15,13 @@ IllegalMoves::Type CheckLegalMove::isLegalMove(Position pos,
     if (notInBoard(pos)) {
         return IllegalMoves::Type::NOT_IN_BOARD;
     }
-    if (alreadyStone(pos, board.getGridBlack(), board.getGridWhite())) {
+    if (alreadyStone(pos, board.getLineGridBlack(), board.getLineGridWhite())) {
         return IllegalMoves::Type::OCCUPIED;
     }
-    if (CaptureService::resolveCaptureAtPosition(board, pos, isBlack)) {
+    std::array<uint64_t, 6>& allyBitBoard = isBlack ? board.getBitBoardBlack() : board.getBitBoardWhite();
+    std::array<uint64_t, 6>& enemyBitBoard = isBlack ? board.getBitBoardWhite() : board.getBitBoardBlack();
+
+    if (CaptureService::checkCapture(allyBitBoard, enemyBitBoard, pos)) {
         return IllegalMoves::Type::CREATE_CAPTURE;
     }
 
@@ -100,8 +103,8 @@ bool CheckLegalMove::checkCapture(Position pos, const std::array<uint32_t, Board
 bool CheckLegalMove::checkDoubleThree(const Position pos, Board &board, bool isBlack) {
 
     int countFreeThree = 0;
-    Board::StoneMask grid = isBlack ? board.getGridBlack() : board.getGridWhite();
-    Board::StoneMask gridOpposite = isBlack ? board.getGridWhite() : board.getGridBlack();
+    Board::StoneMask grid = isBlack ? board.getLineGridBlack() : board.getLineGridWhite();
+    Board::StoneMask gridOpposite = isBlack ? board.getLineGridWhite() : board.getLineGridBlack();
 
     std::array directions = {
         std::make_pair(0, 1),

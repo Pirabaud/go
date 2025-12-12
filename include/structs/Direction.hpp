@@ -1,0 +1,20 @@
+//
+// Created by pirabaud on 12/12/25.
+//
+
+#ifndef GOMOKU_DIRECTION_HPP
+#define GOMOKU_DIRECTION_HPP
+#include "Board.h"
+
+enum Direction {
+    HORIZONTAL_LEFT = -1,
+    HORIZONTAL_RIGHT = 1,
+    VERTICAL_TOP = -(Board::SIZE + 1),
+    VERTICAL_DOWN = Board::SIZE + 1,
+    DIAGONAL_TOP_RIGHT = VERTICAL_TOP + 1,
+    DIAGONAL_TOP_LEFT = VERTICAL_TOP - 1,
+    DIAGONAL_BOTTOM_RIGHT = VERTICAL_DOWN + 1,
+    DIAGONAL_BOTTOM_LEFT = VERTICAL_DOWN - 1
+};
+
+#endif //GOMOKU_DIRECTION_HPP

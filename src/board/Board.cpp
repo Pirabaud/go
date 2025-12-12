@@ -12,81 +12,57 @@
 
 
 Board::Board() {
-    for (auto& row : this->gridBlack) {
-        row = 0;
-    }
-    for (auto& row : this->gridWhite) {
-        row = 0;
+    fillEmptyGridLineAndCol(gridLineBlack);
+    fillEmptyGridLineAndCol(gridLineWhite);
+    fillEmptyGridLineAndCol(gridColBlack);
+    fillEmptyGridLineAndCol(gridColWhite);
+    fillEmptyGridDiag(gridDiagRightBlack);
+    fillEmptyGridDiag(gridDiagRightWhite);
+    fillEmptyGridDiag(gridDiagLeftBlack);
+    fillEmptyGridDiag(gridDiagLeftWhite);
+    for (unsigned long &i: bitBoardWhite) {
+        i = 0;
     }
 }
 
-bool Board::resolveCaptureAtPosition(const Position pos) {
-    std::array directions = {
-        std::make_pair(0, 1),
-        std::make_pair(1, 0),
-        std::make_pair(1, -1),
-        std::make_pair(1, 1),
-    };
 
-    for (auto& [x, y] : directions) {
-        const bool result = resolveCaptureAtPositionInDirection(pos, Position{x, y});
-        if (result) {
-            return true;
-        }
-    }
-    return false;
-}
-
-void Board::removeStoneCaptureAtPosition(StoneMask & enemyMask , const Position pos, const Position dir) {
-    removeStoneAt(enemyMask, Position{pos.x + dir.x, pos.y + dir.y});
-    removeStoneAt(enemyMask, Position{pos.x + dir.x * 2, pos.y + dir.y * 2});
-    if (enemyMask == gridWhite) {
+void Board::removeStoneCaptureAtPosition(StoneMask &enemyMask, const Position pos, const Position dir) {
+    const auto stone1 = Position{pos.x + dir.x, pos.y + dir.y};
+    const auto stone2 = Position{pos.x + dir.x * 2, pos.y + dir.y * 2};
+    removeStoneAt(isWhiteStoneAt(stone1), stone1);
+    removeStoneAt(isWhiteStoneAt(stone2), stone2);
+    if (enemyMask == gridLineWhite) {
         whiteStoneCaptured += 2;
     } else {
         blackStoneCaptured += 2;
     }
 }
 
-bool Board::resolveCaptureAtPositionInDirection(const Position pos, const Position dir) {
-    // Check overflow
-    if (pos.x + dir.x > SIZE - 1 || pos.x + dir.x < 0 ||
-        pos.x + dir.x * 2 > SIZE - 1 || pos.x + dir.x * 2 < 0 ||
-        pos.x + dir.x * 3 > SIZE - 1 || pos.x + dir.x * 3 < 0 ||
-        pos.y + dir.y > SIZE - 1 || pos.y + dir.y < 0 ||
-        pos.y + dir.y * 2 > SIZE - 1 || pos.y + dir.y * 2 < 0 ||
-        pos.y + dir.y * 3 > SIZE - 1 || pos.y + dir.y * 3 < 0) {
-        return false;
-        }
 
-    const StoneMask allyMask = isWhiteStoneAt(pos) ? getGridWhite() : getGridBlack();
-    StoneMask& enemyMask = isWhiteStoneAt(pos) ? getGridBlack() : getGridWhite();
-
-    const bool ex1 = isStoneAt(enemyMask, Position{pos.x + dir.x,pos.y + dir.y});
-    const bool ex2 = isStoneAt(enemyMask, Position{pos.x + dir.x * 2, pos.y + dir.y * 2});
-    const bool ex3 = isStoneAt(allyMask, Position{pos.x + dir.x * 3, pos.y + dir.y * 3});
-    if (ex1 && ex2 && ex3) {
-        removeStoneCaptureAtPosition(enemyMask, pos, dir);
-        return true;
-    }
-    return false;
-}
-
-void Board::emptyColumn(const int col) {
-    for (int row = 0; row < SIZE; row++) {
-        if (isWhiteStoneAt(Position{col, row}))
-            removeStoneAt(gridWhite, Position{col, row});
-        else if (isBlackStoneAt(Position{col, row}))
-            removeStoneAt(gridBlack, Position{col, row});
+void Board::fillEmptyGridLineAndCol(StoneMask &grid) {
+    for (auto &row: grid) {
+        row = 0;
     }
 }
-void Board::emptyLine(const int row) {
-    for (int col = 0; col < SIZE; col++) {
-        if (isWhiteStoneAt(Position{col, row}))
-            removeStoneAt(gridWhite, Position{col, row});
-        else if (isBlackStoneAt(Position{col, row}))
-            removeStoneAt(gridBlack, Position{col, row});
+
+void Board::fillEmptyGridDiag(StoneMaskDiag &grid) {
+    for (auto &row: grid) {
+        row = 0;
     }
 }
+
+// void Board::emptyColumn(const int col) {
+//     for (int row = 0; row < SIZE; row++) {
+//         const auto pos = Position{col, row};
+//             removeStoneAt(isWhiteStoneAt(pos), pos);
+//     }
+// }
+// void Board::emptyLine(const int row) {
+//     for (int col = 0; col < SIZE; col++) {
+//         const auto pos = Position{row, col};
+//         removeStoneAt(isWhiteStoneAt(pos), pos);
+//     }
+// }
 
 void Board::printBoard() const {
     std::cout << "============BOARD=============" << std::endl;
@@ -95,11 +71,9 @@ void Board::printBoard() const {
         for (int col = 0; col < SIZE; col++) {
             if (isWhiteStoneAt(Position{row, col})) {
                 std::cout << 'W';
-            }
-            else if (isBlackStoneAt(Position{row, col})) {
+            } else if (isBlackStoneAt(Position{row, col})) {
                 std::cout << 'B';
-            }
-            else {
+            } else {
                 std::cout << 'O';
             }
         }
@@ -107,21 +81,34 @@ void Board::printBoard() const {
     }
 }
 
-void Board::printGrid(StoneMask grid) const {
+void Board::printLineAndCol(const StoneMask &grid) {
     std::cout << "============================" << std::endl;
     for (int row = 0; row < SIZE; row++) {
         std::cout << row << ": ";
         for (int col = 0; col < SIZE; col++) {
-            if (isStoneAt(grid, {row, col})) {
+            if (isStoneOnLineAndDiagAt(grid, {row, col})) {
                 std::cout << 'S';
-            }
-            else {
+            } else {
                 std::cout << 'O';
             }
         }
         std::cout << std::endl;
     }
+}
 
+void Board::printDiag(const StoneMaskDiag &grid) {
+    std::cout << "============================" << std::endl;
+    for (int row = 0; row < SIZE * 2; row++) {
+        std::cout << row << ": ";
+        for (int col = 0; col < SIZE; col++) {
+            if (isStoneOnDiagAt(grid, {row, col})) {
+                std::cout << 'S';
+            } else {
+                std::cout << 'O';
+            }
+        }
+        std::cout << std::endl;
+    }
 }
 
 int Board::getWhiteCaptured() const {
@@ -132,87 +119,178 @@ int Board::getBlackCaptured() const {
     return this->blackStoneCaptured;
 }
 
-Board::StoneMask& Board::getGridWhite(){
-    return this->gridWhite;
+std::array<uint64_t, 6>& Board::getBitBoardWhite()  {
+    return this->bitBoardWhite;
 }
 
-Board::StoneMask& Board::getGridBlack(){
-    return this->gridBlack;
+std::array<uint64_t, 6>& Board::getBitBoardBlack()  {
+    return this->bitBoardBlack;
+}
+
+Board::StoneMask &Board::getLineGridWhite() {
+    return this->gridLineWhite;
+}
+
+Board::StoneMask &Board::getLineGridBlack() {
+    return this->gridLineBlack;
+}
+
+Board::StoneMask &Board::getColGridWhite() {
+    return this->gridColWhite;
+}
+
+Board::StoneMask &Board::getColGridBlack() {
+    return this->gridColBlack;
+}
+
+Board::StoneMaskDiag &Board::getDiagRightGridWhite() {
+    return this->gridDiagRightWhite;
+}
+
+Board::StoneMaskDiag &Board::getDiagRightGridBlack() {
+    return this->gridDiagRightBlack;
+}
+
+Board::StoneMaskDiag &Board::getDiagLeftGridWhite() {
+    return this->gridDiagLeftWhite;
+}
+
+Board::StoneMaskDiag &Board::getDiagLeftGridBlack() {
+    return this->gridDiagLeftBlack;
 }
 
 void Board::addStoneWhite(const Position pos) {
-    const uint32_t newStone = 1u << (SIZE - 1 - pos.y);
-    this->getGridWhite().at(pos.x) = this->getGridWhite().at(pos.x) | newStone;
+    const int global_index = pos.x * (SIZE + 1) + pos.y;
+    this->bitBoardWhite[global_index / 64] |= 1ULL << (global_index % 64);
 }
 
 void Board::addStoneBlack(const Position pos) {
-    const uint32_t newStone = 1u << (SIZE - 1 - pos.y);
-    this->getGridBlack().at(pos.x) = this->getGridBlack().at(pos.x) | newStone;
+
+    const int global_index = pos.x * (SIZE + 1) + pos.y;
+    this->bitBoardBlack[global_index / 64] |= 1ULL << (global_index % 64);
 }
 
-void Board::removeStoneAt(StoneMask& mask, const Position pos) {
-    const uint32_t stone = 1 << (SIZE - pos.y - 1);
-    const uint32_t antiMask = FULL_ROW ^ stone;
-    mask.at(pos.x) &= antiMask;
-}
-
-void Board::removeWhiteStoneAt(const Position pos) {
-    removeStoneAt(gridWhite, pos);
-}
-
-void Board::removeBlackStoneAt(const Position pos) {
-    removeStoneAt(gridBlack,pos);
-}
-
-void Board::resolveCaptures()  {
-    for (int x = 0; x < SIZE; x++) {
-        for (int y = 0; y < SIZE; y++) {
-            if (isStoneAt(gridBlack, Position{x, y}) || isStoneAt(gridWhite, Position{x, y})) {
-                resolveCaptureAtPosition(Position{x, y});
-            }
-        }
+void Board::removeStoneAt(bool color, const Position pos) {
+    if (color) {
+        removeWhiteStoneAt(pos);
+    } else {
+        removeBlackStoneAt(pos);
     }
 }
 
+void Board::removeWhiteStoneAt(const Position pos) {
+    const uint32_t rowBit = 1u << (SIZE - 1 - pos.y);
+    this->getLineGridWhite().at(pos.x) &= ~rowBit;
+
+    const uint32_t colBit = 1u << (SIZE - 1 - pos.x);
+    this->getColGridWhite().at(pos.y) &= ~colBit;
+
+    const int diagRightIndex = pos.x + pos.y;
+    this->getDiagRightGridWhite().at(diagRightIndex) &= ~(1u << pos.x);
+
+    const int diagLeftIndex = pos.x - pos.y + (SIZE - 1);
+    this->getDiagLeftGridWhite().at(diagLeftIndex) &= ~(1u << pos.x);
+}
+
+void Board::removeBlackStoneAt(const Position pos) {
+    const uint32_t rowBit = 1u << (SIZE - 1 - pos.y);
+    this->getLineGridBlack().at(pos.x) &= ~rowBit;
+
+    const uint32_t colBit = 1u << (SIZE - 1 - pos.x);
+    this->getColGridBlack().at(pos.y) &= ~colBit;
+
+    const int diagRightIndex = pos.x + pos.y;
+    this->getDiagRightGridBlack().at(diagRightIndex) &= ~(1u << pos.x);
+
+    const int diagLeftIndex = pos.x - pos.y + (SIZE - 1);
+    this->getDiagLeftGridBlack().at(diagLeftIndex) &= ~(1u << pos.x);
+}
+
 void Board::save() {
-    saveGridBlack.push_back(gridBlack);
-    saveGridWhite.push_back(gridWhite);
+    saveGridBlack.push_back(gridLineBlack);
+    saveGridWhite.push_back(gridLineWhite);
     std::cout << saveGridBlack.size() << std::endl;
 }
 
 void Board::restore() {
-    gridBlack = saveGridBlack.back();
-    gridWhite = saveGridWhite.back();
+    gridLineBlack = saveGridBlack.back();
+    gridLineWhite = saveGridWhite.back();
     saveGridBlack.pop_back();
     saveGridWhite.pop_back();
 }
 
-std::ostream& operator<<(std::ostream& os, Board& board) {
+std::ostream &operator<<(std::ostream &os, Board &board) {
     os << "grid black: \n";
-    for (const auto& row : board.getGridBlack()) {
+    for (const auto &row: board.getLineGridBlack()) {
         os << std::bitset<Board::SIZE>(row) << '\n';
     }
     os << "grid White: \n";
-    for (const auto& row : board.getGridWhite()) {
+    for (const auto &row: board.getLineGridWhite()) {
         os << std::bitset<Board::SIZE>(row) << '\n';
     }
     return os;
 }
 
-bool Board::isStoneAt(const StoneMask& grid, const Position pos) {
+std::array<uint64_t, 6> Board::shift_right_board(const std::array<uint64_t, 6> &currentBitboard, const int shift) {
+    std::array<uint64_t, 6> board{};
+
+    uint64_t carry = 0;
+    for (int i = 5; i >= 0; i--) {
+        const uint64_t nextCarry = currentBitboard[i] << (64 - shift);
+        board[i] = currentBitboard[i] >> shift | carry;
+        carry = nextCarry;
+    }
+
+    return board;
+}
+
+std::array<uint64_t, 6> Board::bitBoardAnd(const std::array<uint64_t, 6> &bitBoard1,
+    const std::array<uint64_t, 6> &bitBoard2) {
+
+    std::array<uint64_t, 6> result{};
+    for (int i = 0; i < 6; i++) {
+        result[i] = bitBoard1[i] & bitBoard2[i];
+        //std::cout << std::bitset<64>(result[i]) << std::endl;
+    }
+    return result;
+}
+
+bool Board::isStoneOnLineAndDiagAt(const StoneMask &grid, const Position pos) {
     if (pos.x >= SIZE || pos.y >= SIZE) return false;
     const auto row = grid.at(pos.x);
     const auto stone = 1 << (SIZE - pos.y - 1);
     return (row & stone) != 0;
 }
 
+bool Board::isStoneOnDiagAt(const StoneMaskDiag &grid, Position pos) {
+    if (pos.x >= SIZE * 2 || pos.y >= SIZE) return false;
+    const auto row = grid.at(pos.x);
+    const auto stone = 1 << (SIZE - pos.y - 1);
+    return (row & stone) != 0;
+}
+
 bool Board::isBlackStoneAt(const Position pos) const {
-    return isStoneAt(gridBlack, pos);
+    return isStoneOnLineAndDiagAt(gridLineBlack, pos);
 }
 
 bool Board::isWhiteStoneAt(const Position pos) const {
-    return isStoneAt(gridWhite, pos);
+    return isStoneOnLineAndDiagAt(gridLineWhite, pos);
 }
 
+ int Board::getGlobalIndex(const Position pos) {
+    return pos.x * (SIZE + 1) + pos.y;
+}
 
+bool Board::isBitAt(const std::array<uint64_t, 6> &bitBoard, const int globalIndex) {
+    if (globalIndex < 0 || globalIndex >= 384) return false;
+    const int arrayIndex = globalIndex / 64;
+    const int bitIndex = globalIndex % 64;
+    return (bitBoard[arrayIndex] & (1ULL << bitIndex)) != 0;
+}
+
+void Board::clearBitAt( std::array<uint64_t, 6> &bitBoard, const int globalIndex) {
+    const int arrayIndex = globalIndex / 64;
+    const int bitIndex = globalIndex % 64;
+    bitBoard[arrayIndex] &= ~(1u << bitIndex);
+}
 

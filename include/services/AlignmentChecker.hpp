@@ -13,6 +13,8 @@ class AlignmentChecker {
 public:
     static int getBlockFactor(int blockDistance);
 
+    static bool check5Alignment(const std::array<uint64_t, 6> &bitBoard, int dir);
+
     static Alignment detectAlignment(Position pos, const Board::StoneMask &grid, const Board::StoneMask &gridOpposite, Position dir);
 
 private:

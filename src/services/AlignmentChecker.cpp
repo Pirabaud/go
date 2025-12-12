@@ -1,10 +1,30 @@
 #include "AlignmentChecker.hpp"
 
 #include <algorithm>
+#include <bitset>
 #include <iostream>
 
 #include "CheckLegalMove.hpp"
 
+
+bool AlignmentChecker::check5Alignment(const std::array<uint64_t, 6> &bitBoard, const int dir) {
+    const std::array<uint64_t, 6> maskBitBoardPairs = Board::shift_right_board(bitBoard, dir);
+    const std::array<uint64_t, 6> bitBoardCheckPairs = Board::bitBoardAnd(bitBoard,maskBitBoardPairs);
+
+    const std::array<uint64_t, 6> maskBitBoardCheckQuads = Board::shift_right_board(bitBoardCheckPairs, dir * 2);
+    const std::array<uint64_t, 6> bitBoardCheckQuads = Board::bitBoardAnd(bitBoardCheckPairs, maskBitBoardCheckQuads);
+
+    const std::array<uint64_t, 6> maskBitBoardFinal = Board::shift_right_board(bitBoardCheckQuads, dir);
+    const std::array<uint64_t, 6> bitBoardFinal = Board::bitBoardAnd(bitBoardCheckQuads, maskBitBoardFinal);
+
+    for (int i = 0; i < 6; i++) {
+        if (bitBoardFinal[i] != 0) {
+            //std::cout << std::bitset<64>(bitBoard[i]) << std::endl;
+            return true;
+        }
+    }
+    return false;
+}
 
 Alignment AlignmentChecker::detectAlignment(const Position pos, const Board::StoneMask &grid,
                                             const Board::StoneMask &gridOpposite, const Position dir) {
@@ -33,12 +53,12 @@ AlignmentChecker::Result AlignmentChecker::countDirection(Position pos, Position
     int cx = pos.x  + dir.x;
     int cy = pos.y + dir.y;
     for (int i = 1; i < 5; i++) {
-        if (CheckLegalMove::notInBoard({cx, cy}) || Board::isStoneAt(gridOpposite, {cx, cy})) {
+        if (CheckLegalMove::notInBoard({cx, cy}) || Board::isStoneOnLineAndDiagAt(gridOpposite, {cx, cy})) {
             result.blockDistance = i;
             break;
         }
 
-        if (!Board::isStoneAt(grid, {cx, cy})) {
+        if (!Board::isStoneOnLineAndDiagAt(grid, {cx, cy})) {
             result.countHole++;
         } else {
             switch (result.countHole) {

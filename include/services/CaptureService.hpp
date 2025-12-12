@@ -6,10 +6,10 @@
 
 class CaptureService {
 public:
-    static bool resolveCaptureAtPosition(Board &board, Position pos, bool isBlack);
-
+    static bool checkCapture(const std::array<uint64_t, 6> &allyBitBoard, std::array<uint64_t, 6> &enemyBitBoard, Position pos);
 private:
-    static bool resolveCaptureAtPositionInDirection(Board &board, Position pos, Position dir, bool color);
+    static bool checkCaptureInDirection(const std::array<uint64_t, 6> &allyBitBoard, std::array<uint64_t, 6> &enemyBitBoard, int globalIndex, int dir);
+
 };
 
 

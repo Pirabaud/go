@@ -1,6 +1,7 @@
 #include "HeuristicService.h"
 #include <cmath>
 #include <iostream>
+#include <bits/fs_fwd.h>
 
 #include "AlignmentChecker.hpp"
 #include "CheckWinService.hpp"
@@ -22,38 +23,95 @@
 #define BLOCK_FACTOR_THREE_BLOCK 3
 #define BLOCK_FACTOR_FOUR_BLOCK 2
 
+/* Masque de 3 bits (valeur 7) */
+#define MASK_3  0x07  // Binaire: 00111
 
-int HeuristicService::getHeuristicValue(Board &board) {
+/* Masque de 4 bits (valeur 15) */
+#define MASK_4  0x0F  // Binaire: 011110
 
+/* Masque de 5 bits (valeur 31) */
+#define MASK_5  0x1F  // Binaire: 11111
+
+
+int evaluatingLine(const uint32_t line, const uint32_t lineOpponent, int j) {
     int result = 0;
+    //if (lineOpponent != 0)
+         //std::cout << "lineOpponent :" << lineOpponent << " line: " << line  << " line :" << j << std::endl;
+    for (int i = 0; i < 15; i++) {
+        uint32_t windows = (line >> i) & MASK_5;
+        uint32_t windowsOpponent = lineOpponent >> (i + 1)  & MASK_5;
+        uint32_t mask = line >> (i + 1) & MASK_5 | windowsOpponent;
+        if (windows == 28 && j == 1) {
+            std::cout << windows << " " << i << " " << line << std::endl;
+            std::cout << windowsOpponent << " " << i << " " << lineOpponent << std::endl;
+            std::cout << mask << std::endl;
+        }
+        if (windows == 30) {
+            result += 50000;
+        }
+        else if ( windows == 28) {
+            i+=4;
+            if (mask == 14)
+            // std::cout << j << std::endl;
+            // std::cout << line << " " <<  lineOpponent << " " << windowsOpponent << " " << windows << std::endl;
+            // std::cout << "coucou" << std::endl;
+            result += 30000;
 
-    for (int i = 0; i < Board::SIZE; i++) {
-        for (int j = 0; j < Board::SIZE; j++) {
-            if (board.isBlackStoneAt({i,j})) {
-                result -= getHeuristicFromPos(board, {i,j}, true);
-            }
-            else if (board.isWhiteStoneAt( {i,j})) {
-                result += getHeuristicFromPos(board, {i,j}, false);
-            }
+        }
+
+        else if (windows == 3) {
+            result += 10000;
         }
     }
+    //std::cout << result << std::endl;
     return result;
 }
 
-int HeuristicService::getHeuristicFromPos(Board &board, const Position pos, const bool isBlack) {
+int HeuristicService::getHeuristicValue(Board &board) {
 
-    const Board::StoneMask grid = isBlack ? board.getGridBlack() : board.getGridWhite();
-    const Board::StoneMask oppositeGrid = isBlack ? board.getGridWhite() : board.getGridBlack();
+    int score = 0;
 
-    // std::cout << pos.x << " " << pos.y << std::endl;
-    // std::cout << "grid : " << std::endl;
-    // board.printGrid(grid);
-    // std::cout << "oppositeGrid" << std::endl;
-    // board.printGrid(oppositeGrid);
+    for (int i = 0; i < Board::SIZE; i++) {
+        //std::cout << "i :" << i << std::endl;
+        score += evaluatingLine(board.getLineGridWhite().at(i), board.getLineGridBlack().at(i), i);
+        //std::cout << "i :" << score << std::endl;
+        score += evaluatingLine(board.getColGridWhite().at(i), board.getColGridBlack().at(i), i);
+        //std::cout << "line black :" << std::endl;
+        if (i == 1) {
+            board.printLineAndCol(board.getLineGridWhite());
+        }
+        score -= evaluatingLine(board.getLineGridBlack().at(i), board.getLineGridWhite().at(i), i);
+        //std::cout << "i :" << i << " line black :" << score << std::endl;
+        score -= evaluatingLine(board.getColGridBlack().at(i), board.getColGridWhite().at(i), i);
 
-
-    return countAlignmentHeuristic(board, pos, grid, oppositeGrid) ;
     }
+    for (int i = 0; i < Board::SIZE * 2; i++) {
+        // score += evaluatingLine(board.getDiagRightGridWhite().at(i), board.getDiagRightGridBlack().at(i), i);
+        // score += evaluatingLine(board.getDiagLeftGridWhite().at(i), board.getDiagLeftGridBlack().at(i), i);
+        // score -= evaluatingLine(board.getDiagRightGridBlack().at(i), board.getDiagRightGridWhite().at(i), i);
+        // score -= evaluatingLine(board.getDiagLeftGridBlack().at(i), board.getDiagLeftGridWhite().at(i), i);
+    }
+    return score;
+}
+
+int HeuristicService::getHeuristicFromPos(Board &board, const Position pos, const bool isBlack) {
+    // int score = 0;
+    // if (isBlack) {
+    //     score += evaluatingLine(board.getLineGridBlack().at(pos.x));
+    //     score += evaluatingLine(board.getColGridBlack().at(pos.y));
+    //     score += evaluatingLine(board.getDiagRightGridBlack().at(pos.x + pos.y));
+    //     score += evaluatingLine(board.getDiagLeftGridBlack().at(pos.x - pos.y + Board::SIZE - 1));
+    //     return score;
+    // }
+    // score += evaluatingLine(board.getLineGridWhite().at(pos.x));
+    // score += evaluatingLine(board.getColGridWhite().at(pos.y));
+    // score += evaluatingLine(board.getDiagRightGridWhite().at(pos.x + pos.y));
+    // score += evaluatingLine(board.getDiagLeftGridWhite().at(pos.x - pos.y + Board::SIZE - 1));
+
+    //return score;
+    
+    
+}
 
 int HeuristicService::countAlignmentHeuristicOpponent(Board &board, const Position pos, const Board::StoneMask &grid, const Board::StoneMask &oppositeGrid) {
     const int result = 0;

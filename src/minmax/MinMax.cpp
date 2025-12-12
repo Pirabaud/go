@@ -7,7 +7,7 @@
 #include "CheckWinService.hpp"
 #include "HeuristicService.h"
 
-int MinMax::MAX_DEPTH = 2;
+int MinMax::MAX_DEPTH = 1;
 
 MinMax::MinMax(Board &board) : board(board) {
 }
@@ -27,22 +27,22 @@ std::pair<Position, long> MinMax::run(Position playerMove, json& decisionTree, s
     const int rootHeuristic = HeuristicService::getHeuristicValue(board);
 
     auto possibleMoves = generatePossibleMoves(board);
-    #ifdef JSON_DEBUG
-    json children = json::array();
-    #endif
+    // #ifdef JSON_DEBUG
+    // json children = json::array();
+    // #endif
 
     for (const auto& move : possibleMoves) {
 
         board.addStoneWhite(move);
 
         json childTree = json::array();
-        int moveValue = minimax(board, 0, INT_MIN, INT_MAX, false, childTree, move);
-        std::cout << move.x << " , " << move.y << " : " <<  moveValue << std::endl;
+        int moveValue = minimax(board, 1, INT_MIN, INT_MAX, true, childTree, move);
+        std::cout << "return :" << move.x << " , " << move.y << " : " <<  moveValue << std::endl;
         board.removeWhiteStoneAt(move);
 
-        #ifdef JSON_DEBUG
-        JsonService::pushNode(children, moveValue, 0, INT_MIN, INT_MAX, move, childTree);
-        #endif
+        // #ifdef JSON_DEBUG
+        // JsonService::pushNode(children, moveValue, 0, INT_MIN, INT_MAX, move, childTree);
+        // #endif
 
         if (moveValue > bestValue) {
             bestValue = moveValue;
@@ -53,39 +53,38 @@ std::pair<Position, long> MinMax::run(Position playerMove, json& decisionTree, s
     std::cout << "BEST VALUE " << bestValue << std::endl;
 
     // Créer la racine avec le coup du joueur
-    #ifdef JSON_DEBUG
-    JsonService::pushNode(decisionTree, rootHeuristic, 0, INT_MIN, INT_MAX, playerMove, children);
-    json historyArray = json::array();
-    for (const auto& [x, y] : moveHistory) {
-        historyArray.push_back({x, y});
-    }
-    decisionTree.push_back(historyArray);
-    #endif
+    // #ifdef JSON_DEBUG
+    // JsonService::pushNode(decisionTree, rootHeuristic, 0, INT_MIN, INT_MAX, playerMove, children);
+    // json historyArray = json::array();
+    // for (const auto& [x, y] : moveHistory) {
+    //     historyArray.push_back({x, y});
+    // }
+    // decisionTree.push_back(historyArray);
+    // #endif
 
     auto endTime = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
     long elapsedMs = duration.count();
 
-    #ifdef JSON_DEBUG
-    saveDecisionTree(decisionTree);
-    #endif
+    // #ifdef JSON_DEBUG
+    // saveDecisionTree(decisionTree);
+    // #endif
     return {bestMove, elapsedMs};
 }
 
 
 int MinMax::minimax(Board& currentBoard, int depth, int alpha, int beta, bool isMaximizing, json& tree, Position pos) {
-
-    auto possibleMoves = generatePossibleMoves(currentBoard);
     // Condition d'arrêt - NE PAS CRÉER DE NŒUD POUR LES FEUILLES
+    auto possibleMoves = generatePossibleMoves(currentBoard);
     if (depth >= MAX_DEPTH
-        || CheckWinService::isWinAtPos(isMaximizing ? currentBoard.getGridWhite() : currentBoard.getGridBlack(), pos)
+        || CheckWinService::isWinAtPos(isMaximizing ? currentBoard.getLineGridWhite() : currentBoard.getLineGridBlack(), pos)
         || possibleMoves.empty()) {
-        return HeuristicService::getHeuristicFromPos(currentBoard, pos, !isMaximizing); // Juste retourner la valeur, pas de nœud créé
+        return HeuristicService::getHeuristicValue(currentBoard); // Juste retourner la valeur, pas de nœud créé
     }
 
-    #ifdef JSON_DEBUG
-    json children = json::array();
-    #endif
+    // #ifdef JSON_DEBUG
+    // json children = json::array();
+    // #endif
     int resultValue;
 
     if (isMaximizing) {
@@ -96,9 +95,9 @@ int MinMax::minimax(Board& currentBoard, int depth, int alpha, int beta, bool is
             int eval = minimax(currentBoard, depth + 1, alpha, beta, false, childTree, move);
             currentBoard.removeWhiteStoneAt(move);
 
-            #ifdef JSON_DEBUG
-            JsonService::pushNode(tree, eval, depth + 1, alpha, beta, move, childTree);
-            #endif
+            // #ifdef JSON_DEBUG
+            // JsonService::pushNode(tree, eval, depth + 1, alpha, beta, move, childTree);
+            // #endif
             // Si childTree est vide, c'est une feuille - on ne crée pas de nœud spécial
 
             maxEval = std::max(maxEval, eval);
@@ -116,9 +115,9 @@ int MinMax::minimax(Board& currentBoard, int depth, int alpha, int beta, bool is
             currentBoard.removeBlackStoneAt(move);
 
             // Créer un nœud enfant seulement si ce coup a des sous-arbres
-            #ifdef JSON_DEBUG
-            JsonService::pushNode(tree, eval, depth + 1, alpha, beta, move, childTree);
-            #endif
+            // #ifdef JSON_DEBUG
+            // JsonService::pushNode(tree, eval, depth + 1, alpha, beta, move, childTree);
+            // #endif
             // Si childTree est vide, c'est une feuille - on ne crée pas de nœud spécial
 
             minEval = std::min(minEval, eval);

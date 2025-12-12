@@ -29,7 +29,7 @@ protected:
 
     void drawBoard(sf::RenderWindow& window);
     void drawStones(sf::RenderWindow& window);
-    void drawSingleColorStone(const Board::StoneMask& stonesMask, sf::RenderWindow& window,
+    void drawSingleColorStone(const std::array<uint64_t, 6>& bitBoard, sf::RenderWindow& window,
                               const sf::Color& color);
 
     [[nodiscard]] std::pair<int, int> getCellFromMousePosition(const sf::Vector2i& mousePos) const;

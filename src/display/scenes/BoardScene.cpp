@@ -1,5 +1,8 @@
 #include "BoardScene.hpp"
 
+#include <iostream>
+
+#include "CaptureService.hpp"
 #include "DisplayService.hpp"
 #include "MinMax.hpp"
 #include "SFML/Graphics/CircleShape.hpp"
@@ -41,17 +44,17 @@ void BoardScene::drawBoard(sf::RenderWindow& window) {
 }
 
 void BoardScene::drawStones(sf::RenderWindow& window) {
-    drawSingleColorStone(board.getGridWhite(), window, sf::Color::White);
-    drawSingleColorStone(board.getGridBlack(), window, sf::Color::Black);
+    drawSingleColorStone(board.getBitBoardWhite(), window, sf::Color::White);
+    drawSingleColorStone(board.getBitBoardBlack(), window, sf::Color::Black);
 }
 
-void BoardScene::drawSingleColorStone(const Board::StoneMask& stonesMask, sf::RenderWindow& window,
+void BoardScene::drawSingleColorStone(const std::array<uint64_t, 6>& bitBoard, sf::RenderWindow& window,
                                       const sf::Color& color) {
     for (int row = 0; row < Board::SIZE; ++row) {
         for (int col = 0; col < Board::SIZE; ++col) {
-            if (stonesMask[row] & (1 << col)) {
+            if (Board::isBitAt(bitBoard, Board::getGlobalIndex({row, col}))) {
                 // Draw a stone at the position
-                const float x = PADDING + (Board::SIZE - col - 1) * CELL_SIZE;
+                const float x = PADDING + col * CELL_SIZE;
                 const float y = PADDING + row * CELL_SIZE;
                 sf::CircleShape stone(CELL_SIZE / 2.0f - 2.0f);
                 stone.setFillColor(color);
@@ -92,6 +95,7 @@ void BoardScene::handleAITurn(Position playerMove, json& decisionTree,  std::vec
         if (aiMove.x != -1 && aiMove.y != -1) {
             playMove(aiMove);
         }
+        CaptureService::checkCapture(board.getBitBoardWhite(), board.getBitBoardBlack(), aiMove);
     }
 }
 

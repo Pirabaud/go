@@ -62,7 +62,11 @@ bool PvPScene::handleStonePlacement(const std::optional<sf::Event>& event, sf::R
             return false;
         }
         playMove(Position{row, col});
-        board.resolveCaptures();
+        CaptureService::checkCapture(
+            colorToPlay == sf::Color::Black ? board.getBitBoardBlack() : board.getBitBoardWhite(),
+        colorToPlay == sf::Color::Black ? board.getBitBoardWhite() : board.getBitBoardBlack(),
+            Position{row, col}
+        );
         return true;
     }
     return false;

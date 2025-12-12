@@ -18,7 +18,7 @@ TEST_CASE("ALIGNMENT - Check stone alone") {
     board.addStoneBlack({9, 9});
 
     for (auto& dir : directions) {
-        Alignment alignment = AlignmentChecker::detectAlignment({9, 9}, board.getGridBlack(), board.getGridWhite(), dir);
+        Alignment alignment = AlignmentChecker::detectAlignment({9, 9}, board.getLineGridBlack(), board.getLineGridWhite(), dir);
         REQUIRE(alignment.nbRealAlignment == 1);
         REQUIRE(alignment.nbPotentialAlignment == 1);
         REQUIRE(alignment.holeCount == 8);
@@ -38,7 +38,7 @@ TEST_CASE("ALIGNMENT - Alternate stones") {
     board.addStoneBlack({9, 11});
     board.addStoneBlack({9, 13});
 
-    Alignment alignment = AlignmentChecker::detectAlignment({9, 9}, board.getGridBlack(), board.getGridWhite(), {0, 1});
+    Alignment alignment = AlignmentChecker::detectAlignment({9, 9}, board.getLineGridBlack(), board.getLineGridWhite(), {0, 1});
     REQUIRE(alignment.nbRealAlignment == 2);
     REQUIRE(alignment.nbPotentialAlignment == 5);
     REQUIRE(alignment.holeCount == 4);
@@ -58,7 +58,7 @@ TEST_CASE("ALIGNMENT - Alternate stones with opponent stone inside") {
     board.addStoneBlack({9, 11});
     board.addStoneBlack({9, 13});
 
-    Alignment alignment = AlignmentChecker::detectAlignment({9, 9}, board.getGridBlack(), board.getGridWhite(), {0, 1});
+    Alignment alignment = AlignmentChecker::detectAlignment({9, 9}, board.getLineGridBlack(), board.getLineGridWhite(), {0, 1});
     REQUIRE(alignment.nbRealAlignment == 2);
     REQUIRE(alignment.nbPotentialAlignment == 3);
     REQUIRE(alignment.holeCount == 2);

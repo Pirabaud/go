@@ -53,14 +53,14 @@ TEST_CASE("Board - Test save and restore methods") {
 
     board.addStoneBlack({1, 1});
     board.addStoneWhite({1, 2});
-    const Board::StoneMask whiteMask = board.getGridWhite();
-    const Board::StoneMask blackMask = board.getGridBlack();
+    const Board::StoneMask whiteMask = board.getLineGridWhite();
+    const Board::StoneMask blackMask = board.getLineGridBlack();
     board.save();
     board.addStoneBlack({2, 2});
     board.addStoneWhite({2, 3});
-    REQUIRE_FALSE(board.getGridBlack() == blackMask);
-    REQUIRE_FALSE(board.getGridWhite() == whiteMask);
+    REQUIRE_FALSE(board.getLineGridBlack() == blackMask);
+    REQUIRE_FALSE(board.getLineGridWhite() == whiteMask);
     board.restore();
-    REQUIRE(board.getGridBlack() == blackMask);
-    REQUIRE(board.getGridWhite() == whiteMask);
+    REQUIRE(board.getLineGridBlack() == blackMask);
+    REQUIRE(board.getLineGridWhite() == whiteMask);
 }

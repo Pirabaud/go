@@ -8,6 +8,7 @@
 
 #include <iostream>
 
+#include "CaptureService.hpp"
 #include "CheckLegalMove.hpp"
 #include "DisplayService.hpp"
 #include "HeuristicService.h"
@@ -79,7 +80,7 @@ bool PvEScene::handleStonePlacement(const std::optional<sf::Event>& event, sf::R
         playMove(playerMove);
 
         std::cout << "Heuristic : " << HeuristicService::getHeuristicValue(board) << std::endl;
-        board.resolveCaptures();
+        CaptureService::checkCapture(board.getBitBoardBlack(), board.getBitBoardWhite(), playerMove);
         std::cout << "Black captured: " << board.getBlackCaptured() << std::endl;
         std::cout << "White captured: " << board.getWhiteCaptured() << std::endl;
         draw(window);
@@ -90,10 +91,7 @@ bool PvEScene::handleStonePlacement(const std::optional<sf::Event>& event, sf::R
         json decisionTree = json::array();
         moveHistory.push_back(playerMove);
         handleAITurn(playerMove, decisionTree, moveHistory);
-        board.resolveCaptures();
-        board.resolveCaptures();
         std::cout << "Black captured: " << board.getBlackCaptured() << std::endl;
-        std::cout << "White captured: " << board.getWhiteCaptured() << std::endl;
         return true;
         }
     return false;
