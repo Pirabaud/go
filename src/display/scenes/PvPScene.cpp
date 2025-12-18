@@ -61,12 +61,12 @@ bool PvPScene::handleStonePlacement(const std::optional<sf::Event>& event, sf::R
         if (illegalMove != IllegalMoves::Type::NONE) {
             return false;
         }
-        playMove(Position{row, col});
         CaptureService::checkCapture(
             colorToPlay == sf::Color::Black ? board.getBitBoardBlack() : board.getBitBoardWhite(),
         colorToPlay == sf::Color::Black ? board.getBitBoardWhite() : board.getBitBoardBlack(),
             Position{row, col}
         );
+        playMove(Position{row, col});
         return true;
     }
     return false;
