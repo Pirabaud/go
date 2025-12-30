@@ -13,12 +13,9 @@ class CheckWinService
 {
 public:
     static const sf::Color* isWin(Board &board);
-    static bool isWinAtPos(const Board::StoneMask& grid, Position pos);
 
 private:
     CheckWinService() = default;
-
-    static bool isColorWin(const Board::StoneMask& grid);
 };
 
 

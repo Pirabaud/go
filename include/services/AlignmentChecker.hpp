@@ -14,20 +14,6 @@ public:
     static int getBlockFactor(int blockDistance);
 
     static bool check5Alignment(const std::array<uint64_t, 6> &bitBoard, int dir);
-
-    static Alignment detectAlignment(Position pos, const Board::StoneMask &grid, const Board::StoneMask &gridOpposite, Position dir);
-
-private:
-    struct Result {
-        int countBeforeFirstHole;
-        int countAfterFirstHole;
-        int countHole;
-        int countAfterRealAlignment;
-        int blockDistance;
-    };
-
-    static Result countDirection(Position pos, Position dir, const Board::StoneMask &grid, const Board::StoneMask &gridOpposite);
-
 };
 
 

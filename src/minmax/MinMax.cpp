@@ -38,7 +38,7 @@ std::pair<Position, long> MinMax::run(Position playerMove, json& decisionTree, s
         json childTree = json::array();
         int moveValue = minimax(board, 1, INT_MIN, INT_MAX, true, childTree, move);
         std::cout << "return :" << move.x << " , " << move.y << " : " <<  moveValue << std::endl;
-        board.removeWhiteStoneAt(move);
+        //TODO remove stone
 
         // #ifdef JSON_DEBUG
         // JsonService::pushNode(children, moveValue, 0, INT_MIN, INT_MAX, move, childTree);
@@ -76,9 +76,8 @@ std::pair<Position, long> MinMax::run(Position playerMove, json& decisionTree, s
 int MinMax::minimax(Board& currentBoard, int depth, int alpha, int beta, bool isMaximizing, json& tree, Position pos) {
     // Condition d'arrêt - NE PAS CRÉER DE NŒUD POUR LES FEUILLES
     auto possibleMoves = generatePossibleMoves(currentBoard);
-    if (depth >= MAX_DEPTH
-        || CheckWinService::isWinAtPos(isMaximizing ? currentBoard.getLineGridWhite() : currentBoard.getLineGridBlack(), pos)
-        || possibleMoves.empty()) {
+    if (depth >= MAX_DEPTH) {
+        //TODO check win and empty
         return HeuristicService::getHeuristicValue(currentBoard); // Juste retourner la valeur, pas de nœud créé
     }
 
@@ -93,7 +92,7 @@ int MinMax::minimax(Board& currentBoard, int depth, int alpha, int beta, bool is
             currentBoard.addStoneWhite(move);
             json childTree = json::array();
             int eval = minimax(currentBoard, depth + 1, alpha, beta, false, childTree, move);
-            currentBoard.removeWhiteStoneAt(move);
+            //TODO remove stone
 
             // #ifdef JSON_DEBUG
             // JsonService::pushNode(tree, eval, depth + 1, alpha, beta, move, childTree);
@@ -112,7 +111,7 @@ int MinMax::minimax(Board& currentBoard, int depth, int alpha, int beta, bool is
             currentBoard.addStoneBlack(move);
             json childTree = json::array();
             int eval = minimax(currentBoard, depth + 1, alpha, beta, true, childTree, move);
-            currentBoard.removeBlackStoneAt(move);
+            //TODO remove stone
 
             // Créer un nœud enfant seulement si ce coup a des sous-arbres
             // #ifdef JSON_DEBUG
@@ -153,21 +152,10 @@ std::vector<Position> MinMax::generatePossibleMoves(Board& currentBoard) {
 
     for (int x = 0; x < Board::SIZE; ++x) {
         for (int y = 0; y < Board::SIZE; ++y) {
-            Position pos{x, y};
-            if (!currentBoard.isWhiteStoneAt(pos) && !currentBoard.isBlackStoneAt(pos)) {
-                // Vérifier si cette case est proche d'une pierre existante
-                if (isNearExistingStone(currentBoard, pos, searchRadius)) {
-                    moves.push_back(pos);
-                }
-            }
+            //TODO check la stone existante
         }
     }
-
     // Si pas de pierres sur le board (début de partie), jouer au centre
-    if (moves.empty()) {
-        moves.push_back({Board::SIZE/2, Board::SIZE/2});
-    }
-
     return moves;
 }
 
@@ -179,9 +167,7 @@ bool MinMax::isNearExistingStone(Board& board, Position pos, int radius) {
 
             if (checkX >= 0 && checkX < Board::SIZE && checkY >= 0 && checkY < Board::SIZE) {
                 Position checkPos{checkX, checkY};
-                if (board.isWhiteStoneAt(checkPos) || board.isBlackStoneAt(checkPos)) {
-                    return true;
-                }
+                //check autour
             }
         }
     }
