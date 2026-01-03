@@ -58,3 +58,39 @@ TEST_CASE_METHOD(CheckWinFixture, "Check Win Service - Wins diagonally (top-left
         }
     }
 }
+
+TEST_CASE_METHOD(CheckWinFixture, "Check Win Service - Wins diagonally (top-right to bottom-left)") {
+    for (int row = 0; row < Board::SIZE - 4; ++row) {
+        for (int col = 4; col < Board::SIZE; ++col) {
+            Board whiteBoard;
+            Board blackBoard;
+            for (int i = 0; i < 5; ++i) {
+                whiteBoard.addStoneWhite (Position{row + i, col - i});
+                blackBoard.addStoneBlack (Position{row + i, col - i});
+            }
+            REQUIRE(CheckWinService::isWin(whiteBoard) == &sf::Color::White);
+            REQUIRE(CheckWinService::isWin(blackBoard) == &sf::Color::Black);
+        }
+    }
+}
+
+TEST_CASE_METHOD(CheckWinFixture, "Check Win Service - Win invalidated by perpendicular capture (T-Shape)") {
+    Board board;
+    int row = 5;
+
+    for (int i = 0; i < 5; ++i) {
+        board.addStoneWhite(Position{row, 5 + i});
+    }
+    board.addStoneWhite(Position{4, 7});
+    board.addStoneBlack(Position{6, 7});
+
+    REQUIRE(CheckWinService::isWin(board) == nullptr);
+}
+
+TEST_CASE_METHOD(CheckWinFixture, "Check Win Service - 4 stones is not a win") {
+    Board board;
+    for (int i = 0; i < 4; ++i) {
+        board.addStoneWhite(Position{0, i});
+    }
+    REQUIRE(CheckWinService::isWin(board) == nullptr);
+}

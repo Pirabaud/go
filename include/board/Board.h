@@ -15,10 +15,10 @@ public:
    static std::array<uint64_t, 6> shift_right_board(const std::array<uint64_t, 6> &currentBitboard, int shift);
     static std::array<uint64_t, 6> bitBoardAnd(const std::array<uint64_t, 6> &BitboardDest, const std::array<uint64_t, 6> &currentBitSrc);
 
-    void removeStoneAt(bool color, Position pos);
-
     void addStoneWhite(Position pos);
     void addStoneBlack(Position pos);
+
+    void addCaptures(bool forWhitePlayer, int stoneCount);
 
     static int getGlobalIndex(Position pos) ;
 

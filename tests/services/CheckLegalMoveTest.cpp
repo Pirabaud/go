@@ -24,12 +24,7 @@ struct BoardFixture {
                                  const IllegalMoves::Type &expected) {
         board = Board();
 
-        if (CheckLegalMove::notInBoard(posPlay) ||
-            CheckLegalMove::notInBoard(posOppColor1) ||
-            CheckLegalMove::notInBoard(posOppColor2) ||
-            CheckLegalMove::notInBoard(posColor)) {
-            return;
-        }
+
 
         board.addStoneWhite(posColor);
         board.addStoneBlack(posOppColor1);

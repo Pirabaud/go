@@ -4,6 +4,7 @@
 
 #ifndef CHECK_WIN_SERVICE_HPP
 #define CHECK_WIN_SERVICE_HPP
+#include "Direction.hpp"
 #include "../board/Board.h"
 #include "SFML/Graphics/Color.hpp"
 
@@ -15,6 +16,7 @@ public:
     static const sf::Color* isWin(Board &board);
 
 private:
+    static bool isBreakableWinAlignment(Board &allyBoard, Board &enemyBoard, int startIndex, Direction dir);
     CheckWinService() = default;
 };
 

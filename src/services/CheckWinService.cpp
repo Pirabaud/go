@@ -13,22 +13,20 @@
 const sf::Color* CheckWinService::isWin(Board& board)
 {
 
-    if (AlignmentChecker::check5Alignment(board.getBitBoardWhite(), Direction::HORIZONTAL) ||
-        AlignmentChecker::check5Alignment(board.getBitBoardWhite(), Direction::VERTICAL) ||
-        AlignmentChecker::check5Alignment(board.getBitBoardWhite(), Direction::DIAGONAL_TOP_LEFT) ||
-        AlignmentChecker::check5Alignment(board.getBitBoardWhite(), Direction::DIAGONAL_TOP_RIGHT)) {
+
+    if (AlignmentChecker::checkWinAlignment(board.getBitBoardWhite(), board.getBitBoardBlack(), Direction::HORIZONTAL) ||
+        AlignmentChecker::checkWinAlignment(board.getBitBoardWhite(), board.getBitBoardBlack(), Direction::VERTICAL) ||
+        AlignmentChecker::checkWinAlignment(board.getBitBoardWhite(), board.getBitBoardBlack(), Direction::DIAGONAL_TOP_LEFT) ||
+        AlignmentChecker::checkWinAlignment(board.getBitBoardWhite(), board.getBitBoardBlack(), Direction::DIAGONAL_TOP_RIGHT)) {
         return &sf::Color::White;
     }
-
-    if (AlignmentChecker::check5Alignment(board.getBitBoardBlack(),Direction::HORIZONTAL) ||
-        AlignmentChecker::check5Alignment(board.getBitBoardBlack(),Direction::VERTICAL) ||
-        AlignmentChecker::check5Alignment(board.getBitBoardBlack(),Direction::DIAGONAL_TOP_LEFT) ||
-        AlignmentChecker::check5Alignment(board.getBitBoardBlack(),Direction::DIAGONAL_TOP_RIGHT)) {
+    if (AlignmentChecker::checkWinAlignment(board.getBitBoardBlack(),board.getBitBoardWhite(), Direction::HORIZONTAL) ||
+        AlignmentChecker::checkWinAlignment(board.getBitBoardBlack(),board.getBitBoardWhite(), Direction::VERTICAL) ||
+        AlignmentChecker::checkWinAlignment(board.getBitBoardBlack(),board.getBitBoardWhite(), Direction::DIAGONAL_TOP_LEFT) ||
+        AlignmentChecker::checkWinAlignment(board.getBitBoardBlack(),board.getBitBoardWhite(), Direction::DIAGONAL_TOP_RIGHT)) {
         return &sf::Color::Black;
         }
 
-
-    //TODO Add condition win if a player has captured 10 opponents stones
     if (board.getBlackCaptured() >= 10) {
         return &sf::Color::White;
     }
@@ -36,5 +34,9 @@ const sf::Color* CheckWinService::isWin(Board& board)
         return &sf::Color::Black;
     }
     return nullptr;
+}
+
+bool CheckWinService::isBreakableWinAlignment(Board &allyBoard, Board &enemyBoard, int startIndex, Direction dir) {
+    return false;
 }
 
