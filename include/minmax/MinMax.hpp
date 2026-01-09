@@ -16,7 +16,7 @@ public:
 
     std::pair<Position, long> run(Position playerMove, json& decisionTree, std::vector<Position>& moveHistory) const;
 
-    static std::vector<Position> generatePossibleMoves(Board& currentBoard);
+    static std::vector<int> generatePossibleMoves(Board& currentBoard);
 
     static bool isNearExistingStone(Board& board, Position pos, int radius);
 

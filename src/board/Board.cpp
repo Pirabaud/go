@@ -50,6 +50,15 @@ void Board::addCaptures(const bool forWhitePlayer, const int stoneCount) {
     }
 }
 
+bool Board::isEmpty() const {
+    for (int i = 0; i < 6; i++) {
+        if (bitBoardWhite[i] && bitBoardBlack[i]) {
+            return true;
+        }
+    }
+    return false;
+}
+
 std::array<uint64_t, 6> Board::shift_right_board(const std::array<uint64_t, 6> &currentBitboard, const int shift) {
     std::array<uint64_t, 6> board{};
 
@@ -63,13 +72,38 @@ std::array<uint64_t, 6> Board::shift_right_board(const std::array<uint64_t, 6> &
     return board;
 }
 
-std::array<uint64_t, 6> Board::bitBoardAnd(const std::array<uint64_t, 6> &bitBoard1,
-                                           const std::array<uint64_t, 6> &bitBoard2) {
+std::array<uint64_t, 6> Board::shift_left_board(const std::array<uint64_t, 6> &currentBitboard, const int shift) {
+    std::array<uint64_t, 6> board{};
+
+    uint64_t carry = 0;
+    for (int i = 0; i < 6; i++) {
+        const uint64_t nextCarry = currentBitboard[i] >> (64 - shift);
+        board[i] = (currentBitboard[i] << shift) | carry;
+        carry = nextCarry;
+    }
+
+    return board;
+}
+
+std::array<uint64_t, 6> Board::bitBoardAnd(
+    const std::array<uint64_t, 6> &bitBoard1,
+    const std::array<uint64_t, 6> &bitBoard2) {
     std::array<uint64_t, 6> result{};
     for (int i = 0; i < 6; i++) {
         result[i] = bitBoard1[i] & bitBoard2[i];
     }
     return result;
+}
+
+std::array<uint64_t, 6> Board::bitBoardOr(
+    const std::array<uint64_t, 6> &bitBoard1,
+    const std::array<uint64_t, 6> &bitBoard2) {
+    std::array<uint64_t, 6> result{};
+    for (int i = 0; i < 6; i++) {
+        result[i] = bitBoard1[i] | bitBoard2[i];
+    }
+    return result;
+
 }
 
 int Board::getGlobalIndex(const Position pos) {

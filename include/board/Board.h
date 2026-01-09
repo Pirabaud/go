@@ -6,6 +6,8 @@
 #define BOARD_H
 #include <array>
 #include <cstdint>
+#include <iosfwd>
+
 #include "Position.hpp"
 
 class Board {
@@ -13,12 +15,16 @@ public:
     static constexpr int SIZE = 19;
 
    static std::array<uint64_t, 6> shift_right_board(const std::array<uint64_t, 6> &currentBitboard, int shift);
-    static std::array<uint64_t, 6> bitBoardAnd(const std::array<uint64_t, 6> &BitboardDest, const std::array<uint64_t, 6> &currentBitSrc);
+    static std::array<uint64_t, 6> shift_left_board(const std::array<uint64_t, 6> &currentBitboard, int shift);
+    static std::array<uint64_t, 6> bitBoardAnd(const std::array<uint64_t, 6> &bitBoard1, const std::array<uint64_t, 6> &bitBoard2);
+    static std::array<uint64_t, 6> bitBoardOr(const std::array<uint64_t, 6> &bitBoard1, const std::array<uint64_t, 6> &bitBoard2);
 
     void addStoneWhite(Position pos);
     void addStoneBlack(Position pos);
 
     void addCaptures(bool forWhitePlayer, int stoneCount);
+
+    bool isEmpty() const;
 
     static int getGlobalIndex(Position pos) ;
 
