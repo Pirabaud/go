@@ -13,7 +13,7 @@ class AlignmentChecker {
 public:
     static int getBlockFactor(int blockDistance);
 
-    static bool check5Alignment(const std::array<uint64_t, 6> &bitBoard, int dir);
+    static bool checkWinAlignment(const std::array<uint64_t, 6> &allyBitBoard, const std::array<uint64_t, 6> &enemyBitBoard, int dir);
 };
 
 

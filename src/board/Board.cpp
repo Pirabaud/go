@@ -42,6 +42,14 @@ void Board::addStoneBlack(const Position pos) {
     this->bitBoardBlack[global_index / 64] |= 1ULL << (global_index % 64);
 }
 
+void Board::addCaptures(const bool forWhitePlayer, const int stoneCount) {
+    if (forWhitePlayer) {
+        this->whiteStoneCaptured += stoneCount;
+    } else {
+        this->blackStoneCaptured += stoneCount;
+    }
+}
+
 std::array<uint64_t, 6> Board::shift_right_board(const std::array<uint64_t, 6> &currentBitboard, const int shift) {
     std::array<uint64_t, 6> board{};
 

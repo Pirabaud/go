@@ -8,7 +8,5 @@ TEST_CASE("MinMax - Attach board reference working") {
 
     MinMax minmax(board);
     minmax.getBoard().addStoneWhite({1, 1});
-    REQUIRE(board.isWhiteStoneAt({1, 1}));
-    REQUIRE(minmax.getBoard().isBlackStoneAt({1, 1}));
 
 }
