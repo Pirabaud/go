@@ -30,3 +30,41 @@ bool AlignmentChecker::checkWinAlignment(const std::array<uint64_t, 6> &allyBitB
     }
     return false;
 }
+
+Alignment AlignmentChecker::checkAlignment(const std::array<uint64_t, 4> &line) {
+    bool patterIsFinish = false;
+    bool gap_pending = false;
+    Alignment result = {
+        0,
+        false,
+        true,
+        4
+    };
+    for (int i = 0; i < 4; i++) {
+        if (line[i] == 0) {
+            if (gap_pending) {
+                gap_pending = false;
+                patterIsFinish = true;
+            }
+            if (!patterIsFinish) {
+                gap_pending = true;
+            }
+        }
+        else if (line[i] == 1) {
+            if (!patterIsFinish) {
+                result.nbStone++;
+            }
+            if (gap_pending) {
+                result.hasHole = true;
+                gap_pending = false;
+            }
+
+        }
+        else {
+            result.blockDistance = i;
+            result.isOpen = false;
+            return result;
+        }
+    }
+    return result;
+}

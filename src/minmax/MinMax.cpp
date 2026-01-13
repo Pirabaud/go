@@ -24,7 +24,7 @@ std::pair<Position, long> MinMax::run(Position playerMove, json& decisionTree, s
 
     int bestValue = INT_MIN;
     Position bestMove{-1, -1};
-    const int rootHeuristic = HeuristicService::getHeuristicValue(board);
+    const int rootHeuristic = HeuristicService::getHeuristicValue(TODO, TODO);
 
     auto possibleMoves = generatePossibleMoves(board);
 
