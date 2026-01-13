@@ -2,11 +2,10 @@
 #define LINEBLOCKSTATE_HPP
 
 struct Alignment {
-        int blockDistanceRight;
-        int blockDistanceLeft;
-        int nbRealAlignment;
-        int nbPotentialAlignment;
-        int holeCount;
+        int nbStone;
+        bool hasHole;
+        bool isOpen;
+        int blockDistance;
 };
 
 #endif //LINEBLOCKSTATE_HPP

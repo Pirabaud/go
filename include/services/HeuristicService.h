@@ -6,7 +6,8 @@ class HeuristicService {
 public:
     HeuristicService() = delete;
 
-    static int getHeuristicValue(Board& board);
+    static int getHeuristicValue(std::array<uint64_t, 4> left, const std::array<uint64_t, 4> &right);
+    static std::array<uint64_t, 262144> getHeuristicValues();
 };
 
 
