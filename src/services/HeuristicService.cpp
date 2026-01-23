@@ -10,30 +10,8 @@
 #include "scores.hpp"
 
 
-int HeuristicService::getHeuristicValue(const std::array<uint64_t, 4> left, const std::array<uint64_t, 4> &right) {
-    Alignment alignmentRight = AlignmentChecker::checkAlignment(right);
-    Alignment alignmentLeft = AlignmentChecker::checkAlignment(left);
-    int nbStone = alignmentLeft.nbStone + alignmentRight.nbStone;
-
-    if (alignmentLeft.blockDistance + alignmentRight.blockDistance < 5) {
-        return 0;
-    }
-
-    if (nbStone == 4) {
-        if (!alignmentLeft.hasHole && !alignmentRight.hasHole) {
-            return Scores::OPEN_FOUR;
-        }
-        if (alignmentLeft.hasHole && alignmentRight.hasHole) {
-            return Scores::FOUR;
-        }
-            return Scores::FOUR;
-    }
-
-    return 0;
-}
-
 std::optional<std::pair<std::string, int>> HeuristicService::parseLine(std::string line) {
-    const std::regex rgx("^([AEO]{0,6}):(\\d+)$");
+    const std::regex rgx("^([AEO]{0,6}):(-?\\d+)$");
     std::smatch matches;
 
     if (!std::regex_match(line, matches, rgx)) {
@@ -125,7 +103,9 @@ std::map<std::string, int> HeuristicService::getLeftRightPatternsMap() {
             }
             std::string leftRawPattern = pattern.substr(0, i);
             std::string rightRawPattern = pattern.substr(i + 1);
-            rightRawPattern.erase(4, std::string::npos); // Ensure rightRawPattern is at most 4 characters long
+            if (rightRawPattern.length() > 4) {
+                rightRawPattern.erase(4, std::string::npos); // Ensure rightRawPattern is at most 4 characters long
+            }
 
 
             auto allLeftPatternsPossible = generateAllLeftRightPatternsPossible(leftRawPattern, rightRawPattern);
@@ -153,8 +133,8 @@ uint16_t computeIndexFromPattern(const std::string& pattern) {
     return index;
 }
 
-std::array<uint64_t, GREATEST_INDEX_POSSIBLE> HeuristicService::getHeuristicValues() {
-    static std::array<uint64_t, GREATEST_INDEX_POSSIBLE> heuristicValues = {};
+int HeuristicService::getHeuristicValue(uint16_t index) {
+    static std::array<int, GREATEST_INDEX_POSSIBLE> heuristicValues = {};
     static bool functionHasBeenCalled = false;
     // Generate all possible combinations of left and right alignments only on first call
     if (!functionHasBeenCalled) {
@@ -165,6 +145,7 @@ std::array<uint64_t, GREATEST_INDEX_POSSIBLE> HeuristicService::getHeuristicValu
             uint16_t index = computeIndexFromPattern(pattern);
             heuristicValues[index] = value;
         }
+        return 0;
     }
-    return heuristicValues; // Return the array of heuristic values
+    return heuristicValues[index]; // Return the array of heuristic values
 }

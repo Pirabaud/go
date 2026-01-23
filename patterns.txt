@@ -2,11 +2,11 @@
 OAAO:100
 EAAO:-50
 OAAE:-50
-AEEA:500:
+AEEA:500
 
 # Alignments of size 3
 OAAAO:1000
-EAAAO:500
+EAAAO:800
 OAAAE:500
 
 # Alignments of size 4

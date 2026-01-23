@@ -9,8 +9,10 @@
 int main() {
     DisplayService displayService;
 
-    // Trigger heuristic values generation
-    HeuristicService::getHeuristicValues();
+    // Initialize patterns and scores
+    HeuristicService::getHeuristicValue(0);
+
+
 
 
     displayService.start();

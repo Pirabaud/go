@@ -15,7 +15,7 @@ class HeuristicService {
 public:
     HeuristicService() = delete;
 
-    static int getHeuristicValue(std::array<uint64_t, 4> left, const std::array<uint64_t, 4> &right);
+    static int getHeuristicValue(uint16_t index);
 
     static std::optional<std::pair<std::string, int>> parseLine(std::string line);
 
@@ -26,8 +26,6 @@ public:
     static std::vector<std::string> generateAllLeftRightPatternsPossible(const std::string &leftRawPattern, const std::string &rightRawPattern);
 
     static std::map<std::string, int> getLeftRightPatternsMap();
-
-    static std::array<uint64_t, GREATEST_INDEX_POSSIBLE> getHeuristicValues();
 
     static std::vector<std::string> parseFileLines();
 };
