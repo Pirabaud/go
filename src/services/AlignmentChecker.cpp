@@ -8,6 +8,7 @@
 #include "CheckLegalMove.hpp"
 
 
+
 bool AlignmentChecker::checkWinAlignment(const std::array<uint64_t, 6> &allyBitBoard, const std::array<uint64_t, 6> &enemyBitBoard, const int dir) {
     const std::array<uint64_t, 6> maskBitBoardPairs = Board::shift_right_board(allyBitBoard, dir);
     const std::array<uint64_t, 6> bitBoardCheckPairs = Board::bitBoardAnd(allyBitBoard,maskBitBoardPairs);
