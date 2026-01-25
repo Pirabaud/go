@@ -95,7 +95,7 @@ void BoardScene::handleAITurn(Position playerMove, json& decisionTree,  std::vec
         if (aiMove.x != -1 && aiMove.y != -1) {
             playMove(aiMove);
         }
-        CaptureService::checkCapture(board.getBitBoardWhite(), board.getBitBoardBlack(), aiMove);
+        CaptureService::checkCapture(board, aiMove, false);
     }
 }
 

@@ -12,15 +12,24 @@
 
 class Board {
 public:
+    static uint64_t ZOBRIST_TABLE[361][2];
+
     static constexpr int SIZE = 19;
 
-   static std::array<uint64_t, 6> shift_right_board(const std::array<uint64_t, 6> &currentBitboard, int shift);
+    static std::array<uint64_t, 6> shift_right_board(const std::array<uint64_t, 6> &currentBitboard, int shift);
     static std::array<uint64_t, 6> shift_left_board(const std::array<uint64_t, 6> &currentBitboard, int shift);
     static std::array<uint64_t, 6> bitBoardAnd(const std::array<uint64_t, 6> &bitBoard1, const std::array<uint64_t, 6> &bitBoard2);
     static std::array<uint64_t, 6> bitBoardOr(const std::array<uint64_t, 6> &bitBoard1, const std::array<uint64_t, 6> &bitBoard2);
 
     void addStoneWhite(Position pos);
     void addStoneBlack(Position pos);
+    void addStoneWhite(int index);
+    void addStoneBlack(int index);
+    void removeWhiteStone(int index);
+    void removeBlackStone(int index);
+
+    int getPatternIndex(int positionIndex, bool isBlackPlayer, int direction) const;
+
 
     void addCaptures(bool forWhitePlayer, int stoneCount);
 
@@ -41,7 +50,14 @@ public:
     static bool isBitAt(const std::array<uint64_t, 6>& bitBoard, int globalIndex) ;
     static void clearBitAt( std::array<uint64_t, 6>& bitBoard, int globalIndex);
 
+    static void initZobrist();
+
+    void updateCurrentZobristKey(int index, bool isBlack);
+
     ~Board() = default;
+
+    uint64_t currentZobristKey = 0;
+
 
 private:
     std::array<uint64_t, 6> bitBoardWhite{};
