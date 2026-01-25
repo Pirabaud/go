@@ -7,10 +7,10 @@
 
 class CaptureService {
 public:
-    static int checkCapture(const std::array<uint64_t, 6> &allyBitBoard, std::array<uint64_t, 6> &enemyBitBoard, Position pos);
+    static int checkCapture(Board &board, Position pos, bool isBlack);
     static bool winLineBreakable(const std::array<uint64_t, 6> &allyBitBoard, const std::array<uint64_t, 6> &enemyBitBoard, int startIndex, int dirAlignment);
 private:
-    static int checkCaptureInDirection(const std::array<uint64_t, 6> &allyBitBoard, std::array<uint64_t, 6> &enemyBitBoard, int globalIndex, int dir);
+    static int checkCaptureInDirection(Board &board, int globalIndex, int dir, bool isBlack);
 
 };
 

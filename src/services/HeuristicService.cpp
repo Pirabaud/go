@@ -9,143 +9,92 @@
 #include "AlignmentChecker.hpp"
 #include "scores.hpp"
 
+std::array<int16_t, HeuristicService::MAX_INDEX> HeuristicService::PRECOMPUTED_SCORES = {};
 
-std::optional<std::pair<std::string, int>> HeuristicService::parseLine(std::string line) {
-    const std::regex rgx("^([AEO]{0,6}):(-?\\d+)$");
-    std::smatch matches;
+void HeuristicService::init() {
+    std::cout << "Initializing Heuristic LUT..." << std::endl;
+    auto patterns = loadPatternsFromFile();
+    // For each possible combination of 9 cells, compute its score
+    for (int i = 0; i < MAX_INDEX; ++i) {
+        std::string boardSlice = indexToString(i);
+        int16_t currentMaxScore = 0;
+        // For each pattern, check if it exists in the current board slice
+        for (const auto& [patternStr, score] : patterns) {
 
-    if (!std::regex_match(line, matches, rgx)) {
-        return {};
+            // If pattern found in board slice, add its score
+            if (boardSlice.find(patternStr) != std::string::npos) {
+                // Accumulate the maximum absolute score, this way, we prioritize the most significant patterns
+                if (std::abs(score) > std::abs(currentMaxScore)) {
+                    currentMaxScore = score;
+                }
+            }
+        }
+        PRECOMPUTED_SCORES[i] = currentMaxScore;
     }
-    return std::make_pair(matches[1].str(), std::stoi(matches[2].str()));
+    std::cout << "Heuristic LUT initialized." << std::endl;
 }
 
-// Parse file and return lines as a vector of strings
-std::vector<std::string> HeuristicService::parseFileLines() {
-    std::vector<std::string> lines;
-    // TODO voir pour changer le path du fichier avec 'pattern.txt', mais pour ça il faut le copier dans le dossier build
+std::vector<std::pair<std::string, int16_t>> HeuristicService::loadPatternsFromFile() {
+    std::vector<std::pair<std::string, int16_t>> patterns;
     std::ifstream file(PATTERNS_FILE_PATH);
 
     if (!file.is_open()) {
-        std::cerr << "Error opening file: " << PATTERNS_FILE_PATH << std::endl;
-        return lines;
+        std::cerr << "[ERROR] Could not open " << PATTERNS_FILE_PATH << std::endl;
+        return patterns;
     }
 
     std::string line;
+    const std::regex rgx("^([AEO]{0,9}):(-?\\d+)$");
+    std::smatch matches;
+
     while (std::getline(file, line)) {
-        lines.push_back(line);
-    }
+        if (line.starts_with('#') || line.empty()) continue;
 
-    return lines;
-}
-
-// Populate heuristicPatternsMap based on file
-std::map<std::string, int> HeuristicService::getPatternsMap() {
-    std::map<std::string, int> patternsMap;
-    auto lines = parseFileLines();
-    for (const auto& line : lines) {
-        if (line.starts_with('#') || line.empty()) {
-            continue; // Skip comment and empty lines
-        }
-        auto keyValuePair = parseLine(line);
-        if (keyValuePair) {
-            patternsMap[keyValuePair->first] = keyValuePair->second;
-        } else {
-        }
-    }
-    return patternsMap;
-}
-
-void HeuristicService::generateAllStrings(unsigned long n, std::string current, std::vector<std::string>& results) {
-    if (current.length() == n) {
-        results.push_back(current);
-        return;
-    }
-    for (char c : {'A', 'E', 'O'}) {
-        generateAllStrings(n, current + c, results);
-    }
-}
-
-std::vector<std::string> HeuristicService::generateAllLeftRightPatternsPossible(const std::string& leftRawPattern, const std::string& rightRawPattern) {
-    const std::vector possibleChars{'A', 'E', 'O'};
-    std::vector<std::string> allSidePatternsPossible;
-    std::vector<std::string> allLeftPrefixesPossible;
-    std::vector<std::string> allRightSuffixesPossible;
-
-    const auto leftPatternLength = leftRawPattern.length();
-    const auto charsToGenerateForLeftPattern = 4 - leftPatternLength;
-    generateAllStrings(charsToGenerateForLeftPattern, "", allLeftPrefixesPossible);
-
-    const auto rightPatternLength = rightRawPattern.length();
-    const auto charsToGenerateForRightPattern = 4 - rightPatternLength;
-    generateAllStrings(charsToGenerateForRightPattern, "", allRightSuffixesPossible);
-
-    for (const auto& leftPrefix : allLeftPrefixesPossible) {
-        for (const auto& rightSuffix : allRightSuffixesPossible) {
-            std::string fullPattern = leftPrefix + leftRawPattern + rightRawPattern + rightSuffix;
-            allSidePatternsPossible.push_back(fullPattern);
-        }
-    }
-
-    return allSidePatternsPossible;
-}
-
-std::map<std::string, int> HeuristicService::getLeftRightPatternsMap() {
-    std::map<std::string, int> leftRightPatternsMap;
-    std::map<std::string, int> patternsMap = getPatternsMap();
-
-    for (const auto& [pattern, value] : patternsMap) {
-        const auto patternLength = pattern.length();
-        for (int i = 0; i < patternLength; ++i) {
-            // If the actual character is not A (Ally), then it can't be possible
-            if (pattern[i] != 'A') {
+        if (std::regex_match(line, matches, rgx)) {
+            const int value = std::stoi(matches[2].str());
+            if (value <= -3000 || value >= 3000) {
+                std::cerr << "[WARNING] Ignoring pattern with extreme value: " << line << std::endl;
                 continue;
             }
-            std::string leftRawPattern = pattern.substr(0, i);
-            std::string rightRawPattern = pattern.substr(i + 1);
-            if (rightRawPattern.length() > 4) {
-                rightRawPattern.erase(4, std::string::npos); // Ensure rightRawPattern is at most 4 characters long
-            }
-
-
-            auto allLeftPatternsPossible = generateAllLeftRightPatternsPossible(leftRawPattern, rightRawPattern);
-            for (const auto& leftRightPattern : allLeftPatternsPossible) {
-                leftRightPatternsMap[leftRightPattern] = value;
-            }
+            patterns.emplace_back(matches[1].str(), static_cast<int16_t>(value));
+        } else {
+            std::cerr << "[WARNING] Could not parse line: " << line << std::endl;
         }
     }
-
-    return leftRightPatternsMap;
+    return patterns;
 }
 
-uint16_t computeIndexFromPattern(const std::string& pattern) {
-    uint16_t index = 0;
-    for (size_t i = 0; i < pattern.length(); ++i) {
-        if (pattern[i] == 'E') {
-            index |= ENEMY_BITS_MASK;
-        } else if (pattern[i] == 'A') {
-            index |= ALLY_BITS_MASK;
-        }
-        if (i < pattern.length() - 1) {
-            index <<= 2;
-        }
+std::string HeuristicService::indexToString(int index) {
+    std::string patternString;
+    patternString.reserve(9);
+
+    // For each char of the string, extract 2 bits from index and map to 'A', 'E', 'O'
+    for (int i = 0; i < 9; ++i) {
+        const int shift = (8 - i) * 2;
+        const int val = (index >> shift) & 0b11;
+
+        if (val == ALLY_BITS_MASK) patternString += 'A';        // Ally
+        else if (val == ENEMY_BITS_MASK) patternString += 'E';  // Enemy
+        else patternString += 'O';                              // Empty
     }
-    return index;
+    return patternString;
 }
 
-int HeuristicService::getHeuristicValue(uint16_t index) {
-    static std::array<int, GREATEST_INDEX_POSSIBLE> heuristicValues = {};
-    static bool functionHasBeenCalled = false;
-    // Generate all possible combinations of left and right alignments only on first call
-    if (!functionHasBeenCalled) {
-        heuristicValues.fill(0);
-        functionHasBeenCalled = true;
-        const std::map<std::string, int> leftRightPatternsMap = getLeftRightPatternsMap();
-        for (const auto& [pattern, value] : leftRightPatternsMap) {
-            uint16_t index = computeIndexFromPattern(pattern);
-            heuristicValues[index] = value;
-        }
-        return 0;
-    }
-    return heuristicValues[index]; // Return the array of heuristic values
+int HeuristicService::evaluatePosition(const Board &board, const int positionIndex, const bool isBlackPlayer) {
+    int score = 0;
+
+    //Compute pattern indices for all four directions
+    // Horizontal (shift = 1)
+    int patternIndex = board.getPatternIndex(positionIndex, isBlackPlayer, 1);
+    score += getScore(patternIndex);
+    // Vertical (shift = SIZE + 1 = 20)
+    patternIndex = board.getPatternIndex(positionIndex, isBlackPlayer, Board::SIZE + 1);
+    score += getScore(patternIndex);
+    // Diagonal down-right (shift = SIZE + 1 + 1 = 21)
+    patternIndex = board.getPatternIndex(positionIndex, isBlackPlayer, Board::SIZE + 2);
+    score += getScore(patternIndex);
+    // Diagonal down-left (shift = SIZE + 1 - 1 = 19)
+    patternIndex = board.getPatternIndex(positionIndex, isBlackPlayer, Board::SIZE);
+    score += getScore(patternIndex);
+    return score;
 }
