@@ -7,13 +7,12 @@
 #include "HeuristicService.h"
 #include "SFML/Window/Window.hpp"
 int main() {
+    // Initialize Heuristic Service
+    HeuristicService::init();
+    // Initialize Zobrist Hashing
+    Board::initZobrist();
+
     DisplayService displayService;
-
-    // Initialize patterns and scores
-    HeuristicService::getHeuristicValue(0);
-
-
-
 
     displayService.start();
 }

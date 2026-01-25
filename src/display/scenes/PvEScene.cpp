@@ -80,9 +80,7 @@ bool PvEScene::handleStonePlacement(const std::optional<sf::Event>& event, sf::R
         playMove(playerMove);
 
         // std::cout << "Heuristic : " << HeuristicService::getHeuristicValue(TODO, TODO) << std::endl;
-        CaptureService::checkCapture(board.getBitBoardBlack(), board.getBitBoardWhite(), playerMove);
-        std::cout << "Black captured: " << board.getBlackCaptured() << std::endl;
-        std::cout << "White captured: " << board.getWhiteCaptured() << std::endl;
+        CaptureService::checkCapture(board, playerMove, true);
         draw(window);
         if (CheckWinService::isWin(board)) {
             return true;
@@ -91,7 +89,6 @@ bool PvEScene::handleStonePlacement(const std::optional<sf::Event>& event, sf::R
         json decisionTree = json::array();
         moveHistory.push_back(playerMove);
         handleAITurn(playerMove, decisionTree, moveHistory);
-        std::cout << "Black captured: " << board.getBlackCaptured() << std::endl;
         return true;
         }
     return false;
