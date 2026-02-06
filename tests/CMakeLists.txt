@@ -14,6 +14,7 @@ add_executable(GomokuTests
         ../src/minmax/MinMax.cpp
         ../src/services/HeuristicService.cpp
         ../src/services/JsonService.cpp
+        ../src/minmax/TranspositionTable.cpp
 )
 
 target_link_libraries(GomokuTests PRIVATE SFML::Graphics nlohmann_json::nlohmann_json)

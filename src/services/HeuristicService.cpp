@@ -52,7 +52,7 @@ std::vector<std::pair<std::string, int16_t>> HeuristicService::loadPatternsFromF
 
         if (std::regex_match(line, matches, rgx)) {
             const int value = std::stoi(matches[2].str());
-            if (value <= -3000 || value >= 3000) {
+            if (value <= -32000 || value >= 32000) {
                 std::cerr << "[WARNING] Ignoring pattern with extreme value: " << line << std::endl;
                 continue;
             }
@@ -66,15 +66,16 @@ std::vector<std::pair<std::string, int16_t>> HeuristicService::loadPatternsFromF
 
 std::string HeuristicService::indexToString(int index) {
     std::string patternString;
-    patternString.reserve(9);
+    patternString.reserve(11);
 
     // For each char of the string, extract 2 bits from index and map to 'A', 'E', 'O'
-    for (int i = 0; i < 9; ++i) {
-        const int shift = (8 - i) * 2;
+    for (int i = 0; i < 11; ++i) {
+        const int shift = (10 - i) * 2;
         const int val = (index >> shift) & 0b11;
 
         if (val == ALLY_BITS_MASK) patternString += 'A';        // Ally
         else if (val == ENEMY_BITS_MASK) patternString += 'E';  // Enemy
+        else if (val == WALL_BITS_MASK) patternString += 'W';   // Wall (out of bounds)
         else patternString += 'O';                              // Empty
     }
     return patternString;

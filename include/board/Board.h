@@ -31,7 +31,7 @@ public:
     int getPatternIndex(int positionIndex, bool isBlackPlayer, int direction) const;
 
 
-    void addCaptures(bool forWhitePlayer, int stoneCount);
+    void addCaptures(bool isStoneWhite, int stoneCount);
 
     bool isEmpty() const;
 
