@@ -28,3 +28,25 @@ TEST_CASE("Board - Remove stone at position") {
     Board whiteBoard;
     Board blackBoard;
 }
+
+TEST_CASE("Board - Get pattern index (horizontal)") {
+    Board board;
+    board.addStoneWhite({5, 5});
+    board.addStoneBlack({5, 6});
+    board.addStoneWhite({5, 8});
+    board.addStoneBlack({5, 9});
+    board.addStoneWhite({5, 12});
+    const int patternIndex = board.getPatternIndex(Board::getGlobalIndex({5, 9}), true, 1);
+    REQUIRE(patternIndex == 0b0010010010010000100000);
+}
+
+TEST_CASE("Board - Get pattern index (vertical)") {
+    Board board;
+    board.addStoneWhite({ 5, 5});
+    board.addStoneBlack({ 6, 5});
+    board.addStoneWhite({ 8, 5});
+    board.addStoneBlack({ 9, 5});
+    board.addStoneWhite({ 12, 5});
+    const int patternIndex = board.getPatternIndex(Board::getGlobalIndex({9, 5}), true, 20);
+    REQUIRE(patternIndex == 0b0010010010010000100000);
+}

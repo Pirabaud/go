@@ -1,17 +1,31 @@
-# Alignments of size 2
-OAAO:10
-EAAO:-5
-OAAE:-5
-AEEA:50
-AEEO:30
-AEEA:50
+# --- Victoire (Max int16_t approx 32000) ---
+AAAAA:30000
 
-# Alignments of size 3
-OAAAO:100
-EAAAO:80
-OAAAE:50
+# --- Menaces Mortelles (Taille 4) ---
+# Victoire assurée
+OAAAAO:15000
+# Doit bloquer
+EAAAAO:4000
+OAAAAE:4000
 
-# Alignments of size 4
-OAAAAO:10000
-EAAAAO:500
-OAAAAE:500
+# --- Jeu de Capture & Attaque ---
+# Capture (Gros bonus)
+AEEA:3000
+# 3 Ouvert (Très fort)
+OAAAO:2500
+OAOAAO:2500
+# Menace de capture
+AEEO:800
+
+# --- Construction ---
+# 3 Fermé
+EAAAO:200
+OAAAE:200
+
+# --- Bases et Risques ---
+# Base saine
+OAAO:50
+# DANGER: Paire vulnérable
+EAAO:-100
+# DANGER: Paire vulnérable
+OAAE:-100

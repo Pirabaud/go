@@ -38,13 +38,25 @@ void PvEScene::drawTexts(sf::RenderWindow& window) {
 
         window.draw(winText);
     }
+    sf::Text blackCapturesText(getSharedFont(),
+                             "Black captures: " + std::to_string(board.getWhiteCaptured()));
+    blackCapturesText.setCharacterSize(18);
+    blackCapturesText.setFillColor(sf::Color::Black);
+    blackCapturesText.setPosition({BOARD_SIZE_WITH_PADDING, PADDING + 20});
+    window.draw(blackCapturesText);
+    sf::Text whiteCapturesText(getSharedFont(),
+        "White captures: " + std::to_string(board.getBlackCaptured()));
+    whiteCapturesText.setCharacterSize(18);
+    whiteCapturesText.setFillColor(sf::Color::White);
+    whiteCapturesText.setPosition({BOARD_SIZE_WITH_PADDING, PADDING + 40});
+    window.draw(whiteCapturesText);
     if (illegalMove != IllegalMoves::Type::NONE) {
         sf::Text illegalMoveText(getSharedFont(),
                                  "This is move is illegal because " + std::string(IllegalMoves::toString(illegalMove)) +
                                  ".");
         illegalMoveText.setCharacterSize(18);
         illegalMoveText.setFillColor(sf::Color::Red);
-        illegalMoveText.setPosition({BOARD_SIZE_WITH_PADDING, PADDING + 20});
+        illegalMoveText.setPosition({BOARD_SIZE_WITH_PADDING, PADDING + 60});
 
         window.draw(illegalMoveText);
     }
@@ -75,7 +87,7 @@ bool PvEScene::handleStonePlacement(const std::optional<sf::Event>& event, sf::R
         if (illegalMove != IllegalMoves::Type::NONE) {
             return false;
         }
-        Position playerMove = Position(row, col);
+        auto playerMove = Position(row, col);
 
         playMove(playerMove);
 
@@ -88,7 +100,10 @@ bool PvEScene::handleStonePlacement(const std::optional<sf::Event>& event, sf::R
 
         json decisionTree = json::array();
         moveHistory.push_back(playerMove);
-        handleAITurn(playerMove, decisionTree, moveHistory);
+        const auto aiMove = handleAITurn();
+        playMove(aiMove);
+        CaptureService::checkCapture(board, aiMove, colorToPlay == sf::Color::White);
+        this->suggestedMove = handleAITurn();
         return true;
         }
     return false;

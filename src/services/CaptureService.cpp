@@ -89,7 +89,7 @@ int CaptureService::checkCaptureInDirection(Board& board, const int globalIndex,
         secondEnemyMask) {
         isBlack ? board.removeWhiteStone(firstEnemyGlobalIndex) : board.removeBlackStone(firstEnemyGlobalIndex);
         isBlack ? board.removeWhiteStone(secondEnemyGlobalIndex) : board.removeBlackStone(secondEnemyGlobalIndex);
-        isBlack ? board.addCaptures(false, 2) : board.addCaptures(true, 2);
+        isBlack ? board.addCaptures(true, 2) : board.addCaptures(false, 2);
         return 2;
     }
     return 0;

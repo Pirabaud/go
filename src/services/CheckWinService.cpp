@@ -10,9 +10,16 @@
 #include "LineBlockState.hpp"
 
 
+// TODO optimize
+// Check local win -> if 5 in a row found, check if breakable
 const sf::Color* CheckWinService::isWin(Board& board)
 {
-
+    if (board.getBlackCaptured() >= 10) {
+        return &sf::Color::White;
+    }
+    if (board.getWhiteCaptured() >= 10) {
+        return &sf::Color::Black;
+    }
 
     if (AlignmentChecker::checkWinAlignment(board.getBitBoardWhite(), board.getBitBoardBlack(), Direction::HORIZONTAL) ||
         AlignmentChecker::checkWinAlignment(board.getBitBoardWhite(), board.getBitBoardBlack(), Direction::VERTICAL) ||
@@ -27,12 +34,6 @@ const sf::Color* CheckWinService::isWin(Board& board)
         return &sf::Color::Black;
         }
 
-    if (board.getBlackCaptured() >= 10) {
-        return &sf::Color::White;
-    }
-    if (board.getWhiteCaptured() >= 10) {
-        return &sf::Color::Black;
-    }
     return nullptr;
 }
 

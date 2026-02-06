@@ -10,7 +10,8 @@ class HeuristicService {
 public:
     static constexpr int ALLY_BITS_MASK = 0b01;
     static constexpr int ENEMY_BITS_MASK = 0b10;
-    static constexpr int MAX_INDEX = 262144; // 2^(2*9) = 262144 (for patterns of length 9)
+    static constexpr int WALL_BITS_MASK = 0b11;
+    static constexpr int MAX_INDEX = 4194304; // 2^(2*11) = 4 194 304 (for patterns of length 11)
 
     static std::array<int16_t, MAX_INDEX> PRECOMPUTED_SCORES;
     HeuristicService() = delete;

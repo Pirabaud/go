@@ -11,6 +11,7 @@ public:
     explicit PvEScene(sf::RenderWindow& window)
         : BoardScene(window) {
         backgroundColor = sf::Color(135, 206, 235);
+        this->suggestedMove = {Board::SIZE / 2, Board::SIZE / 2};
     }
     void handleEvent(const std::optional<sf::Event>&, sf::RenderWindow& window) override;
     void drawTexts(sf::RenderWindow& window) override;

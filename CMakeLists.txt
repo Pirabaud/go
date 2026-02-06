@@ -6,8 +6,12 @@ enable_testing()
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pg")
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pg")
+if(NOT CMAKE_BUILD_TYPE MATCHES Debug)
+    add_compile_options(-O3 -march=native -ffast-math -DNDEBUG)
+endif()
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS}")
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
@@ -61,6 +65,7 @@ set(DISPLAY_FILES
 
 set(MINMAX_FILES
         src/minmax/MinMax.cpp
+        src/minmax/TranspositionTable.cpp
 )
 
 set(SERVICES_FILES
@@ -85,7 +90,7 @@ set(ALL_SOURCE_FILES
 )
 
 add_executable(${PROJECT_NAME} ${ALL_SOURCE_FILES})
-target_compile_definitions(${PROJECT_NAME} PRIVATE JSON_DEBUG=1)
+target_compile_definitions(${PROJECT_NAME} PRIVATE)
 
 target_include_directories(${PROJECT_NAME}
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include

@@ -23,18 +23,22 @@ protected:
     bool threeDetected = false;
     BoardScene(sf::RenderWindow& window);
     long lastAITimeMs = 0;
+    Position suggestedMove = {-1, -1};
+
 
     virtual void drawTexts(sf::RenderWindow& window) = 0;
     virtual bool handleStonePlacement(const std::optional<sf::Event>& event, sf::RenderWindow& window) = 0;
 
     void drawBoard(sf::RenderWindow& window);
     void drawStones(sf::RenderWindow& window);
+    void drawSuggestedMove(sf::RenderWindow &window) const;
+
     void drawSingleColorStone(const std::array<uint64_t, 6>& bitBoard, sf::RenderWindow& window,
                               const sf::Color& color);
 
     [[nodiscard]] std::pair<int, int> getCellFromMousePosition(const sf::Vector2i& mousePos) const;
 
-    void handleAITurn(Position playerMove, json& decisionTree,  std::vector<Position>& moveHistory);
+    Position handleAITurn();
 
     void playMove(Position pos);
     void nextTurn();

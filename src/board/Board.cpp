@@ -70,32 +70,52 @@ void Board::removeBlackStone(const int index) {
     this->updateCurrentZobristKey(index, true);
 }
 
+template<int Offset>
+void updatePattern(int& index, int center, int dir, const std::array<uint64_t, 6>& ally, const std::array<uint64_t, 6>& enemy) {
+    const int pos = center + Offset * dir;
+    if (pos < 0 || pos >= 384) { // 384 = 6 * 64
+        // If out of bounds, consider it as empty
+        index = (index << 2) | 0b11;
+        return;
+    }
+
+    const int word = pos >> 6;
+    const int bit = pos & 0x3F;
+
+    const int a = (ally[word] >> bit) & 1;
+    const int e = (enemy[word] >> bit) & 1;
+
+    index = (index << 2) | (e << 1 | a);
+}
+
 int Board::getPatternIndex(int positionIndex, bool isBlackPlayer, int direction) const {
+
+
     // direction : 1 (horizontal), 20 (vertical), 21 (Diag /), 19 (Diag \)
     int index = 0;
     // Use ALLY_BITS_MASK and ENEMY_BITS_MASK to build the index
     // Bitboards are of type std::array<uint64_t, 6>
     const std::array<uint64_t, 6> &allyBitBoard = isBlackPlayer ? this->bitBoardBlack : this->bitBoardWhite;
     const std::array<uint64_t, 6> &enemyBitBoard = isBlackPlayer ? this->bitBoardWhite : this->bitBoardBlack;
+    updatePattern<-5>(index, positionIndex, direction, allyBitBoard, enemyBitBoard);
+    updatePattern<-4>(index, positionIndex, direction, allyBitBoard, enemyBitBoard);
+    updatePattern<-3>(index, positionIndex, direction, allyBitBoard, enemyBitBoard);
+    updatePattern<-2>(index, positionIndex, direction, allyBitBoard, enemyBitBoard);
+    updatePattern<-1>(index, positionIndex, direction, allyBitBoard, enemyBitBoard);
+    updatePattern<0>(index, positionIndex, direction, allyBitBoard, enemyBitBoard);
+    updatePattern<1>(index, positionIndex, direction, allyBitBoard, enemyBitBoard);
+    updatePattern<2>(index, positionIndex, direction, allyBitBoard, enemyBitBoard);
+    updatePattern<3>(index, positionIndex, direction, allyBitBoard, enemyBitBoard);
+    updatePattern<4>(index, positionIndex, direction, allyBitBoard, enemyBitBoard);
+    updatePattern<5>(index, positionIndex, direction, allyBitBoard, enemyBitBoard);
 
-    for (int offset = -4; offset <= 4; offset++) {
-        const int checkIndex = positionIndex + offset * direction;
-        index <<= 2; // Make space for the next 2 bits
-        if (isBitAt(allyBitBoard, checkIndex)) {
-            index |= 0b01; // Ally stone
-        } else if (isBitAt(enemyBitBoard, checkIndex)) {
-            index |= 0b10; // Enemy stone
-        } else {
-            index |= 0b00; // Empty
-        }
-    }
     // Print index in binary
     return index;
 }
 
 
-void Board::addCaptures(const bool forWhitePlayer, const int stoneCount) {
-    if (forWhitePlayer) {
+void Board::addCaptures(const bool isStoneWhite, const int stoneCount) {
+    if (isStoneWhite) {
         this->whiteStoneCaptured += stoneCount;
     } else {
         this->blackStoneCaptured += stoneCount;
