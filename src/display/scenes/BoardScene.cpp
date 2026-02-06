@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "CaptureService.hpp"
+#include "CheckWinService.hpp"
 #include "DisplayService.hpp"
 #include "MinMax.hpp"
 #include "SFML/Graphics/CircleShape.hpp"
@@ -46,6 +47,18 @@ void BoardScene::drawBoard(sf::RenderWindow& window) {
 void BoardScene::drawStones(sf::RenderWindow& window) {
     drawSingleColorStone(board.getBitBoardWhite(), window, sf::Color::White);
     drawSingleColorStone(board.getBitBoardBlack(), window, sf::Color::Black);
+    if (suggestedMove.x != -1 && suggestedMove.y != -1) {
+        drawSuggestedMove(window);
+    }
+}
+
+void BoardScene::drawSuggestedMove(sf::RenderWindow& window) const {
+    const float x = BoardScene::PADDING + suggestedMove.y * BoardScene::CELL_SIZE;
+    const float y = BoardScene::PADDING + suggestedMove.x * BoardScene::CELL_SIZE;
+    sf::CircleShape suggestion(BoardScene::STONE_RADIUS);
+    suggestion.setFillColor(sf::Color(255, 0, 0, 128)); // Red with some transparency
+    suggestion.setPosition({x - suggestion.getRadius(), y - suggestion.getRadius()});
+    window.draw(suggestion);
 }
 
 void BoardScene::drawSingleColorStone(const std::array<uint64_t, 6>& bitBoard, sf::RenderWindow& window,
@@ -86,20 +99,16 @@ std::pair<int, int> BoardScene::getCellFromMousePosition(const sf::Vector2i& mou
     return {-1, -1}; // Return an invalid position if no stone was placed
 }
 
-void BoardScene::handleAITurn(Position playerMove, json& decisionTree,  std::vector<Position>& moveHistory) {
-    if (colorToPlay == sf::Color::White) { // L'IA joue les blancs
-        const MinMax ai(board);
-        auto [aiMove, elapsedTimeMS] = ai.run(playerMove, decisionTree, moveHistory);
+Position BoardScene::handleAITurn() {
+        MinMax ai(board);
+        // auto [aiMove, elapsedTimeMS] = ai.run(playerMove, decisionTree, moveHistory);
+        auto [aiMove, elapsedTimeMS] = ai.run(500, colorToPlay != sf::Color::White); // 5 secondes de temps de réflexion
         lastAITimeMs = elapsedTimeMS;
-        moveHistory.push_back(aiMove);
-        if (aiMove.x != -1 && aiMove.y != -1) {
-            playMove(aiMove);
-        }
-        CaptureService::checkCapture(board, aiMove, false);
-    }
+        return aiMove;
 }
 
 void BoardScene::playMove(Position pos) {
+    this->suggestedMove = {-1, -1};
     colorToPlay == sf::Color::White ? board.addStoneWhite(pos) : board.addStoneBlack(pos);
     nextTurn();
 }
