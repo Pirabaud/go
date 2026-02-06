@@ -91,7 +91,6 @@ bool PvEScene::handleStonePlacement(const std::optional<sf::Event>& event, sf::R
 
         playMove(playerMove);
 
-        // std::cout << "Heuristic : " << HeuristicService::getHeuristicValue(TODO, TODO) << std::endl;
         CaptureService::checkCapture(board, playerMove, true);
         draw(window);
         if (CheckWinService::isWin(board)) {
