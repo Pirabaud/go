@@ -34,11 +34,9 @@ private:
 
     TranspositionTable transpositionTable;
 
-    // Gestion du temps pour l'Iterative Deepening
     std::chrono::time_point<std::chrono::high_resolution_clock> startTime;
     std::chrono::milliseconds timeLimit;
 
-    // Atomic n'est pas strictement nécessaire en mono-thread, mais c'est une bonne habitude
     bool timeOut = false;
     long nodesVisited = 0;
 };
