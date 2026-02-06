@@ -14,7 +14,7 @@ std::array<int16_t, HeuristicService::MAX_INDEX> HeuristicService::PRECOMPUTED_S
 void HeuristicService::init() {
     std::cout << "Initializing Heuristic LUT..." << std::endl;
     auto patterns = loadPatternsFromFile();
-    // For each possible combination of 9 cells, compute its score
+    // For each possible combination of 11 cells, compute its score
     for (int i = 0; i < MAX_INDEX; ++i) {
         std::string boardSlice = indexToString(i);
         int16_t currentMaxScore = 0;
@@ -68,7 +68,7 @@ std::string HeuristicService::indexToString(int index) {
     std::string patternString;
     patternString.reserve(11);
 
-    // For each char of the string, extract 2 bits from index and map to 'A', 'E', 'O'
+    // For each char of the string, extract 2 bits from index and map to 'A', 'E', 'O', 'W'
     for (int i = 0; i < 11; ++i) {
         const int shift = (10 - i) * 2;
         const int val = (index >> shift) & 0b11;
