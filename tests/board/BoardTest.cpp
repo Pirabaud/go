@@ -50,3 +50,25 @@ TEST_CASE("Board - Get pattern index (vertical)") {
     const int patternIndex = board.getPatternIndex(Board::getGlobalIndex({9, 5}), true, 20);
     REQUIRE(patternIndex == 0b0010010010010000100000);
 }
+
+TEST_CASE("Board - Get pattern index (diagonal down-right)") {
+    Board board;
+    board.addStoneWhite({ 0, 0});
+    board.addStoneBlack({ 1, 1});
+    board.addStoneWhite({ 3, 3});
+    board.addStoneBlack({ 5, 5});
+    board.addStoneWhite({ 8, 8});;
+    const int patternIndex = board.getPatternIndex(Board::getGlobalIndex({3, 3}), false, 21);
+    REQUIRE(patternIndex == 0b1111011000010010000001);
+}
+
+TEST_CASE("Board - Get pattern index (diagonal up-left)") {
+    Board board;
+    board.addStoneWhite({ 0, 18});
+    board.addStoneBlack({ 1, 17});
+    board.addStoneWhite({ 3, 15});
+    board.addStoneBlack({ 5, 13});
+    board.addStoneWhite({ 8, 10});;
+    const int patternIndex = board.getPatternIndex(Board::getGlobalIndex({3, 15}), false, 19);
+    REQUIRE(patternIndex == 0b1111011000010010000001);
+}
