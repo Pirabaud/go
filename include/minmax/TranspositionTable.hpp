@@ -2,6 +2,7 @@
 #define GOMOKU_TRANSPOSITIONTABLE_H
 
 
+#include <cstdint>
 #include <vector>
 
 enum TTFlag { EXACT, LOWERBOUND, UPPERBOUND };

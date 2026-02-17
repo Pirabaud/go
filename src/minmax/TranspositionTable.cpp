@@ -1,7 +1,7 @@
 #include "TranspositionTable.hpp"
 
 TranspositionTable::TranspositionTable() {
-    table.reserve(SIZE);
+    table.resize(SIZE);
 }
 
 void TranspositionTable::store(uint64_t zobristKey, int depth, int score, TTFlag flag, int bestMove) {
