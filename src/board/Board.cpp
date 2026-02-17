@@ -196,7 +196,7 @@ void Board::clearBitAt(std::array<uint64_t, 6> &bitBoard, const int globalIndex)
 }
 
 void Board::initZobrist() {
-    std::__1::mt19937_64 rng(42); // Fixed seed for reproducibility
+    std::mt19937_64 rng(42); // Fixed seed for reproducibility
     std::uniform_int_distribution<uint64_t> dist;
     for (auto & indecesPosition : ZOBRIST_TABLE) {
         indecesPosition[0] = dist(rng); // Black stone

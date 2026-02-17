@@ -1,6 +1,7 @@
 #ifndef GOMOKU_HEURISTIC_SERVICE_H
 #define GOMOKU_HEURISTIC_SERVICE_H
 #include <map>
+#include <vector>
 
 #include "Board.h"
 
