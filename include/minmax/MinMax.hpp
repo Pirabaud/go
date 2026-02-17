@@ -5,6 +5,17 @@
 #include "JsonService.hpp"
 #include "TranspositionTable.hpp"
 
+struct MoveList {
+    int moves[256]; // Tableau fixe (sur la stack = gratuit en temps)
+    int scores[256];
+    int count = 0;
+
+    void add(int move, int score) {
+        moves[count] = move;
+        scores[count] = score;
+        count++;
+    }
+};
 
 class MinMax {
 public:
@@ -27,7 +38,7 @@ public:
     //            int currentScore,
     //            int *outBestMoveIndex) ;
 
-    static std::vector<int> generatePossibleMoves(Board &currentBoard, bool isWhite);
+    static void generatePossibleMoves(Board &currentBoard, bool isWhite, MoveList &outList);
     static void saveDecisionTree(const json& tree);
 private:
     Board& board;

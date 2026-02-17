@@ -8,6 +8,8 @@
 #include "CheckWinService.hpp"
 #include "HeuristicService.h"
 
+// Crée une structure légère ou utilise des tableaux simples
+
 
 MinMax::MinMax(Board &board) : board(board) {
     transpositionTable = TranspositionTable();
@@ -19,176 +21,150 @@ Board & MinMax::getBoard() const {
     return board;
 }
 
+#include <iostream>
+#include <algorithm>
+#include <chrono>
+
+
 std::pair<Position, long> MinMax::run(int timeLimitMs, const bool isBlack) {
-    this->timeLimit = std::chrono::milliseconds(timeLimitMs - 5);
+    this->timeLimit = std::chrono::milliseconds(timeLimitMs - 15); // Sécurité temps
     this->startTime = std::chrono::high_resolution_clock::now();
     this->timeOut = false;
     this->nodesVisited = 0;
 
     int globalBestMove = -1;
     int currentBestMove = -1;
-    int score = 0;
+    int lastValidScore = 0;
     int maxDepthReached = 0;
 
-    for (int depth = 1; depth <= 10; ++depth) {
-        int val = minmax(board, depth, 0, INT_MIN, INT_MAX, !isBlack, 0, &currentBestMove);
-        if (this->timeOut) {
-            break;
-        }
+    for (int depth = 1; depth <= 12; ++depth) {
+        int val = minmax(board, depth, 0, -2000000, 2000000, !isBlack, 0, &currentBestMove);
+
+        if (this->timeOut) break;
 
         maxDepthReached = depth;
         globalBestMove = currentBestMove;
-        score = val;
-        if (score >= 15000) {
-            break;
-        }
+        lastValidScore = val;
+
     }
-    std::cout << "Reached depth: " << maxDepthReached << ", score: " << score << ", nodes visited: " << nodesVisited << std::endl;
+
     const auto endTime = std::chrono::high_resolution_clock::now();
     const long elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
+
+    double seconds = elapsed / 1000.0;
+    long nps = (seconds > 0) ? static_cast<long>(nodesVisited / seconds) : nodesVisited;
+
+    std::cout << "Reached depth: " << maxDepthReached
+              << " | Nodes: " << nodesVisited
+              << " | NPS: " << nps << " nodes/s"
+              << " | Time: " << elapsed << "ms" << std::endl;
 
     if (globalBestMove != -1) {
         int x = globalBestMove / (Board::SIZE + 1);
         int y = globalBestMove % (Board::SIZE + 1);
         return {{x, y}, elapsed};
     }
-
     return {{-1, -1}, elapsed};
 }
 
 int MinMax::minmax(Board& currentBoard, int limitDepth, int currentDepth, int alpha, int beta, bool isMaximizing, int currentScore, int* outBestMoveIndex) {
-    if ((nodesVisited++ & 4095) == 0) {
-        checkTime();
-    }
+
+    // 1. Check Temps & TT (Rien ne change ici)
+    if ((nodesVisited++ & 2047) == 0) checkTime(); // Check un peu plus fréquent
     if (this->timeOut) return 0;
 
-    const int remainingDepth = limitDepth - currentDepth;
-    const uint64_t zobristKey = currentBoard.currentZobristKey;
-    int ttMoveIndex = -1;
+    int remainingDepth = limitDepth - currentDepth;
+    uint64_t key = currentBoard.currentZobristKey;
+    int ttMove = -1;
 
-    // 1. Transposition Table Lookup
-    if (auto ttEntry = transpositionTable.retrieve(zobristKey)) {
+    if (auto ttEntry = transpositionTable.retrieve(key)) {
         if (ttEntry->depth >= remainingDepth) {
             if (ttEntry->flag == EXACT) return ttEntry->score;
             if (ttEntry->flag == LOWERBOUND && ttEntry->score >= beta) return ttEntry->score;
             if (ttEntry->flag == UPPERBOUND && ttEntry->score <= alpha) return ttEntry->score;
         }
-        ttMoveIndex = ttEntry->bestMove;
+        ttMove = ttEntry->bestMove;
     }
 
-    if (currentDepth >= limitDepth) {
-        return currentScore;
-    }
+    if (currentDepth >= limitDepth) return currentScore;
 
-    const bool isWhite = isMaximizing;
-    auto moves = generatePossibleMoves(currentBoard, isWhite);
-    if (moves.empty()) {
-        return currentScore;
-    }
+    // 2. GÉNÉRATION SANS ALLOCATION (Sur la Stack)
+    MoveList list;
+    // Modifie ton generatePossibleMoves pour qu'il prenne 'MoveList& list' et fasse 'list.add()'
+    generatePossibleMoves(currentBoard, isMaximizing, list);
 
-    // 2. INITIALISATION DES SCORES (Sans trier)
-    std::vector<int> moveOrderingScores(moves.size());
-    for (size_t i = 0; i < moves.size(); ++i) {
-        if (moves[i] == ttMoveIndex) {
-            moveOrderingScores[i] = 10000000; // Le coup TT doit être testé en premier absolu
+    if (list.count == 0) return currentScore;
+
+    // 3. SCORING & ORDONNANCEMENT (Zéro vector)
+    for (int i = 0; i < list.count; ++i) {
+        if (list.moves[i] == ttMove) {
+            list.scores[i] = 10000000; // Priorité absolue
         } else {
-            // Heuristique simple pour ordonner les autres coups
-            moveOrderingScores[i] = HeuristicService::evaluatePosition(currentBoard, moves[i], isMaximizing);
+            // Le Delta est calculé ici pour le tri
+            list.scores[i] = HeuristicService::evaluatePosition(currentBoard, list.moves[i], isMaximizing);
         }
     }
 
-    const int alphaOrig = alpha;
-    int bestVal = isMaximizing ? INT_MIN : INT_MAX;
+    int bestVal = isMaximizing ? -2000000 : 2000000;
     int localBestMove = -1;
+    int alphaOrig = alpha;
 
-    // 3. BOUCLE PRINCIPALE AVEC MOVE PICKER
-    for (size_t i = 0; i < moves.size(); ++i) {
+    for (int i = 0; i < 6; ++i) {
 
-        // --- OPTIMISATION : Selection Sort on Demand ---
-        // On trouve le meilleur coup parmi ceux restants (de i à fin)
-        int bestIndex = i;
-        int bestScore = moveOrderingScores[i];
+        int bestIdx = i;
+        for (int j = i + 1; j < list.count; ++j) {
+            if (list.scores[j] > list.scores[bestIdx]) bestIdx = j;
+        }
+        // Swap manuel (très rapide sur des int)
+        std::swap(list.moves[i], list.moves[bestIdx]);
+        std::swap(list.scores[i], list.scores[bestIdx]);
 
-        for (size_t j = i + 1; j < moves.size(); ++j) {
-            if (moveOrderingScores[j] > bestScore) {
-                bestScore = moveOrderingScores[j];
-                bestIndex = j;
-            }
+        if (i > 8 && remainingDepth < 4 && list.scores[i] < 500) {
+             continue; // On saute ce coup, il ne sert à rien
+        }
+        // ---------------------------------------------------------
+
+        int move = list.moves[i];
+        int delta = list.scores[i];
+
+        // Si c'est le coup TT, il faut recalculer le vrai delta car son score était fake (10000000)
+        if (move == ttMove) {
+            delta = HeuristicService::evaluatePosition(currentBoard, move, isMaximizing);
         }
 
-        // On place le meilleur coup trouvé à l'index courant 'i'
-        std::swap(moves[i], moves[bestIndex]);
-        std::swap(moveOrderingScores[i], moveOrderingScores[bestIndex]);
-        // -----------------------------------------------
+        // Incrémental Score Update
+        int nextScore = isMaximizing ? currentScore + delta : currentScore - delta;
 
-        int moveIndex = moves[i]; // C'est le meilleur coup disponible maintenant
+        // Jouer le coup
+        if (isMaximizing) currentBoard.addStoneWhite(move);
+        else currentBoard.addStoneBlack(move);
 
-        // Calculs des scores avant/après
-        const int blackScoreBefore = HeuristicService::evaluatePosition(currentBoard, moveIndex, true);
-        const int whiteScoreBefore = HeuristicService::evaluatePosition(currentBoard, moveIndex, false);
+        // Récursion
+        int eval = minmax(currentBoard, limitDepth, currentDepth + 1, alpha, beta, !isMaximizing, nextScore, nullptr);
 
-        if (isWhite) currentBoard.addStoneWhite(moveIndex);
-        else currentBoard.addStoneBlack(moveIndex);
+        // Annuler le coup
+        if (isMaximizing) currentBoard.removeWhiteStone(move);
+        else currentBoard.removeBlackStone(move);
 
-        const int blackScoreAfter = HeuristicService::evaluatePosition(currentBoard, moveIndex, true);
-        const int whiteScoreAfter = HeuristicService::evaluatePosition(currentBoard, moveIndex, false);
-
-        // Mise à jour incrémentale du score
-        const int newScore = currentScore + (whiteScoreAfter - whiteScoreBefore) - (blackScoreAfter - blackScoreBefore);
-
-        // Vérification de victoire immédiate
-        bool isWin = (isWhite && whiteScoreAfter >= 15000) || (!isWhite && blackScoreAfter >= 15000);
-        if (isWin) {
-            if (isWhite) currentBoard.removeWhiteStone(moveIndex);
-            else currentBoard.removeBlackStone(moveIndex);
-
-            if (outBestMoveIndex != nullptr) {
-                *outBestMoveIndex = moveIndex;
-            }
-            return isWhite ? whiteScoreAfter : blackScoreAfter;
-        }
-
-        // Appel Récursif
-        int eval = minmax(currentBoard, limitDepth, currentDepth + 1, alpha, beta, !isMaximizing, newScore, nullptr);
-
-        // Undo Move
-        if (isWhite) currentBoard.removeWhiteStone(moveIndex);
-        else currentBoard.removeBlackStone(moveIndex);
-
-        // Alpha-Beta Logic
+        // Alpha-Beta classique
         if (isMaximizing) {
-            if (eval > bestVal) {
-                bestVal = eval;
-                localBestMove = moveIndex;
-            }
+            if (eval > bestVal) { bestVal = eval; localBestMove = move; }
             alpha = std::max(alpha, bestVal);
         } else {
-            if (eval < bestVal) {
-                bestVal = eval;
-                localBestMove = moveIndex;
-            }
+            if (eval < bestVal) { bestVal = eval; localBestMove = move; }
             beta = std::min(beta, bestVal);
         }
 
-        // CUTOFF : Si on coupe ici, on a économisé le tri des coups suivants (i+1, etc.)
-        if (beta <= alpha) {
-            break;
-        }
+        if (beta <= alpha) break;
     }
 
-    if (outBestMoveIndex != nullptr) {
-        *outBestMoveIndex = localBestMove;
-    }
-
+    // Sauvegarde TT
     if (!this->timeOut) {
-        TTFlag flag;
-        if (bestVal <= alphaOrig) flag = UPPERBOUND;
-        else if (bestVal >= beta) flag = LOWERBOUND;
-        else flag = EXACT;
-
-        transpositionTable.store(zobristKey, remainingDepth, bestVal, flag, localBestMove);
+        TTFlag flag = (bestVal <= alphaOrig) ? UPPERBOUND : (bestVal >= beta ? LOWERBOUND : EXACT);
+        transpositionTable.store(key, remainingDepth, bestVal, flag, localBestMove);
     }
 
+    if (outBestMoveIndex) *outBestMoveIndex = localBestMove;
     return bestVal;
 }
 
@@ -199,12 +175,10 @@ void MinMax::checkTime() {
     }
 }
 
-
-std::vector<int> MinMax::generatePossibleMoves(Board& currentBoard, bool isWhite) {
-    std::vector<int> moves{};
+void MinMax::generatePossibleMoves(Board& currentBoard, bool isWhite, MoveList &outList) {
+    outList.count = 0;
     if (currentBoard.isEmpty()) {
-        moves.push_back(180);
-        return moves;
+        outList.moves[outList.count++] = 180;
     }
 
     std::array<uint64_t, 6> occupied{};
@@ -212,13 +186,6 @@ std::vector<int> MinMax::generatePossibleMoves(Board& currentBoard, bool isWhite
     for (int i = 0; i < 6; i++) {
         occupied[i] = currentBoard.getBitBoardWhite()[i] | currentBoard.getBitBoardBlack()[i];
     }
-
-
-
-    // checkbetterMove(isWhite ? currentBoard.getBitBoardWhite() : currentBoard.getBitBoardBlack(), isWhite ? currentBoard.getBitBoardBlack() : currentBoard.getBitBoardWhite(), occupied, moves);
-    // if (!moves.empty()) {
-    //     return moves;
-    // }
 
     const std::array<uint64_t, 6> right = Board::shift_right_board(occupied, 1);
     const std::array<uint64_t, 6> occupied_right = Board::bitBoardOr(occupied, right);
@@ -235,12 +202,13 @@ std::vector<int> MinMax::generatePossibleMoves(Board& currentBoard, bool isWhite
         while (candidates != 0) {
             int index = i * 64 + std::countr_zero(candidates);
             if (index <= (Board::SIZE + 1) * 19 - 2) {
-                moves.push_back(index);
+                if (outList.count < 256) {
+                    outList.moves[outList.count++] = index;
+                }
             }
             candidates &= candidates - 1;
         }
     }
-    return moves;
 }
 
 void MinMax::checkbetterMove(std::array<uint64_t, 6> &allyBitboard, std::array<uint64_t, 6> &ennemyBitboard, std::array<uint64_t, 6> &occupiedBitboard, std::vector<int> &possibleMoves) {
