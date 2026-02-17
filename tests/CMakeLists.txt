@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.29)
 add_executable(GomokuTests
         board/BoardTest.cpp
         minmax/MinMaxTest.cpp
+        services/CheckHeuristicServiceTest.cpp
         services/CheckAlignmentCheckerTest.cpp
         services/CheckLegalMoveTest.cpp
         services/CheckWinServiceTest.cpp

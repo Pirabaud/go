@@ -27,7 +27,7 @@ public:
     //            int currentScore,
     //            int *outBestMoveIndex) ;
 
-    static std::vector<int> generatePossibleMoves(Board& currentBoard);
+    static std::vector<int> generatePossibleMoves(Board &currentBoard, bool isWhite);
     static void saveDecisionTree(const json& tree);
 private:
     Board& board;
@@ -36,6 +36,14 @@ private:
 
     std::chrono::time_point<std::chrono::high_resolution_clock> startTime;
     std::chrono::milliseconds timeLimit;
+    static void getFreeThreeAlly(
+    const std::array<uint64_t, 6>& currentBoard,
+    const std::array<uint64_t, 6>& occupiedBoard,
+    const int dir,
+    std::vector<int> &possibleMoves
+    );
+    static void checkbetterMove(std::array<uint64_t, 6> &allyBitboard, std::array<uint64_t, 6> &ennemyBitboard, std::array<uint64_t, 6> &
+                                occupiedBitboard, std::vector<int> &possibleMoves);
 
     bool timeOut = false;
     long nodesVisited = 0;

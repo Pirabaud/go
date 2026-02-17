@@ -2,12 +2,13 @@
 #define GOMOKU_TRANSPOSITIONTABLE_H
 
 
+#include <cstdint>
 #include <vector>
 
 enum TTFlag { EXACT, LOWERBOUND, UPPERBOUND };
 
 struct TTEntry {
-    uint64_t zobristKey;
+    std::uint64_t zobristKey;
     int depth;
     int score;
     TTFlag flag;

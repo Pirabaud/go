@@ -8,9 +8,11 @@
 enum class Pattern {
     WIN,
     FOUR_OPEN,
+    FOUR_ONE_HOLE,
     FOUR,
     THREE_OPEN,
     THREE,
+    THREE_ONE_HOLE,
     TWO_OPEN,
     TWO,
     NONE

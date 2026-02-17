@@ -178,6 +178,15 @@ std::array<uint64_t, 6> Board::bitBoardOr(
 
 }
 
+std::array<uint64_t, 6> Board::bitBoardXor(const std::array<uint64_t, 6> &bitBoard1,
+    const std::array<uint64_t, 6> &bitBoard2) {
+    std::array<uint64_t, 6> result{};
+    for (int i = 0; i < 6; i++) {
+        result[i] = bitBoard1[i] ^ bitBoard2[i];
+    }
+    return result;
+}
+
 int Board::getGlobalIndex(const Position pos) {
     return pos.x * (SIZE + 1) + pos.y;
 }
@@ -196,7 +205,7 @@ void Board::clearBitAt(std::array<uint64_t, 6> &bitBoard, const int globalIndex)
 }
 
 void Board::initZobrist() {
-    std::__1::mt19937_64 rng(42); // Fixed seed for reproducibility
+    std::mt19937_64 rng(42); // Fixed seed for reproducibility
     std::uniform_int_distribution<uint64_t> dist;
     for (auto & indecesPosition : ZOBRIST_TABLE) {
         indecesPosition[0] = dist(rng); // Black stone

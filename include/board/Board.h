@@ -20,6 +20,7 @@ public:
     static std::array<uint64_t, 6> shift_left_board(const std::array<uint64_t, 6> &currentBitboard, int shift);
     static std::array<uint64_t, 6> bitBoardAnd(const std::array<uint64_t, 6> &bitBoard1, const std::array<uint64_t, 6> &bitBoard2);
     static std::array<uint64_t, 6> bitBoardOr(const std::array<uint64_t, 6> &bitBoard1, const std::array<uint64_t, 6> &bitBoard2);
+    static std::array<uint64_t, 6> bitBoardXor(const std::array<uint64_t, 6> &bitBoard1, const std::array<uint64_t, 6> &bitBoard2);
 
     void addStoneWhite(Position pos);
     void addStoneBlack(Position pos);
