@@ -33,6 +33,8 @@ public:
 
     void addCaptures(bool isStoneWhite, int stoneCount);
 
+    void removeCaptures(bool isStoneWhite, int stoneCount);
+
     bool isEmpty() const;
 
     static int getGlobalIndex(Position pos) ;
@@ -54,6 +56,10 @@ public:
 
     void updateCurrentZobristKey(int index, bool isBlack);
 
+    void updateScore(int score);
+
+    int getScore() const;
+
     ~Board() = default;
 
     uint64_t currentZobristKey = 0;
@@ -65,6 +71,7 @@ private:
 
     int blackStoneCaptured = 0;
     int whiteStoneCaptured = 0;
+    int globalScore = 0;
 
 };
 

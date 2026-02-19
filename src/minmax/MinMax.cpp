@@ -4,6 +4,7 @@
 #include <iostream>
 #include <climits>
 
+#include "CaptureService.hpp"
 #include "JsonService.hpp"
 #include "CheckWinService.hpp"
 #include "HeuristicService.h"
@@ -20,6 +21,8 @@ Board & MinMax::getBoard() const {
 }
 
 std::pair<Position, long> MinMax::run(int timeLimitMs, const bool isBlack) {
+    auto startGlobal = std::chrono::high_resolution_clock::now();
+    this->nodesVisited = 0; // On remet le compteur à zéro !
     this->timeLimit = std::chrono::milliseconds(timeLimitMs - 5);
     this->startTime = std::chrono::high_resolution_clock::now();
     this->timeOut = false;
@@ -27,15 +30,24 @@ std::pair<Position, long> MinMax::run(int timeLimitMs, const bool isBlack) {
 
     int globalBestMove = -1;
     int currentBestMove = -1;
-    int score = 0;
+    int score = board.getScore();
     int maxDepthReached = 0;
 
-    for (int depth = 1; depth <= 6; ++depth) {
-        int val = minmax(board, depth, 0, INT_MIN, INT_MAX, !isBlack, 0, &currentBestMove);
+    for (int depth = 1; depth <= 1; ++depth) {
+        int val = minmax(board, depth, 0, INT_MIN, INT_MAX, isBlack, score, &currentBestMove);
 
         if (this->timeOut) {
             break;
         }
+        auto now = std::chrono::high_resolution_clock::now();
+        auto durationMs = std::chrono::duration_cast<std::chrono::milliseconds>(now - startGlobal).count();
+        double seconds = durationMs / 1000.0;
+       // long nps = (seconds > 0.001) ? static_cast<long>(nodesVisited / seconds) : 0;
+
+        // std::cout << "Depth: " << depth
+        //           << " | Score: " << score
+        //           << " | Nodes: " << nodesVisited
+        //           << " | NPS: " << nps << std::endl;
 
         maxDepthReached = depth;
         globalBestMove = currentBestMove;
@@ -54,8 +66,13 @@ std::pair<Position, long> MinMax::run(int timeLimitMs, const bool isBlack) {
     return {{-1, -1}, elapsed};
 }
 
-int MinMax::minmax(Board& currentBoard, int limitDepth, int currentDepth, int alpha, int beta, bool isMaximizing, int currentScore, int* outBestMoveIndex) {
-if ((nodesVisited++ & 4095) == 0) {
+int MinMax::minmax(Board& currentBoard, const int limitDepth, const int currentDepth, int alpha, int beta, const bool isMaximizing, const int currentScore, int* outBestMoveIndex) {
+    if (currentScore >= 14000 || currentScore <= -14000) {
+        // Bonus optionnel : ajuster selon la profondeur pour que l'IA préfère gagner VITE et perdre LENTEMENT
+        // return currentScore > 0 ? currentScore - currentDepth : currentScore + currentDepth;
+        return currentScore;
+    }
+    if ((nodesVisited++ & 4095) == 0) {
         checkTime();
     }
     if (this->timeOut) return 0;
@@ -64,6 +81,7 @@ if ((nodesVisited++ & 4095) == 0) {
     const uint64_t zobristKey = currentBoard.currentZobristKey;
     int ttMoveIndex = -1;
 
+    // 1. TRANSPOSITION TABLE LOOKUP
     if (auto ttEntry = transpositionTable.retrieve(zobristKey)) {
         if (ttEntry->depth >= remainingDepth) {
             if (ttEntry->flag == EXACT) return ttEntry->score;
@@ -77,27 +95,45 @@ if ((nodesVisited++ & 4095) == 0) {
         return currentScore;
     }
 
-    auto possibleMoveIndeces = generatePossibleMoves(currentBoard);
-    if (possibleMoveIndeces.empty()) {
+    // 2. GENERATION
+    auto rawMoves = generatePossibleMoves(currentBoard);
+    if (rawMoves.empty()) {
         return currentScore;
     }
 
-    if (ttMoveIndex != -1) {
-        for (size_t i = 0; i < possibleMoveIndeces.size(); ++i) {
-            if (possibleMoveIndeces[i] == ttMoveIndex) {
-                std::swap(possibleMoveIndeces[0], possibleMoveIndeces[i]);
-                break;
-            }
+    std::vector<std::pair<int, int>> sortedMoves;
+    sortedMoves.reserve(rawMoves.size());
+
+    for (int move : rawMoves) {
+        int score = 0;
+
+        if (move == ttMoveIndex) {
+            score = 100000000; // Priorité absolue au coup TT
+        } else {
+            score = HeuristicService::evaluatePosition(currentBoard, move, isMaximizing);
         }
+
+        sortedMoves.emplace_back(score, move);
     }
 
+    std::sort(sortedMoves.rbegin(), sortedMoves.rend());
+
+    // ---------------------------------------------------------
+
     const int alphaOrig = alpha;
-    int bestVal = isMaximizing ? INT_MIN : INT_MAX;
+    int bestVal = isMaximizing ? -2000000000 : 2000000000;
     int localBestMove = -1;
     const bool isWhite = isMaximizing;
 
-    for (const auto& moveIndex : possibleMoveIndeces) {
+    // 4. BOUCLE PRINCIPALE (Sur les coups triés)
+    int moveCount = 0;
+    int capture[8];
+    for (int i = 0; i < sortedMoves.size(); i++) {
 
+        int countCapture = 0;
+        const int moveIndex = sortedMoves[i].second;
+
+        // --- Ta logique de Delta Score (Inchangée) ---
         const int blackScoreBefore = HeuristicService::evaluatePosition(currentBoard, moveIndex, true);
         const int whiteScoreBefore = HeuristicService::evaluatePosition(currentBoard, moveIndex, false);
 
@@ -106,13 +142,45 @@ if ((nodesVisited++ & 4095) == 0) {
 
         const int blackScoreAfter = HeuristicService::evaluatePosition(currentBoard, moveIndex, true);
         const int whiteScoreAfter = HeuristicService::evaluatePosition(currentBoard, moveIndex, false);
-        const int newScore = currentScore + (whiteScoreAfter - whiteScoreBefore) - (blackScoreAfter - blackScoreBefore);
 
+        int checkCapture = CaptureService::checkCapture(currentBoard, moveIndex, !isWhite, capture, countCapture);
+
+        // Calcul du nouveau score global
+        int newScore = currentScore + (whiteScoreAfter - whiteScoreBefore) - (blackScoreAfter - blackScoreBefore);
+
+        if (checkCapture > 0) {
+            int bonus = 3000 * countCapture; // On estime la valeur des pièces disparues
+            if (isMaximizing) newScore += bonus;
+            else newScore -= bonus;
+        }
+        //std::cout << moveIndex << std::endl;
+        //std::cout << "x : " << moveIndex / (Board::SIZE + 1) << " y: " << moveIndex % (Board::SIZE + 1) << " score : " << newScore << std::endl;
+
+
+        // Appel Récursif
         int eval = minmax(currentBoard, limitDepth, currentDepth + 1, alpha, beta, !isMaximizing, newScore, nullptr);
 
+        std::cout << sortedMoves[i].second / (Board::SIZE + 1) << " " << sortedMoves[i].second % (Board::SIZE +1) << "score : " << eval << std::endl;
+
+        // Undo
         if (isWhite) currentBoard.removeWhiteStone(moveIndex);
         else currentBoard.removeBlackStone(moveIndex);
 
+        if (checkCapture > 0) {
+            if (isWhite) {
+                for (int j = 0; j < countCapture; j++) {
+                    currentBoard.addStoneBlack(capture[j]);
+                }
+            }
+            else {
+                for (int j = 0; j < countCapture; j++) {
+                    currentBoard.addStoneWhite(capture[j]);
+                }
+            }
+            currentBoard.removeCaptures(isWhite, countCapture);
+        }
+
+        // --- Logique Alpha-Beta (Optimisée avec std::max/min) ---
         if (isMaximizing) {
             if (eval > bestVal) {
                 bestVal = eval;
@@ -127,11 +195,16 @@ if ((nodesVisited++ & 4095) == 0) {
             beta = std::min(beta, bestVal);
         }
 
+        // Cutoff (Élagage)
         if (beta <= alpha) {
+            totalCutoffs++;
+            if (moveCount == 0) firstMoveCutoffs++; // moveCount est l'index dans ta boucle triée
             break;
         }
+        moveCount++;
     }
 
+    // 5. SAUVEGARDE TT
     if (outBestMoveIndex != nullptr) {
         *outBestMoveIndex = localBestMove;
     }

@@ -70,6 +70,8 @@ void PvEScene::drawTexts(sf::RenderWindow& window) {
 }
 
 bool PvEScene::handleStonePlacement(const std::optional<sf::Event>& event, sf::RenderWindow& window) {
+    int capturedStones[8];
+    int count = 0;
     if (!event || !event->is<sf::Event::MouseButtonPressed>()) {
         return false;
     }
@@ -91,7 +93,7 @@ bool PvEScene::handleStonePlacement(const std::optional<sf::Event>& event, sf::R
 
         playMove(playerMove);
 
-        CaptureService::checkCapture(board, playerMove, true);
+        CaptureService::checkCapture(board, playerMove.x * (Board::SIZE + 1) + playerMove.y, true, capturedStones, count);
         draw(window);
         if (CheckWinService::isWin(board)) {
             return true;
@@ -101,8 +103,8 @@ bool PvEScene::handleStonePlacement(const std::optional<sf::Event>& event, sf::R
         moveHistory.push_back(playerMove);
         const auto aiMove = handleAITurn();
         playMove(aiMove);
-        CaptureService::checkCapture(board, aiMove, colorToPlay == sf::Color::White);
-        this->suggestedMove = handleAITurn();
+        CaptureService::checkCapture(board, aiMove.x * (Board::SIZE + 1) + aiMove.y, colorToPlay == sf::Color::White, capturedStones, count);
+        //this->suggestedMove = handleAITurn();
         return true;
         }
     return false;

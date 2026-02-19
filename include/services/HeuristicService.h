@@ -5,7 +5,7 @@
 
 #include "Board.h"
 
-#define PATTERNS_FILE_PATH "../patterns.txt"
+#define PATTERNS_FILE_PATH "/home/pirabaud/CLionProjects/go/patterns.txt"
 
 class HeuristicService {
 public:

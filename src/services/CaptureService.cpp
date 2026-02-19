@@ -10,9 +10,9 @@
 #include "Direction.hpp"
 #include "Position.hpp"
 
-int CaptureService::checkCapture(Board& board,  const Position pos, const bool isBlack) {
+int CaptureService::checkCapture(Board &board, int globalIndex, const bool isBlack, int *capture, int &count) {
     int result = 0;
-    const int global_index = pos.x * (Board::SIZE + 1) + pos.y;
+
 
     constexpr std::array<int, 4> directions = {
         HORIZONTAL,
@@ -22,8 +22,8 @@ int CaptureService::checkCapture(Board& board,  const Position pos, const bool i
     };
 
     for (const int dir: directions) {
-        result += checkCaptureInDirection(board, global_index, dir, isBlack);
-        result += checkCaptureInDirection(board, global_index, -dir, isBlack);
+        result += checkCaptureInDirection(board, globalIndex, dir, isBlack, capture, count);
+        result += checkCaptureInDirection(board, globalIndex, -dir, isBlack, capture, count);
     }
     return result;
 }
@@ -67,7 +67,7 @@ bool CaptureService::winLineBreakable(const std::array<uint64_t, 6> &allyBitBoar
 }
 
 int CaptureService::checkCaptureInDirection(Board& board, const int globalIndex,
-                                            const int dir, const bool isBlack) {
+                                            const int dir, const bool isBlack, int* capture, int &count) {
     const std::array<uint64_t, 6>& allyBitBoard = isBlack ? board.getBitBoardBlack() : board.getBitBoardWhite();
     std::array<uint64_t, 6>& enemyBitBoard = isBlack ? board.getBitBoardWhite() : board.getBitBoardBlack();
 
@@ -90,6 +90,8 @@ int CaptureService::checkCaptureInDirection(Board& board, const int globalIndex,
         isBlack ? board.removeWhiteStone(firstEnemyGlobalIndex) : board.removeBlackStone(firstEnemyGlobalIndex);
         isBlack ? board.removeWhiteStone(secondEnemyGlobalIndex) : board.removeBlackStone(secondEnemyGlobalIndex);
         isBlack ? board.addCaptures(true, 2) : board.addCaptures(false, 2);
+        capture[count++] = firstEnemyGlobalIndex;
+        capture[count++] = secondEnemyGlobalIndex;
         return 2;
     }
     return 0;

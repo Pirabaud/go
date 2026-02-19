@@ -39,6 +39,9 @@ private:
 
     bool timeOut = false;
     long nodesVisited = 0;
+    long long totalCutoffs = 0;
+    long long firstMoveCutoffs = 0;
+
 };
 
 

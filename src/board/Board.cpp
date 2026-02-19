@@ -38,16 +38,42 @@ const std::array<uint64_t, 6> &Board::getBitBoardBlack() const {
     return this->bitBoardBlack;
 }
 
-void Board::addStoneWhite(const Position pos) {
-    const int global_index = pos.x * (SIZE + 1) + pos.y;
-    this->bitBoardWhite[global_index / 64] |= 1ULL << (global_index % 64);
-    this->updateCurrentZobristKey(global_index, false);
-}
-
 void Board::addStoneBlack(const Position pos) {
     const int global_index = pos.x * (SIZE + 1) + pos.y;
+
+    // 1. On regarde les deux couleurs AVANT
+    const int blackBefore = HeuristicService::evaluatePosition(*this, global_index, true);
+    const int whiteBefore = HeuristicService::evaluatePosition(*this, global_index, false);
+
+    // 2. On pose la pierre
     this->bitBoardBlack[global_index / 64] |= 1ULL << (global_index % 64);
     this->updateCurrentZobristKey(global_index, true);
+
+    // 3. On regarde les deux couleurs APRES
+    const int blackAfter = HeuristicService::evaluatePosition(*this, global_index, true);
+    const int whiteAfter = HeuristicService::evaluatePosition(*this, global_index, false);
+
+    // 4. LE VRAI DELTA ABSOLU
+    // Ce que Noir a gagné MOINS ce que Blanc a gagné
+    updateScore((blackAfter - blackBefore) - (whiteAfter - whiteBefore));
+}
+
+void Board::addStoneWhite(const Position pos) {
+    const int global_index = pos.x * (SIZE + 1) + pos.y;
+
+    const int blackBefore = HeuristicService::evaluatePosition(*this, global_index, true);
+    const int whiteBefore = HeuristicService::evaluatePosition(*this, global_index, false);
+
+    this->bitBoardWhite[global_index / 64] |= 1ULL << (global_index % 64);
+    this->updateCurrentZobristKey(global_index, false);
+
+    const int blackAfter = HeuristicService::evaluatePosition(*this, global_index, true);
+    const int whiteAfter = HeuristicService::evaluatePosition(*this, global_index, false);
+
+    // MAGIE : C'EST EXACTEMENT LA MEME FORMULE !
+    // Si Blanc a joué un bon coup, whiteAfter sera plus grand que whiteBefore.
+    // Donc on va soustraire un nombre positif, le globalScore va baisser (ce qui est le but de Blanc !)
+    updateScore((blackAfter - blackBefore) - (whiteAfter - whiteBefore));
 }
 
 void Board::addStoneWhite(const int index) {
@@ -72,13 +98,31 @@ void Board::removeBlackStone(const int index) {
 
 template<int Offset>
 void updatePattern(int& index, int center, int dir, const std::array<uint64_t, 6>& ally, const std::array<uint64_t, 6>& enemy) {
-    const int pos = center + Offset * dir;
-    if (pos < 0 || pos >= 384) { // 384 = 6 * 64
-        // If out of bounds, consider it as a wall
-        index = (index << 2) | HeuristicService::WALL_BITS_MASK;
+
+    // 1. Calcul des coordonnées de départ (x0, y0)
+    int x0 = center % 20; // Board::SIZE
+    int y0 = center / 20;
+
+    // 2. Calcul du déplacement (dx, dy) selon la direction 'dir'
+    int dx = 0, dy = 0;
+    if (dir == 1)       { dx = 1;  dy = 0; } // Horizontal
+    else if (dir == 19) { dx = -1; dy = 1; } // Diag / (Attention à ton sens, vérifie tes constantes)
+    else if (dir == 20) { dx = 0;  dy = 1; } // Vertical
+    else if (dir == 21) { dx = 1;  dy = 1; } // Diag \
+
+    // 3. Calcul de la position cible (x, y)
+    int x = x0 + (Offset * dx);
+    int y = y0 + (Offset * dy);
+
+    // 4. VÉRIFICATION DES BORNES 2D (C'est ça qui manquait !)
+    if (x < 0 || x >= 19 || y < 0 || y >= 19) {
+        // C'est un vrai MUR
+        index = (index << 2) | 3; // 3 = WALL (HeuristicService::WALL_BITS_MASK)
         return;
     }
 
+    // 5. Lecture du bitboard (maintenant c'est sûr)
+    const int pos = y * 19 + x; // Reconversion en 1D propre
     const int word = pos >> 6;
     const int bit = pos & 0x3F;
 
@@ -88,7 +132,7 @@ void updatePattern(int& index, int center, int dir, const std::array<uint64_t, 6
     index = (index << 2) | (e << 1 | a);
 }
 
-int Board::getPatternIndex(int positionIndex, bool isBlackPlayer, int direction) const {
+int Board::getPatternIndex(const int positionIndex, const bool isBlackPlayer, const int direction) const {
 
 
     // direction : 1 (horizontal), 20 (vertical), 21 (Diag /), 19 (Diag \)
@@ -119,6 +163,14 @@ void Board::addCaptures(const bool isStoneWhite, const int stoneCount) {
         this->whiteStoneCaptured += stoneCount;
     } else {
         this->blackStoneCaptured += stoneCount;
+    }
+}
+
+void Board::removeCaptures(const bool isStoneWhite, const int stoneCount) {
+    if (!isStoneWhite) {
+        this->whiteStoneCaptured -= stoneCount;
+    } else {
+        this->blackStoneCaptured -= stoneCount;
     }
 }
 
@@ -206,6 +258,14 @@ void Board::initZobrist() {
 
 void Board::updateCurrentZobristKey(int index, bool isBlack) {
     currentZobristKey ^= ZOBRIST_TABLE[index][isBlack ? 1 : 0];
+}
+
+void Board::updateScore(const int score) {
+    globalScore += score;
+}
+
+int Board::getScore() const {
+    return globalScore;
 }
 
 std::ostream &operator<<(std::ostream &os, const Board &board) {
