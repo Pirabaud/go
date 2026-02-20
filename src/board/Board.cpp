@@ -12,7 +12,7 @@
 #include "HeuristicService.h"
 #include "Position.hpp"
 
-uint64_t Board::ZOBRIST_TABLE[361][2] = {};
+uint64_t Board::ZOBRIST_TABLE[400][2] = {};
 
 int Board::getWhiteCaptured() const {
     return this->whiteStoneCaptured;
@@ -119,6 +119,14 @@ void Board::addCaptures(const bool isStoneWhite, const int stoneCount) {
         this->whiteStoneCaptured += stoneCount;
     } else {
         this->blackStoneCaptured += stoneCount;
+    }
+}
+
+void Board::removeCaptures(const bool isStoneWhite, const int stoneCount) {
+    if (!isStoneWhite) {
+        this->whiteStoneCaptured -= stoneCount;
+    } else {
+        this->blackStoneCaptured -= stoneCount;
     }
 }
 
