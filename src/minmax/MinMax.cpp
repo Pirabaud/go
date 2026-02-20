@@ -4,6 +4,7 @@
 #include <iostream>
 #include <climits>
 
+#include "CaptureService.hpp"
 #include "JsonService.hpp"
 #include "CheckWinService.hpp"
 #include "HeuristicService.h"
@@ -20,7 +21,7 @@ Board & MinMax::getBoard() const {
 }
 
 std::pair<Position, long> MinMax::run(int timeLimitMs, const bool isBlack) {
-    this->timeLimit = std::chrono::milliseconds(timeLimitMs - 5);
+    this->timeLimit = std::chrono::milliseconds(timeLimitMs - 15);
     this->startTime = std::chrono::high_resolution_clock::now();
     this->timeOut = false;
     this->nodesVisited = 0;
@@ -30,7 +31,7 @@ std::pair<Position, long> MinMax::run(int timeLimitMs, const bool isBlack) {
     int score = 0;
     int maxDepthReached = 0;
 
-    for (int depth = 1; depth <= 6; ++depth) {
+    for (int depth = 1; depth <= 42; ++depth) {
         int val = minmax(board, depth, 0, INT_MIN, INT_MAX, !isBlack, 0, &currentBestMove);
 
         if (this->timeOut) {
@@ -54,7 +55,7 @@ std::pair<Position, long> MinMax::run(int timeLimitMs, const bool isBlack) {
     return {{-1, -1}, elapsed};
 }
 
-int MinMax::minmax(Board& currentBoard, int limitDepth, int currentDepth, int alpha, int beta, bool isMaximizing, int currentScore, int* outBestMoveIndex) {
+int MinMax::minmax(Board& currentBoard, const int limitDepth, int currentDepth, int alpha, int beta, bool isMaximizing, int currentScore, int* outBestMoveIndex) {
 if ((nodesVisited++ & 4095) == 0) {
         checkTime();
     }
@@ -97,21 +98,41 @@ if ((nodesVisited++ & 4095) == 0) {
     const bool isWhite = isMaximizing;
 
     for (const auto& moveIndex : possibleMoveIndeces) {
+        int capture[8];
+        int countCapture = 0;
 
         const int blackScoreBefore = HeuristicService::evaluatePosition(currentBoard, moveIndex, true);
         const int whiteScoreBefore = HeuristicService::evaluatePosition(currentBoard, moveIndex, false);
+        std::cout << moveIndex / (Board::SIZE + 1) << " " << moveIndex % (Board::SIZE + 1) << "black : " << blackScoreBefore << " white :" << whiteScoreBefore << std::endl;
 
         if (isWhite) currentBoard.addStoneWhite(moveIndex);
         else currentBoard.addStoneBlack(moveIndex);
 
         const int blackScoreAfter = HeuristicService::evaluatePosition(currentBoard, moveIndex, true);
         const int whiteScoreAfter = HeuristicService::evaluatePosition(currentBoard, moveIndex, false);
+        std::cout << moveIndex / (Board::SIZE + 1) << " " << moveIndex % (Board::SIZE + 1) << "black : " << blackScoreAfter << " white :" << whiteScoreAfter << std::endl;
+        int checkCapture = CaptureService::checkCapture(currentBoard, moveIndex, !isWhite, capture, countCapture);
+
         const int newScore = currentScore + (whiteScoreAfter - whiteScoreBefore) - (blackScoreAfter - blackScoreBefore);
 
         int eval = minmax(currentBoard, limitDepth, currentDepth + 1, alpha, beta, !isMaximizing, newScore, nullptr);
 
         if (isWhite) currentBoard.removeWhiteStone(moveIndex);
         else currentBoard.removeBlackStone(moveIndex);
+
+        if (checkCapture > 0) {
+            if (isWhite) {
+                for (int j = 0; j < countCapture; j++) {
+                    currentBoard.addStoneBlack(capture[j]);
+                }
+            }
+            else {
+                for (int j = 0; j < countCapture; j++) {
+                    currentBoard.addStoneWhite(capture[j]);
+                }
+            }
+            currentBoard.removeCaptures(isWhite, countCapture);
+        }
 
         if (isMaximizing) {
             if (eval > bestVal) {

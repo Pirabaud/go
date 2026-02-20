@@ -32,6 +32,7 @@ public:
 
 
     void addCaptures(bool isStoneWhite, int stoneCount);
+    void removeCaptures(bool isStoneWhite, int stoneCount);
 
     bool isEmpty() const;
 

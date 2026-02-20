@@ -10,7 +10,7 @@ OAAAAE:4000
 
 # --- Jeu de Capture & Attaque ---
 # Capture (Gros bonus)
-AEEA:3000
+AEEA:8000
 # 3 Ouvert (Très fort)
 OAAAO:2500
 OAOAAO:2500
@@ -26,6 +26,6 @@ OAAAE:200
 # Base saine
 OAAO:50
 # DANGER: Paire vulnérable
-EAAO:-100
+# EAAO:-3000
 # DANGER: Paire vulnérable
-OAAE:-100
+# OAAE:-3000

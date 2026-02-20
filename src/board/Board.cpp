@@ -122,6 +122,14 @@ void Board::addCaptures(const bool isStoneWhite, const int stoneCount) {
     }
 }
 
+void Board::removeCaptures(const bool isStoneWhite, const int stoneCount) {
+    if (!isStoneWhite) {
+        this->whiteStoneCaptured -= stoneCount;
+    } else {
+        this->blackStoneCaptured -= stoneCount;
+    }
+}
+
 bool Board::isEmpty() const {
     for (int i = 0; i < 6; i++) {
         if (bitBoardWhite[i] != 0 || bitBoardBlack[i] != 0) {
