@@ -15,7 +15,12 @@ public:
 
     static bool checkWinAlignment(const std::array<uint64_t, 6> &allyBitBoard, const std::array<uint64_t, 6> &enemyBitBoard, int dir);
 
+    static bool checkWinAt(const std::array<uint64_t, 6>& allyBB, int index);
+
     static Alignment checkAlignment(const std::array<uint64_t, 4> &line);
+
+private:
+    static int countLines(const std::array<uint64_t, 6> &allyBitBoard,  int index, int dir);
 };
 
 

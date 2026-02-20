@@ -44,6 +44,8 @@ void PvPScene::drawTexts(sf::RenderWindow& window) {
 }
 
 bool PvPScene::handleStonePlacement(const std::optional<sf::Event>& event, sf::RenderWindow& window) {
+    int captures[8];
+    int count = 0;
     if (!event || !event->is<sf::Event::MouseButtonPressed>()) {
         return false;
     }
@@ -63,8 +65,8 @@ bool PvPScene::handleStonePlacement(const std::optional<sf::Event>& event, sf::R
         }
         CaptureService::checkCapture(
             board,
-            Position{row, col},
-            colorToPlay == sf::Color::Black
+            Board::getGlobalIndex({row, col}),
+            colorToPlay == sf::Color::Black, captures, count
         );
         playMove(Position{row, col});
         return true;
