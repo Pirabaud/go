@@ -11,6 +11,9 @@ class CheckLegalMove {
 public:
     static IllegalMoves::Type isLegalMove(
         Position pos, Board &board, const bool &isBlack);
+    static bool createsAutoCapture(int posIndex, Board& board, const bool& isBlack);
+    static bool checkCaptureInDirection(Board& board, int globalIndex, int dir, bool isBlack);
+    static bool createsDoubleFreeThree(int posIndex, Board& board, const bool& isBlack);
 };
 
 

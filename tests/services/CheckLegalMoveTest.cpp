@@ -34,10 +34,10 @@ struct BoardFixture {
             CheckLegalMove::isLegalMove(posPlay, board, false) == expected);
     }
 
-    void setupCheckAlreadyInBoard(Position pos, bool color) {
+    void setupCheckAlreadyInBoard(Position pos, bool isBlack) {
         board = Board();
 
-        if (color) {
+        if (isBlack) {
             board.addStoneBlack(pos);
         } else {
             board.addStoneWhite(pos);
@@ -98,8 +98,8 @@ struct BoardFixture {
 
 
 TEST_CASE_METHOD(BoardFixture, "Check creating capture col down") {
-    for (int x = 0; x < Board::SIZE; ++x) {
-        for (int y = 0; y < Board::SIZE; ++y) {
+    for (int x = Board::SIZE * 0.25; x < Board::SIZE * 0.75; ++x) {
+        for (int y = Board::SIZE * 0.25; y < Board::SIZE * 0.75; ++y) {
             setupCreatesCaptureTest (Position{x, y},
                                     Position{x, y + 1},
                                     Position{x, y - 1},
@@ -110,8 +110,8 @@ TEST_CASE_METHOD(BoardFixture, "Check creating capture col down") {
 }
 
 TEST_CASE_METHOD(BoardFixture, "Check creating capture col up") {
-    for (int x = 0; x < Board::SIZE; ++x) {
-        for (int y = 0; y < Board::SIZE; ++y) {
+    for (int x = Board::SIZE * 0.25; x < Board::SIZE * 0.75; ++x) {
+        for (int y = Board::SIZE * 0.25; y < Board::SIZE * 0.75; ++y) {
             setupCreatesCaptureTest (Position{x, y},
                                     Position{x, y - 1},
                                     Position{x, y + 1},
@@ -122,8 +122,8 @@ TEST_CASE_METHOD(BoardFixture, "Check creating capture col up") {
 }
 
 TEST_CASE_METHOD(BoardFixture, "Check creating capture line right") {
-    for (int x = 0; x < Board::SIZE; ++x) {
-        for (int y = 0; y < Board::SIZE; ++y) {
+    for (int x = Board::SIZE * 0.25; x < Board::SIZE * 0.75; ++x) {
+        for (int y = Board::SIZE * 0.25; y < Board::SIZE * 0.75; ++y) {
             setupCreatesCaptureTest (Position{x, y},
                                     Position{x + 1, y},
                                     Position{x - 1, y},
@@ -134,8 +134,8 @@ TEST_CASE_METHOD(BoardFixture, "Check creating capture line right") {
 }
 
 TEST_CASE_METHOD(BoardFixture, "Check creating capture line lef") {
-    for (int x = 0; x < Board::SIZE; ++x) {
-        for (int y = 0; y < Board::SIZE; ++y) {
+    for (int x = Board::SIZE * 0.25; x < Board::SIZE * 0.75; ++x) {
+        for (int y = Board::SIZE * 0.25; y < Board::SIZE * 0.75; ++y) {
             setupCreatesCaptureTest (Position{x, y},
                         Position{x - 1, y},
                         Position{x + 1, y},
@@ -146,8 +146,8 @@ TEST_CASE_METHOD(BoardFixture, "Check creating capture line lef") {
 }
 
 TEST_CASE_METHOD(BoardFixture, "Check creating capture diagonal top right") {
-    for (int x = 0; x < Board::SIZE; ++x) {
-        for (int y = 0; y < Board::SIZE; ++y) {
+    for (int x = Board::SIZE * 0.25; x < Board::SIZE * 0.75; ++x) {
+        for (int y = Board::SIZE * 0.25; y < Board::SIZE * 0.75; ++y) {
             setupCreatesCaptureTest (Position{x, y},
                         Position{x - 1, y + 1},
                         Position{x + 1, y - 1},
@@ -158,8 +158,8 @@ TEST_CASE_METHOD(BoardFixture, "Check creating capture diagonal top right") {
 }
 
 TEST_CASE_METHOD(BoardFixture, "Check creating capture diagonal bot left") {
-    for (int x = 0; x < Board::SIZE; ++x) {
-        for (int y = 0; y < Board::SIZE; ++y) {
+    for (int x = Board::SIZE * 0.25; x < Board::SIZE * 0.75; ++x) {
+        for (int y = Board::SIZE * 0.25; y < Board::SIZE * 0.75; ++y) {
             setupCreatesCaptureTest (Position{x, y},
                         Position{x + 1, y - 1},
                         Position{x - 1, y + 1},
@@ -170,8 +170,8 @@ TEST_CASE_METHOD(BoardFixture, "Check creating capture diagonal bot left") {
 }
 
 TEST_CASE_METHOD(BoardFixture, "Check creating capture diagonal top left") {
-    for (int x = 0; x < Board::SIZE; ++x) {
-        for (int y = 0; y < Board::SIZE; ++y) {
+    for (int x = Board::SIZE * 0.25; x < Board::SIZE * 0.75; ++x) {
+        for (int y = Board::SIZE * 0.25; y < Board::SIZE * 0.75; ++y) {
             setupCreatesCaptureTest (Position{x, y},
                         Position{x - 1, y - 1},
                         Position{x + 1, y + 1},
@@ -182,8 +182,8 @@ TEST_CASE_METHOD(BoardFixture, "Check creating capture diagonal top left") {
 }
 
 TEST_CASE_METHOD(BoardFixture, "Check creating capture diagonal bot right") {
-    for (int x = 0; x < Board::SIZE; ++x) {
-        for (int y = 0; y < Board::SIZE; ++y) {
+    for (int x = Board::SIZE * 0.25; x < Board::SIZE * 0.75; ++x) {
+        for (int y = Board::SIZE * 0.25; y < Board::SIZE * 0.75; ++y) {
             setupCreatesCaptureTest (Position{x, y},
                      Position{x + 1, y + 1},
                      Position{x - 1, y - 1},
