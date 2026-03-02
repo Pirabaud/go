@@ -12,7 +12,7 @@
 
 class Board {
 public:
-    static uint64_t ZOBRIST_TABLE[361][2];
+    static uint64_t ZOBRIST_TABLE[400][2];
 
     static constexpr int SIZE = 19;
 

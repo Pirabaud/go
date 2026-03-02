@@ -12,7 +12,7 @@
 #include "HeuristicService.h"
 #include "Position.hpp"
 
-uint64_t Board::ZOBRIST_TABLE[361][2] = {};
+uint64_t Board::ZOBRIST_TABLE[400][2] = {};
 
 int Board::getWhiteCaptured() const {
     return this->whiteStoneCaptured;

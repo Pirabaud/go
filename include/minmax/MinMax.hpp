@@ -21,7 +21,7 @@ public:
 
     void checkTime();
 
-    static int generatePossibleMoves(Board &currentBoard, int *outMoves);
+    static int generatePossibleMoves(Board &currentBoard, int *outMoves, int isMaximize);
     static void saveDecisionTree(const json& tree);
 private:
     Board& board;
