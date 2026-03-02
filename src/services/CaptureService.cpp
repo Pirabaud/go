@@ -104,3 +104,4 @@ int CaptureService::checkCaptureInDirection(Board& board, const int globalIndex,
     }
     return 0;
 }
+

@@ -11,7 +11,7 @@ public:
     explicit MinMax(Board& board);
     ~MinMax();
 
-    Board& getBoard() const;
+    [[nodiscard]] Board& getBoard() const;
 
     std::pair<Position, long> run(int timeLimitMs, bool isBlack);
 
@@ -21,13 +21,7 @@ public:
 
     void checkTime();
 
-    // std::pair<Position, long> run(Position move, json& decisionTree, std::vector<Position>& moveHistory) const;
-    //
-    // static int minmax(Board &currentBoard, int depth, int alpha, int beta, bool isMaximizing, json &parentTree,
-    //            int currentScore,
-    //            int *outBestMoveIndex) ;
-
-    static std::vector<int> generatePossibleMoves(Board& currentBoard);
+    static int generatePossibleMoves(Board &currentBoard, int *outMoves);
     static void saveDecisionTree(const json& tree);
 private:
     Board& board;
@@ -35,10 +29,11 @@ private:
     TranspositionTable transpositionTable;
 
     std::chrono::time_point<std::chrono::high_resolution_clock> startTime;
-    std::chrono::milliseconds timeLimit;
+    std::chrono::milliseconds timeLimit{};
 
     bool timeOut = false;
     long nodesVisited = 0;
+
 };
 
 

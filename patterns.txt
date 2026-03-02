@@ -15,7 +15,7 @@ AEEA:8000
 OAAAO:2500
 OAOAAO:2500
 # Menace de capture
-AEEO:800
+AEEO:1500
 
 # --- Construction ---
 # 3 Fermé
