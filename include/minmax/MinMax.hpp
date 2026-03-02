@@ -6,6 +6,17 @@
 #include "TranspositionTable.hpp"
 
 
+struct MoveData {
+    int totalScore;
+    int moveIndex;
+    int blackScoreBefore;
+    int whiteScoreBefore;
+    bool isCapture;
+    bool isBlocking;
+    bool isWin;
+
+};
+
 class MinMax {
 public:
     explicit MinMax(Board& board);
@@ -30,6 +41,9 @@ private:
 
     std::chrono::time_point<std::chrono::high_resolution_clock> startTime;
     std::chrono::milliseconds timeLimit{};
+    inline int executePVS(Board& currentBoard, int limitDepth, int currentDepth,
+                          int alpha, int beta, bool isMaximizing,
+                          int newScore, bool firstMove);
 
     bool timeOut = false;
     long nodesVisited = 0;

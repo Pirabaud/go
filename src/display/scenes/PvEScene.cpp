@@ -84,7 +84,7 @@ bool PvEScene::handleStonePlacement(const std::optional<sf::Event>& event, sf::R
             illegalMove = IllegalMoves::Type::NOT_IN_BOARD;
             return false;
         }
-        illegalMove = CheckLegalMove::isLegalMove(Position{row, col}, board, colorToPlay == sf::Color::Black);
+        illegalMove = CheckLegalMove::isLegalMove(Board::getGlobalIndex({row, col}), board, colorToPlay == sf::Color::Black);
 
         if (illegalMove != IllegalMoves::Type::NONE) {
             return false;

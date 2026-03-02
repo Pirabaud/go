@@ -6,6 +6,7 @@
 
 #include "AlignmentChecker.hpp"
 #include "CaptureService.hpp"
+#include "CheckLegalMove.hpp"
 #include "JsonService.hpp"
 #include "CheckWinService.hpp"
 #include "HeuristicService.h"
@@ -17,7 +18,7 @@ MinMax::MinMax(Board &board) : board(board) {
 
 MinMax::~MinMax() = default;
 
-Board & MinMax::getBoard() const {
+Board &MinMax::getBoard() const {
     return board;
 }
 
@@ -33,7 +34,7 @@ std::pair<Position, long> MinMax::run(const int timeLimitMs, const bool isBlack)
     int maxDepthReached = 0;
 
     for (int depth = 1; depth <= 42; ++depth) {
-        int val = minmax(board, depth, 0, INT_MIN, INT_MAX, !isBlack, 0, &currentBestMove);
+        const int val = minmax(board, depth, 1, INT_MIN, INT_MAX, !isBlack, 0, &currentBestMove);
 
         if (this->timeOut) {
             break;
@@ -46,22 +47,77 @@ std::pair<Position, long> MinMax::run(const int timeLimitMs, const bool isBlack)
     std::cout << "Reached depth: " << maxDepthReached << ", score: " << score << ", nodes visited: " << nodesVisited << std::endl;
     const auto endTime = std::chrono::high_resolution_clock::now();
     const long elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
+    std::cout << "Reached depth: " << maxDepthReached << ", score: " << score << ", nodes visited: " << nodesVisited <<
+            std::endl;
 
     if (globalBestMove != -1) {
-        int x = globalBestMove / (Board::SIZE + 1);
-        int y = globalBestMove % (Board::SIZE + 1);
+        const int x = globalBestMove / (Board::SIZE + 1);
+        const int y = globalBestMove % (Board::SIZE + 1);
         return {{x, y}, elapsed};
     }
 
     return {{-1, -1}, elapsed};
 }
 
-int MinMax::minmax(Board& currentBoard, const int limitDepth, const int currentDepth, int alpha, int beta, const bool isMaximizing, const int currentScore, int* outBestMoveIndex) {
-if ((nodesVisited++ & 4095) == 0) {
+inline void moveOrdering(
+    const Board& currentBoard,
+    const int* possibleMoveIndexes,
+    const int numPossibleMoves,
+    const int ttMoveIndex,
+    MoveData* outRankedMoves,
+    const int maxMovesToTest)
+{
+    for (int idx = 0; idx < numPossibleMoves; ++idx) {
+        const int move = possibleMoveIndexes[idx];
+
+        const int scoreBlack = HeuristicService::evaluatePosition(currentBoard, move, true);
+        const int scoreWhite = HeuristicService::evaluatePosition(currentBoard, move, false);
+        const int moveScore = scoreBlack + scoreWhite;
+
+        const bool isBlk = (scoreBlack >= 20000 || scoreWhite >= 20000);
+        const bool isCap = (scoreBlack >= 7000 || scoreWhite >= 7000);
+        // -----------------------------
+
+        if (move == ttMoveIndex) {
+            outRankedMoves[idx] = {1000000, move, scoreBlack, scoreWhite, isCap, isBlk};
+        } else {
+            outRankedMoves[idx] = {moveScore, move, scoreBlack, scoreWhite, isCap, isBlk};
+        }
+    }
+
+    // Le tri partiel ultra-rapide dont on a parlé !
+    int movesToSort = std::min(numPossibleMoves, maxMovesToTest);
+    std::partial_sort(outRankedMoves, outRankedMoves + movesToSort, outRankedMoves + numPossibleMoves, [](const auto& a, const auto& b) {
+        return a.totalScore > b.totalScore;
+    });
+}
+
+inline void applyMove(Board& board, const int moveIndex, const bool isWhite) {
+    if (isWhite) board.addStoneWhite(moveIndex);
+    else board.addStoneBlack(moveIndex);
+}
+
+inline void undoMove(Board& board, const int moveIndex, const bool isWhite, const int checkCapture, const int* capture, const int countCapture) {
+    if (isWhite) board.removeWhiteStone(moveIndex);
+    else board.removeBlackStone(moveIndex);
+
+    if (checkCapture > 0) {
+        for (int j = 0; j < countCapture; j++) {
+            if (isWhite) board.addStoneBlack(capture[j]);
+            else board.addStoneWhite(capture[j]);
+        }
+        board.removeCaptures(isWhite, countCapture);
+    }
+}
+
+int MinMax::minmax(Board &currentBoard, const int limitDepth, const int currentDepth, int alpha, int beta,
+                   const bool isMaximizing, const int currentScore, int *outBestMoveIndex) {
+    if ((nodesVisited++ & 4095) == 0) {
         checkTime();
     }
     if (this->timeOut) return 0;
 
+    //TRANSPOSITION TABLE
     const int remainingDepth = limitDepth - currentDepth;
     const uint64_t zobristKey = currentBoard.currentZobristKey;
     int ttMoveIndex = -1;
@@ -82,131 +138,80 @@ if ((nodesVisited++ & 4095) == 0) {
         return currentScore;
     }
 
-    int possibleMoveIndexes[400];
-    int numPossibleMoves = generatePossibleMoves(currentBoard, possibleMoveIndexes, isMaximizing);
 
+    //GENERATE AND ORDERING MOVES
+    int possibleMoveIndexes[400];
+    const int numPossibleMoves = generatePossibleMoves(currentBoard, possibleMoveIndexes, isMaximizing);
     if (numPossibleMoves == 0) {
         return currentScore;
     }
+    int MAX_MOVES_TO_TEST;
+    if (currentDepth == 0) MAX_MOVES_TO_TEST = 10;
+    else if (currentDepth <= 5) MAX_MOVES_TO_TEST = 8;
+    else if (currentDepth <= 10) MAX_MOVES_TO_TEST = 4;
+    else MAX_MOVES_TO_TEST = 3;
     struct MoveData {
         int totalScore;
         int moveIndex;
         int blackScoreBefore;
         int whiteScoreBefore;
     };
-    // Au lieu de std::vector, on utilise un tableau fixe de la taille max du plateau
     MoveData rankedMoves[400];
-    int moveCount = 0;
+    moveOrdering(currentBoard, possibleMoveIndexes, numPossibleMoves, ttMoveIndex, rankedMoves, MAX_MOVES_TO_TEST);
 
-    for (int idx = 0; idx < numPossibleMoves; ++idx) {
-        int move = possibleMoveIndexes[idx]; // On récupère le vrai coup
 
-        int scoreBlack = HeuristicService::evaluatePosition(currentBoard, move, true);
-        int scoreWhite = HeuristicService::evaluatePosition(currentBoard, move, false);
-
-        if (move == ttMoveIndex) {
-            rankedMoves[moveCount++] = {1000000, move, scoreBlack, scoreWhite};
-        } else {
-            int moveScore = scoreBlack + scoreWhite;
-            rankedMoves[moveCount++] = {moveScore, move, scoreBlack, scoreWhite};
-        }
-    }
-
-    // On trie uniquement la portion remplie du tableau (de 0 à moveCount)
-    std::sort(rankedMoves, rankedMoves + moveCount, [](const auto& a, const auto& b) {
-        return a.totalScore > b.totalScore;
-    });
-
+    //EVALUATION
     const int alphaOrig = alpha;
     int bestVal = isMaximizing ? INT_MIN : INT_MAX;
     int localBestMove = -1;
     const bool isWhite = isMaximizing;
     bool firstMove = true;
-
-    // La boucle change légèrement pour parcourir notre tableau fixe
-    int MAX_MOVES_TO_TEST;
-    if (currentDepth == 0) MAX_MOVES_TO_TEST = 10;      // Racine : On regarde large
-    else if (currentDepth <= 5) MAX_MOVES_TO_TEST = 8;  // Profondeur 1-2 : On cible
-    else if (currentDepth <= 10) MAX_MOVES_TO_TEST = 4;  // Profondeur 3-5 : Très ciblé
-    else MAX_MOVES_TO_TEST = 3;
-
     int movesTested = 0;
 
-    for (int i = 0; i < moveCount; ++i) {
-
-        // On garde TOUJOURS le coup de la Table de Transposition (c'est le guide !)
-        // On garde TOUJOURS les coups avec un gros score (menaces de mort/victoire)
+    for (int i = 0; i < numPossibleMoves; ++i) {
         if (movesTested >= MAX_MOVES_TO_TEST
             && rankedMoves[i].moveIndex != ttMoveIndex
-            && rankedMoves[i].totalScore < 1500) // Assure-toi que 10000 correspond bien à une grosse menace chez toi !
-        {
-            continue; // On jette à la poubelle
+            && rankedMoves[i].totalScore < 1500
+            && !rankedMoves[i].isBlocking
+            && !rankedMoves[i].isWin
+            && !rankedMoves[i].isCapture
+            ) {
+            continue;
         }
 
         movesTested++;
 
-        const auto& moveData = rankedMoves[i];
+        const auto &moveData = rankedMoves[i];
         const int moveIndex = moveData.moveIndex;
         // ... suite de ton code (blackScoreBefore, etc.) ...
         int capture[8];
         int countCapture = 0;
 
-        // --- CES DEUX LIGNES ONT DISPARU ! ON UTILISE LES VALEURS SAUVEGARDÉES ---
-        const int blackScoreBefore = moveData.blackScoreBefore;
-        const int whiteScoreBefore = moveData.whiteScoreBefore;
+        applyMove(currentBoard, moveData.moveIndex, isWhite);
 
-        // On joue le coup
-        if (isWhite) currentBoard.addStoneWhite(moveIndex);
-        else currentBoard.addStoneBlack(moveIndex);
-
-        // On calcule juste l'état "After" (Il ne reste plus que 2 appels au lieu de 4 !)
         const int blackScoreAfter = HeuristicService::evaluatePosition(currentBoard, moveIndex, true);
         const int whiteScoreAfter = HeuristicService::evaluatePosition(currentBoard, moveIndex, false);
         const int checkCapture = CaptureService::checkCapture(currentBoard, moveIndex, !isWhite, capture, countCapture);
-
-        const int newScore = currentScore + (whiteScoreAfter - whiteScoreBefore) - (blackScoreAfter - blackScoreBefore);
-
         int eval;
-
-        // --- 2. PRINCIPAL VARIATION SEARCH (PVS) ---
-        if (firstMove) {
-            // Le premier coup est testé avec la fenêtre complète (Alpha-Beta normal)
-            eval = minmax(currentBoard, limitDepth, currentDepth + 1, alpha, beta, !isMaximizing, newScore, nullptr);
-            firstMove = false;
-        } else {
-            // Pour les autres, on fait une recherche Zéro Fenêtre (bSearch)
-            // On teste juste si le coup est strictement meilleur que alpha
-            if (isMaximizing) {
-                eval = minmax(currentBoard, limitDepth, currentDepth + 1, alpha, alpha + 1, !isMaximizing, newScore, nullptr);
-                // Si la recherche rapide échoue (le coup est meilleur que prévu), on refait une vraie recherche
-                if (eval > alpha && eval < beta) {
-                    eval = minmax(currentBoard, limitDepth, currentDepth + 1, alpha, beta, !isMaximizing, newScore, nullptr);
-                }
-            } else {
-                eval = minmax(currentBoard, limitDepth, currentDepth + 1, beta - 1, beta, !isMaximizing, newScore, nullptr);
-                if (eval < beta && eval > alpha) {
-                    eval = minmax(currentBoard, limitDepth, currentDepth + 1, alpha, beta, !isMaximizing, newScore, nullptr);
-                }
-            }
-        }
-
-        if (isWhite) currentBoard.removeWhiteStone(moveIndex);
-        else currentBoard.removeBlackStone(moveIndex);
-
-        if (checkCapture > 0) {
-
+        if ((isWhite && whiteScoreAfter >= 30000) || (!isWhite && blackScoreAfter >= 30000)) {
             if (isWhite) {
-                for (int j = 0; j < countCapture; j++) {
-                    currentBoard.addStoneBlack(capture[j]);
-                }
+                eval = 300000 - currentDepth;
+            } else {
+                eval = -300000 + currentDepth;
             }
-            else {
-                for (int j = 0; j < countCapture; j++) {
-                    currentBoard.addStoneWhite(capture[j]);
-                }
-            }
-            currentBoard.removeCaptures(isWhite, countCapture);
         }
+        else {
+            int newScore = currentScore + (whiteScoreAfter - moveData.whiteScoreBefore) - (blackScoreAfter - moveData.blackScoreBefore);
+            if (checkCapture > 0) {
+                const int captureBonus = checkCapture * 8000;
+                newScore += isMaximizing ? captureBonus : -captureBonus;
+            }
+            eval = executePVS(currentBoard, limitDepth, currentDepth, alpha, beta, isMaximizing, newScore, firstMove);
+        }
+
+        firstMove = false;
+
+        undoMove(currentBoard, moveData.moveIndex, isWhite, checkCapture, capture, countCapture);
 
         if (isMaximizing) {
             if (eval > bestVal) {
@@ -250,11 +255,11 @@ void MinMax::checkTime() {
     }
 }
 
-int MinMax::generatePossibleMoves(Board& currentBoard, int* outMoves, int isMaximize) {
+int MinMax::generatePossibleMoves(Board &currentBoard, int *outMoves, int isMaximize) {
     int moveCount = 0;
 
     if (currentBoard.isEmpty()) {
-        outMoves[moveCount++] = 180; // Centre du plateau
+        outMoves[moveCount++] = 180;
         return moveCount;
     }
     std::array<uint64_t, 6> occupied{};
@@ -274,20 +279,21 @@ int MinMax::generatePossibleMoves(Board& currentBoard, int* outMoves, int isMaxi
     const std::array<uint64_t, 6> down = Board::shift_left_board(occupied_horizontal, 20);
     const std::array<uint64_t, 6> occupied_total = Board::bitBoardOr(occupied_top, down);
 
-    const std::array<uint64_t, 6> ally = isMaximize ? currentBoard.getBitBoardWhite() : currentBoard.getBitBoardBlack();
-    const std::array<uint64_t, 6> enemy = isMaximize ? currentBoard.getBitBoardBlack() : currentBoard.getBitBoardWhite();
+    const std::array<uint64_t, 6> allyBitboard =isMaximize ? currentBoard.getBitBoardWhite() : currentBoard.getBitBoardBlack();
 
     for (int i = 0; i < 6; i++) {
         uint64_t candidates = occupied_total[i] & ~occupied[i];
         while (candidates != 0) {
             const int index = i * 64 + std::countr_zero(candidates);
-
-            // On s'assure de ne PAS dépasser le plateau, ET de ne PAS jouer sur la case fantôme (index % 20 == 19)
             if (index < 380 && (index % 20) != 19) {
-                if (AlignmentChecker::checkWinAt(ally, index)) {
-                    outMoves[moveCount++] = index;
-                    return moveCount;
+                if (CheckLegalMove::isLegalMove(index, currentBoard, !isMaximize) != IllegalMoves::Type::NONE) {
+                    candidates &= candidates - 1;
+                    continue;
                 }
+                if (AlignmentChecker::checkWinAt(allyBitboard, index)) {
+                     outMoves[0] = index;
+                     return 1;
+                 }
                 outMoves[moveCount++] = index;
             }
             candidates &= candidates - 1;
@@ -296,10 +302,32 @@ int MinMax::generatePossibleMoves(Board& currentBoard, int* outMoves, int isMaxi
     return moveCount;
 }
 
-void MinMax::saveDecisionTree(const json& tree) {
+inline int MinMax::executePVS(Board &currentBoard, const int limitDepth, const int currentDepth,
+                              const int alpha, const int beta, const bool isMaximizing,
+                              const int newScore, const bool firstMove) {
+    if (firstMove) {
+        return minmax(currentBoard, limitDepth, currentDepth + 1, alpha, beta, !isMaximizing, newScore, nullptr);
+    }
+
+    int eval;
+    if (isMaximizing) {
+        eval = minmax(currentBoard, limitDepth, currentDepth + 1, alpha, alpha + 1, !isMaximizing, newScore, nullptr);
+        if (eval > alpha && eval < beta) {
+            eval = minmax(currentBoard, limitDepth, currentDepth + 1, alpha, beta, !isMaximizing, newScore, nullptr);
+        }
+    } else {
+        eval = minmax(currentBoard, limitDepth, currentDepth + 1, beta - 1, beta, !isMaximizing, newScore, nullptr);
+        if (eval < beta && eval > alpha) {
+            eval = minmax(currentBoard, limitDepth, currentDepth + 1, alpha, beta, !isMaximizing, newScore, nullptr);
+        }
+    }
+    return eval;
+}
+
+void MinMax::saveDecisionTree(const json &tree) {
     std::ofstream file("data.json");
     if (file.is_open()) {
-        file << tree.dump(2);  // Pretty print avec indentation
+        file << tree.dump(2); // Pretty print avec indentation
         file.close();
         std::cout << "Arbre de décision sauvegardé dans data.json" << std::endl;
     } else {
