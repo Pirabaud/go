@@ -3,10 +3,10 @@ AAAAA:30000
 
 # --- Menaces Mortelles (Taille 4) ---
 # Victoire assurée
-OAAAAO:15000
+OAAAAO:28000
 # Doit bloquer
-EAAAAO:4000
-OAAAAE:4000
+EAAAAO:25000
+OAAAAE:25000
 
 # --- Jeu de Capture & Attaque ---
 # Capture (Gros bonus)

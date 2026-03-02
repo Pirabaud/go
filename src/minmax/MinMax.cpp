@@ -4,6 +4,7 @@
 #include <iostream>
 #include <climits>
 
+#include "AlignmentChecker.hpp"
 #include "CaptureService.hpp"
 #include "JsonService.hpp"
 #include "CheckWinService.hpp"
@@ -67,7 +68,10 @@ if ((nodesVisited++ & 4095) == 0) {
 
     if (const auto ttEntry = transpositionTable.retrieve(zobristKey)) {
         if (ttEntry->depth >= remainingDepth) {
-            if (ttEntry->flag == EXACT) return ttEntry->score;
+            if (ttEntry->flag == EXACT) {
+                if (outBestMoveIndex != nullptr) *outBestMoveIndex = ttEntry->bestMove;
+                return ttEntry->score;
+            }
             if (ttEntry->flag == LOWERBOUND && ttEntry->score >= beta) return ttEntry->score;
             if (ttEntry->flag == UPPERBOUND && ttEntry->score <= alpha) return ttEntry->score;
         }
@@ -78,8 +82,8 @@ if ((nodesVisited++ & 4095) == 0) {
         return currentScore;
     }
 
-    int possibleMoveIndexes[361];
-    int numPossibleMoves = generatePossibleMoves(currentBoard, possibleMoveIndexes);
+    int possibleMoveIndexes[400];
+    int numPossibleMoves = generatePossibleMoves(currentBoard, possibleMoveIndexes, isMaximizing);
 
     if (numPossibleMoves == 0) {
         return currentScore;
@@ -91,7 +95,7 @@ if ((nodesVisited++ & 4095) == 0) {
         int whiteScoreBefore;
     };
     // Au lieu de std::vector, on utilise un tableau fixe de la taille max du plateau
-    MoveData rankedMoves[361];
+    MoveData rankedMoves[400];
     int moveCount = 0;
 
     for (int idx = 0; idx < numPossibleMoves; ++idx) {
@@ -190,6 +194,7 @@ if ((nodesVisited++ & 4095) == 0) {
         else currentBoard.removeBlackStone(moveIndex);
 
         if (checkCapture > 0) {
+
             if (isWhite) {
                 for (int j = 0; j < countCapture; j++) {
                     currentBoard.addStoneBlack(capture[j]);
@@ -245,7 +250,7 @@ void MinMax::checkTime() {
     }
 }
 
-int MinMax::generatePossibleMoves(Board& currentBoard, int* outMoves) {
+int MinMax::generatePossibleMoves(Board& currentBoard, int* outMoves, int isMaximize) {
     int moveCount = 0;
 
     if (currentBoard.isEmpty()) {
@@ -269,11 +274,20 @@ int MinMax::generatePossibleMoves(Board& currentBoard, int* outMoves) {
     const std::array<uint64_t, 6> down = Board::shift_left_board(occupied_horizontal, 20);
     const std::array<uint64_t, 6> occupied_total = Board::bitBoardOr(occupied_top, down);
 
+    const std::array<uint64_t, 6> ally = isMaximize ? currentBoard.getBitBoardWhite() : currentBoard.getBitBoardBlack();
+    const std::array<uint64_t, 6> enemy = isMaximize ? currentBoard.getBitBoardBlack() : currentBoard.getBitBoardWhite();
+
     for (int i = 0; i < 6; i++) {
         uint64_t candidates = occupied_total[i] & ~occupied[i];
         while (candidates != 0) {
             const int index = i * 64 + std::countr_zero(candidates);
-            if (index <= (Board::SIZE + 1) * 19 - 2) {
+
+            // On s'assure de ne PAS dépasser le plateau, ET de ne PAS jouer sur la case fantôme (index % 20 == 19)
+            if (index < 380 && (index % 20) != 19) {
+                if (AlignmentChecker::checkWinAt(ally, index)) {
+                    outMoves[moveCount++] = index;
+                    return moveCount;
+                }
                 outMoves[moveCount++] = index;
             }
             candidates &= candidates - 1;

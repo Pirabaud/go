@@ -5,6 +5,7 @@ enable_testing()
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
+set(CMAKE_BUILD_TYPE Release)
 
 if(NOT CMAKE_BUILD_TYPE MATCHES Debug)
     add_compile_options(-O3 -march=native -ffast-math -DNDEBUG -g)

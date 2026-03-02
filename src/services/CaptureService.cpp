@@ -28,7 +28,6 @@ int CaptureService::checkCapture(Board &board, int globalIndex, const bool isBla
         DIAGONAL_TOP_RIGHT,
         DIAGONAL_TOP_LEFT,
     };
-
     for (const int dir: directions) {
         result += checkCaptureInDirection(board, globalIndex, dir, isBlack, capture, count);
         result += checkCaptureInDirection(board, globalIndex, -dir, isBlack, capture, count);
@@ -46,8 +45,17 @@ bool CaptureService::winLineBreakable(const std::array<uint64_t, 6> &allyBitBoar
         DIAGONAL_TOP_LEFT,
     };
         for (int i = 0; i < 5; i++) {
+
             const int checkStone = startIndex + i * dirAlignment;
+
             for (const int dir: directions) {
+                int afterIndex = checkStone + 2 * dir;
+                int beforeIndex = checkStone - 2 * dir; // (ou juste -dir selon ta logique)
+
+                // Si on sort de la mémoire, on arrête tout
+                if (afterIndex < 0 || afterIndex >= 384 || beforeIndex < 0 || beforeIndex >= 384) {
+                    continue; // On passe à la direction suivante
+                }
                 if (dirAlignment == dir || -dirAlignment == dir) {
                     continue;
                 }
@@ -78,7 +86,6 @@ int CaptureService::checkCaptureInDirection(Board& board, const int globalIndex,
                                             const int dir, const bool isBlack, int* capture, int &count) {
     const std::array<uint64_t, 6>& allyBitBoard = isBlack ? board.getBitBoardBlack() : board.getBitBoardWhite();
     std::array<uint64_t, 6>& enemyBitBoard = isBlack ? board.getBitBoardWhite() : board.getBitBoardBlack();
-
     //check ally
     if (!Board::isBitAt(allyBitBoard, globalIndex + 3 * dir)) {
         return 0;

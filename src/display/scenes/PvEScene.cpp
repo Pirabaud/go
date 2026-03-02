@@ -71,7 +71,7 @@ void PvEScene::drawTexts(sf::RenderWindow& window) {
 
 bool PvEScene::handleStonePlacement(const std::optional<sf::Event>& event, sf::RenderWindow& window) {
     int captures[8];
-    int count;
+    int count = 0;
     if (!event || !event->is<sf::Event::MouseButtonPressed>()) {
         return false;
     }
