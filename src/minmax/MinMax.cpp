@@ -122,9 +122,9 @@ if ((nodesVisited++ & 4095) == 0) {
     // La boucle change légèrement pour parcourir notre tableau fixe
     int MAX_MOVES_TO_TEST;
     if (currentDepth == 0) MAX_MOVES_TO_TEST = 10;      // Racine : On regarde large
-    else if (currentDepth <= 2) MAX_MOVES_TO_TEST = 5;  // Profondeur 1-2 : On cible
-    else if (currentDepth <= 5) MAX_MOVES_TO_TEST = 2;  // Profondeur 3-5 : Très ciblé
-    else MAX_MOVES_TO_TEST = 1;
+    else if (currentDepth <= 5) MAX_MOVES_TO_TEST = 8;  // Profondeur 1-2 : On cible
+    else if (currentDepth <= 10) MAX_MOVES_TO_TEST = 4;  // Profondeur 3-5 : Très ciblé
+    else MAX_MOVES_TO_TEST = 3;
 
     int movesTested = 0;
 
@@ -133,10 +133,10 @@ if ((nodesVisited++ & 4095) == 0) {
         // On garde TOUJOURS le coup de la Table de Transposition (c'est le guide !)
         // On garde TOUJOURS les coups avec un gros score (menaces de mort/victoire)
         if (movesTested >= MAX_MOVES_TO_TEST
-            && rankedMoves[i].moveIndex != ttMoveIndex
-            && rankedMoves[i].totalScore < 1500) // Assure-toi que 10000 correspond bien à une grosse menace chez toi !
+        && rankedMoves[i].moveIndex != ttMoveIndex
+        && rankedMoves[i].totalScore < 1500) // Assure-toi que 10000 correspond bien à une grosse menace chez toi !
         {
-            continue; // On jette à la poubelle
+        continue; // On jette à la poubelle
         }
 
         movesTested++;
