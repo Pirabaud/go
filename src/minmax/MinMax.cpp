@@ -6,6 +6,7 @@
 
 #include "AlignmentChecker.hpp"
 #include "CaptureService.hpp"
+#include "CheckLegalMove.hpp"
 #include "JsonService.hpp"
 #include "CheckWinService.hpp"
 #include "HeuristicService.h"
@@ -284,6 +285,10 @@ int MinMax::generatePossibleMoves(Board& currentBoard, int* outMoves, int isMaxi
 
             // On s'assure de ne PAS dépasser le plateau, ET de ne PAS jouer sur la case fantôme (index % 20 == 19)
             if (index < 380 && (index % 20) != 19) {
+                if (CheckLegalMove::isLegalMove(index, currentBoard, isMaximize) != IllegalMoves::Type::NONE) {
+                    candidates &= candidates - 1;
+                    continue;
+                }
                 if (AlignmentChecker::checkWinAt(ally, index)) {
                     outMoves[moveCount++] = index;
                     return moveCount;

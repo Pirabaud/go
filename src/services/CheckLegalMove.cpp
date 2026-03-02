@@ -3,11 +3,10 @@
 #include "CaptureService.hpp"
 
 
-IllegalMoves::Type CheckLegalMove::isLegalMove(Position pos,
+IllegalMoves::Type CheckLegalMove::isLegalMove(int posIndex,
                                                Board& board,
                                                const bool& isBlack)
 {
-    const auto posIndex = Board::getGlobalIndex(pos);
     if (posIndex < 0 || posIndex > (Board::SIZE + 1) * Board::SIZE)
     {
         return IllegalMoves::Type::NOT_IN_BOARD;
