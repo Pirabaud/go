@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_BUILD_TYPE Release)
 
 if(NOT CMAKE_BUILD_TYPE MATCHES Debug)
-    add_compile_options(-O3 -g -march=native -ffast-math -DNDEBUG)
+    add_compile_options(-O3 -march=native -ffast-math -DNDEBUG -g)
 endif()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")

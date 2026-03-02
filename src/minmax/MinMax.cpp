@@ -137,10 +137,10 @@ if ((nodesVisited++ & 4095) == 0) {
         // On garde TOUJOURS le coup de la Table de Transposition (c'est le guide !)
         // On garde TOUJOURS les coups avec un gros score (menaces de mort/victoire)
         if (movesTested >= MAX_MOVES_TO_TEST
-            && rankedMoves[i].moveIndex != ttMoveIndex
-            && rankedMoves[i].totalScore < 1500) // Assure-toi que 10000 correspond bien à une grosse menace chez toi !
+        && rankedMoves[i].moveIndex != ttMoveIndex
+        && rankedMoves[i].totalScore < 1500) // Assure-toi que 10000 correspond bien à une grosse menace chez toi !
         {
-            continue; // On jette à la poubelle
+        continue; // On jette à la poubelle
         }
 
         movesTested++;
