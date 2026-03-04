@@ -1,5 +1,6 @@
 #include "../../include/services/CheckWinService.hpp"
 
+#include <algorithm>
 #include <bitset>
 #include <iostream>
 #include <ostream>
@@ -21,20 +22,63 @@ const sf::Color* CheckWinService::isWin(Board& board)
         return &sf::Color::Black;
     }
 
-    if (AlignmentChecker::checkWinAlignment(board.getBitBoardWhite(), board.getBitBoardBlack(), Direction::HORIZONTAL) ||
-        AlignmentChecker::checkWinAlignment(board.getBitBoardWhite(), board.getBitBoardBlack(), Direction::VERTICAL) ||
-        AlignmentChecker::checkWinAlignment(board.getBitBoardWhite(), board.getBitBoardBlack(), Direction::DIAGONAL_TOP_LEFT) ||
-        AlignmentChecker::checkWinAlignment(board.getBitBoardWhite(), board.getBitBoardBlack(), Direction::DIAGONAL_TOP_RIGHT)) {
+    if (AlignmentChecker::checkWinAlignment(board, false, Direction::HORIZONTAL) ||
+        AlignmentChecker::checkWinAlignment(board, false, Direction::VERTICAL) ||
+        AlignmentChecker::checkWinAlignment(board, false, Direction::DIAGONAL_TOP_LEFT) ||
+        AlignmentChecker::checkWinAlignment(board, false, Direction::DIAGONAL_TOP_RIGHT)) {
         return &sf::Color::White;
-    }
-    if (AlignmentChecker::checkWinAlignment(board.getBitBoardBlack(),board.getBitBoardWhite(), Direction::HORIZONTAL) ||
-        AlignmentChecker::checkWinAlignment(board.getBitBoardBlack(),board.getBitBoardWhite(), Direction::VERTICAL) ||
-        AlignmentChecker::checkWinAlignment(board.getBitBoardBlack(),board.getBitBoardWhite(), Direction::DIAGONAL_TOP_LEFT) ||
-        AlignmentChecker::checkWinAlignment(board.getBitBoardBlack(),board.getBitBoardWhite(), Direction::DIAGONAL_TOP_RIGHT)) {
+        }
+    if (AlignmentChecker::checkWinAlignment(board, true, Direction::HORIZONTAL) ||
+        AlignmentChecker::checkWinAlignment(board, true, Direction::VERTICAL) ||
+        AlignmentChecker::checkWinAlignment(board, true, Direction::DIAGONAL_TOP_LEFT) ||
+        AlignmentChecker::checkWinAlignment(board, true, Direction::DIAGONAL_TOP_RIGHT)) {
         return &sf::Color::Black;
         }
 
     return nullptr;
+}
+
+std::array<int, 15> CheckWinService::getWinBlockingIndices(Board& board, const bool isBlack)
+{
+    std::array<int, 15> result = {};
+    std::ranges::fill(result, -1);
+    int nextIndex = 0;
+    const auto allyBitBoard = isBlack ? board.getBitBoardBlack() : board.getBitBoardWhite();
+    const auto enemyBitBoard = isBlack ? board.getBitBoardWhite() : board.getBitBoardBlack();
+    const auto blockingIndexHorizontal = AlignmentChecker::checkBreakableAlignment(allyBitBoard, enemyBitBoard, Direction::HORIZONTAL);
+    const auto blockingIndexVertical = AlignmentChecker::checkBreakableAlignment(allyBitBoard, enemyBitBoard, Direction::VERTICAL);
+    const auto blockingIndexDiagonalTopLeft = AlignmentChecker::checkBreakableAlignment(allyBitBoard, enemyBitBoard, Direction::DIAGONAL_TOP_LEFT);
+    const auto blockingIndexDiagonalTopRight = AlignmentChecker::checkBreakableAlignment(allyBitBoard, enemyBitBoard, Direction::DIAGONAL_TOP_RIGHT);
+
+    int blockingIndexIndex = 0;
+    while (blockingIndexHorizontal[blockingIndexIndex++] != -1) {
+        if (nextIndex >= result.size()) {
+            return result;
+        }
+        result[nextIndex++] = blockingIndexHorizontal[blockingIndexIndex - 1];
+    }
+    blockingIndexIndex = 0;
+    while (blockingIndexVertical[blockingIndexIndex++] != -1) {
+        if (nextIndex >= result.size()) {
+            return result;
+        }
+        result[nextIndex++] = blockingIndexVertical[blockingIndexIndex - 1];
+    }
+    blockingIndexIndex = 0;
+    while (blockingIndexDiagonalTopLeft[blockingIndexIndex++] != -1) {
+        if (nextIndex >= result.size()) {
+            return result;
+        }
+        result[nextIndex++] = blockingIndexDiagonalTopLeft[blockingIndexIndex - 1];
+    }
+    blockingIndexIndex = 0;
+    while (blockingIndexDiagonalTopRight[blockingIndexIndex++] != -1) {
+        if (nextIndex >= result.size()) {
+            return result;
+        }
+        result[nextIndex++] = blockingIndexDiagonalTopRight[blockingIndexIndex - 1];
+    }
+    return result;
 }
 
 bool CheckWinService::isBreakableWinAlignment(Board &allyBoard, Board &enemyBoard, int startIndex, Direction dir) {

@@ -3,8 +3,6 @@
 
 #include "Board.h"
 #include "IllegalMoves.hpp"
-#include "Position.hpp"
-#include "AlignmentChecker.hpp"
 
 
 class CheckLegalMove {

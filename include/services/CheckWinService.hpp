@@ -14,6 +14,7 @@ class CheckWinService
 {
 public:
     static const sf::Color* isWin(Board &board);
+    static std::array<int, 15>  getWinBlockingIndices(Board& board, bool isBlack);
 
 private:
     static bool isBreakableWinAlignment(Board &allyBoard, Board &enemyBoard, int startIndex, Direction dir);

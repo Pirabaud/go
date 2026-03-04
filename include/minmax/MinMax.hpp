@@ -32,7 +32,7 @@ public:
 
     void checkTime();
 
-    static int generatePossibleMoves(Board &currentBoard, int *outMoves, int isMaximize);
+    static int generatePossibleMoves(Board &currentBoard, std::array<int, 400> &outMoves, int isMaximize);
     static void saveDecisionTree(const json& tree);
 private:
     Board& board;

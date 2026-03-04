@@ -3,20 +3,10 @@
 //
 
 #include "CaptureService.hpp"
-
-#include <iostream>
-#include <ostream>
-
 #include "Direction.hpp"
-#include "Position.hpp"
+#include <algorithm>
 
-#include "CaptureService.hpp"
-
-#include <iostream>
-#include <ostream>
-
-#include "Direction.hpp"
-#include "Position.hpp"
+#include "CheckLegalMove.hpp"
 
 int CaptureService::checkCapture(Board &board, int globalIndex, const bool isBlack, int *capture, int &count) {
     int result = 0;
@@ -35,9 +25,9 @@ int CaptureService::checkCapture(Board &board, int globalIndex, const bool isBla
     return result;
 }
 
-bool CaptureService::winLineBreakable(const std::array<uint64_t, 6> &allyBitBoard,
-    const std::array<uint64_t, 6> &enemyBitBoard, const int startIndex, const int dirAlignment) {
-
+bool CaptureService::winLineBreakable(Board& board, const bool isBlack, const int startIndex, const int dirAlignment) {
+    const auto allyBitBoard = isBlack ? board.getBitBoardBlack() : board.getBitBoardWhite();
+    const auto enemyBitBoard = isBlack ? board.getBitBoardWhite() : board.getBitBoardBlack();
     constexpr std::array<int, 4> directions = {
         HORIZONTAL,
         VERTICAL,
@@ -53,7 +43,7 @@ bool CaptureService::winLineBreakable(const std::array<uint64_t, 6> &allyBitBoar
                 int beforeIndex = checkStone - 2 * dir; // (ou juste -dir selon ta logique)
 
                 // Si on sort de la mémoire, on arrête tout
-                if (afterIndex < 0 || afterIndex >= 384 || beforeIndex < 0 || beforeIndex >= 384) {
+                if (afterIndex < 0 || afterIndex >= 380 || beforeIndex < 0 || beforeIndex >= 384) {
                     continue; // On passe à la direction suivante
                 }
                 if (dirAlignment == dir || -dirAlignment == dir) {
@@ -66,7 +56,12 @@ bool CaptureService::winLineBreakable(const std::array<uint64_t, 6> &allyBitBoar
                     const bool isEmptyAfter = !isEnemyAfter && !Board::isBitAt(allyBitBoard, checkStone + 2 * dir);
                     const bool isEmptyBefore = !isEnemyBefore && !Board::isBitAt(allyBitBoard,checkStone - dir);
 
-                    if ((isEnemyAfter && isEmptyBefore) || (isEnemyBefore && isEmptyAfter)) return true;
+                    if (
+                        (isEnemyAfter && isEmptyBefore && CheckLegalMove::isLegalMove(checkStone - dir, board, !isBlack) == IllegalMoves::Type::NONE)
+                        || (isEnemyBefore && isEmptyAfter && CheckLegalMove::isLegalMove(checkStone + 2 * dir, board,  !isBlack) == IllegalMoves::Type::NONE)
+                        ) {
+                        return true;
+                    }
                 }
                 if (Board::isBitAt(allyBitBoard, checkStone - dir)) {
                     const bool isEnemyAfter = Board::isBitAt(enemyBitBoard, checkStone  - 2 * dir);
@@ -75,11 +70,88 @@ bool CaptureService::winLineBreakable(const std::array<uint64_t, 6> &allyBitBoar
                     const bool isEmptyAfter = !isEnemyAfter && !Board::isBitAt(allyBitBoard, checkStone - 2 * dir);
                     const bool isEmptyBefore = !isEnemyBefore && !Board::isBitAt(allyBitBoard, checkStone + dir);
 
-                    if ((isEnemyAfter && isEmptyBefore) || (isEnemyBefore && isEmptyAfter)) return true;
-                }
+                    if (
+                        (isEnemyAfter && isEmptyBefore && CheckLegalMove::isLegalMove(checkStone + dir, board,  !isBlack) == IllegalMoves::Type::NONE)
+                        || (isEnemyBefore && isEmptyAfter && CheckLegalMove::isLegalMove(checkStone - 2 * dir, board,  !isBlack) == IllegalMoves::Type::NONE)
+                        ) {
+                        return true;
+                        }                }
             }
     }
     return false;
+}
+
+// Return index where it is possible to capture and break the alignment.
+std::array<int, 15> CaptureService::getBlockingCaptureIndex(const std::array<uint64_t, 6>& allyBitBoard,
+                                                            const std::array<uint64_t, 6>& enemyBitBoard,
+                                                            int startIndex, int dirAlignment) {
+    std::array<int, 15> result = {};
+    std::ranges::fill(result, -1);
+    int nextIndex = 0;
+
+    constexpr std::array<int, 4> directions = {
+        HORIZONTAL,
+        VERTICAL,
+        DIAGONAL_TOP_RIGHT,
+        DIAGONAL_TOP_LEFT,
+    };
+        for (int i = 0; i < 5; i++) {
+
+            const int checkStone = startIndex + i * dirAlignment;
+
+            for (const int dir: directions) {
+                int afterIndex = checkStone + 2 * dir;
+                int beforeIndex = checkStone - 2 * dir;
+
+                if (afterIndex < 0 || afterIndex >= 380 || beforeIndex < 0 || beforeIndex >= 384) {
+                    continue;
+                }
+                if (dirAlignment == dir || -dirAlignment == dir) {
+                    continue;
+                }
+                if (Board::isBitAt(allyBitBoard, checkStone + dir)) {
+                    const bool isEnemyAfter = Board::isBitAt(enemyBitBoard, checkStone + 2 * dir);
+                    const bool isEnemyBefore = Board::isBitAt(enemyBitBoard, checkStone -  dir);
+
+                    const bool isEmptyAfter = !isEnemyAfter && !Board::isBitAt(allyBitBoard, checkStone + 2 * dir);
+                    const bool isEmptyBefore = !isEnemyBefore && !Board::isBitAt(allyBitBoard,checkStone - dir);
+
+                    if (isEnemyAfter && isEmptyBefore) {
+                        if (nextIndex >= result.size()) {
+                            return result;
+                        }
+                        result[nextIndex++] = checkStone - dir;
+                    }
+                    if (isEnemyBefore && isEmptyAfter) {
+                        if (nextIndex >= result.size()) {
+                            return result;
+                        }
+                        result[nextIndex++] = checkStone + 2 * dir;
+                    }
+                }
+                if (Board::isBitAt(allyBitBoard, checkStone - dir)) {
+                    const bool isEnemyAfter = Board::isBitAt(enemyBitBoard, checkStone  - 2 * dir);
+                    const bool isEnemyBefore = Board::isBitAt(enemyBitBoard, checkStone + dir);
+
+                    const bool isEmptyAfter = !isEnemyAfter && !Board::isBitAt(allyBitBoard, checkStone - 2 * dir);
+                    const bool isEmptyBefore = !isEnemyBefore && !Board::isBitAt(allyBitBoard, checkStone + dir);
+
+                    if (isEnemyAfter && isEmptyBefore) {
+                        if (nextIndex >= result.size()) {
+                            return result;
+                        }
+                        result[nextIndex++] = checkStone + dir;
+                    }
+                    if (isEnemyBefore && isEmptyAfter) {
+                        if (nextIndex >= result.size()) {
+                            return result;
+                        }
+                        result[nextIndex++] = checkStone - 2 * dir;
+                    }
+                }
+            }
+    }
+    return result;
 }
 
 int CaptureService::checkCaptureInDirection(Board& board, const int globalIndex,

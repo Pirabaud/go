@@ -61,12 +61,16 @@ std::pair<Position, long> MinMax::run(const int timeLimitMs, const bool isBlack)
 
 inline void moveOrdering(
     const Board& currentBoard,
-    const int* possibleMoveIndexes,
+    const std::array<int, 400>& possibleMoveIndexes,
     const int numPossibleMoves,
     const int ttMoveIndex,
     MoveData* outRankedMoves,
     const int maxMovesToTest)
 {
+    if (numPossibleMoves == 1) {
+        outRankedMoves[0] = {1000000, possibleMoveIndexes[0], 0, 0, false, true};
+        return;
+    }
     for (int idx = 0; idx < numPossibleMoves; ++idx) {
         const int move = possibleMoveIndexes[idx];
 
@@ -117,6 +121,11 @@ int MinMax::minmax(Board &currentBoard, const int limitDepth, const int currentD
     }
     if (this->timeOut) return 0;
 
+
+    if (currentDepth >= limitDepth) {
+        return currentScore;
+    }
+
     //TRANSPOSITION TABLE
     const int remainingDepth = limitDepth - currentDepth;
     const uint64_t zobristKey = currentBoard.currentZobristKey;
@@ -134,13 +143,10 @@ int MinMax::minmax(Board &currentBoard, const int limitDepth, const int currentD
         ttMoveIndex = ttEntry->bestMove;
     }
 
-    if (currentDepth >= limitDepth) {
-        return currentScore;
-    }
-
 
     //GENERATE AND ORDERING MOVES
-    int possibleMoveIndexes[400];
+    std::array<int, 400> possibleMoveIndexes = {};
+    std::ranges::fill(possibleMoveIndexes, -1);
     const int numPossibleMoves = generatePossibleMoves(currentBoard, possibleMoveIndexes, isMaximizing);
     if (numPossibleMoves == 0) {
         return currentScore;
@@ -193,7 +199,7 @@ int MinMax::minmax(Board &currentBoard, const int limitDepth, const int currentD
         const int whiteScoreAfter = HeuristicService::evaluatePosition(currentBoard, moveIndex, false);
         const int checkCapture = CaptureService::checkCapture(currentBoard, moveIndex, !isWhite, capture, countCapture);
         int eval;
-        if ((isWhite && whiteScoreAfter >= 30000) || (!isWhite && blackScoreAfter >= 30000)) {
+        if ((isWhite && whiteScoreAfter >= 30000 && numPossibleMoves != 1) || (!isWhite && blackScoreAfter >= 30000 && numPossibleMoves != 1)) {
             if (isWhite) {
                 eval = 300000 - currentDepth;
             } else {
@@ -255,13 +261,27 @@ void MinMax::checkTime() {
     }
 }
 
-int MinMax::generatePossibleMoves(Board &currentBoard, int *outMoves, int isMaximize) {
+int MinMax::generatePossibleMoves(Board &currentBoard, std::array<int, 400>& outMoves, int isMaximize) {
     int moveCount = 0;
 
     if (currentBoard.isEmpty()) {
         outMoves[moveCount++] = 180;
         return moveCount;
     }
+
+    const auto blockingBreakableWinMoves = CheckWinService::getWinBlockingIndices(currentBoard, !isMaximize);
+    if (blockingBreakableWinMoves[0] != -1) {
+        for (int i = 0; i < blockingBreakableWinMoves.size() && blockingBreakableWinMoves[i] != -1; i++) {
+            if (CheckLegalMove::isLegalMove(blockingBreakableWinMoves[i], currentBoard, !isMaximize) == IllegalMoves::Type::NONE) {
+                outMoves[moveCount++] = blockingBreakableWinMoves[i];
+            }
+        }
+        if (moveCount != 0) {
+            return moveCount;
+        }
+    }
+
+
     std::array<uint64_t, 6> occupied{};
     for (int i = 0; i < 6; i++) {
         occupied[i] = currentBoard.getBitBoardWhite()[i] | currentBoard.getBitBoardBlack()[i];
