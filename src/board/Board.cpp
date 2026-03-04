@@ -73,7 +73,7 @@ void Board::removeBlackStone(const int index) {
 template<int Offset>
 void updatePattern(int& index, int center, int dir, const std::array<uint64_t, 6>& ally, const std::array<uint64_t, 6>& enemy) {
     const int pos = center + Offset * dir;
-    if (pos < 0 || pos >= 384) { // 384 = 6 * 64
+    if (pos < 0 || pos >= 380) {
         // If out of bounds, consider it as a wall
         index = (index << 2) | HeuristicService::WALL_BITS_MASK;
         return;
@@ -191,7 +191,7 @@ int Board::getGlobalIndex(const Position pos) {
 }
 
 bool Board::isBitAt(const std::array<uint64_t, 6> &bitBoard, const int globalIndex) {
-    if (globalIndex < 0 || globalIndex >= 384) return false;
+    if (globalIndex < 0 || globalIndex >= 380) return false;
     const int arrayIndex = globalIndex / 64;
     const int bitIndex = globalIndex % 64;
     return (bitBoard[arrayIndex] & (1ULL << bitIndex)) != 0;
