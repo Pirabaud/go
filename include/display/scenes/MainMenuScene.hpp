@@ -11,7 +11,9 @@ class MainMenuScene final : public AbstractScene
 private:
     Button pvpButton;
     Button pveButton;
-    Button simulationButton;
+    Button doubleStonesButton;
+    Button proStartButton;
+    Button swapStartButton;
 
 
 public:

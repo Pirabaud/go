@@ -21,16 +21,6 @@ void PvPScene::handleEvent(const std::optional<sf::Event>& event, sf::RenderWind
 
 void PvPScene::drawTexts(sf::RenderWindow& window) {
 
-    if (winningColor) {
-        sf::Text winText(getSharedFont(),
-                         "Player " + std::string(*winningColor == sf::Color::White ? "White" : "Black") + " wins!");
-
-        winText.setCharacterSize(18);
-        winText.setFillColor(sf::Color::White);
-        winText.setPosition({BOARD_SIZE_WITH_PADDING, PADDING});
-
-        window.draw(winText);
-    }
     if (illegalMove != IllegalMoves::Type::NONE) {
         sf::Text illegalMoveText(getSharedFont(),
                                  "This is move is illegal because " + std::string(IllegalMoves::toString(illegalMove)) +
@@ -40,6 +30,31 @@ void PvPScene::drawTexts(sf::RenderWindow& window) {
         illegalMoveText.setPosition({BOARD_SIZE_WITH_PADDING, PADDING + 20});
 
         window.draw(illegalMoveText);
+    }
+
+
+    if (winningColor) {
+        sf::Text winText(getSharedFont(),
+                         "Player " + std::string(*winningColor == sf::Color::White ? "White" : "Black") + " wins!");
+
+        winText.setCharacterSize(30);
+        winText.setFillColor(sf::Color::White);
+        winText.setPosition({static_cast<float>(DisplayService::WINDOW_WIDTH / 2 - 100), static_cast<float>(DisplayService::WINDOW_HEIGHT / 2 - 50)});
+
+        sf::Text newGameText(getSharedFont(),
+                         "Press ESC to go to main menu.");
+
+        newGameText.setCharacterSize(18);
+        newGameText.setFillColor(sf::Color::White);
+        newGameText.setPosition({static_cast<float>(DisplayService::WINDOW_WIDTH / 2 - 110), static_cast<float>(DisplayService::WINDOW_HEIGHT / 2)});
+
+        sf::RectangleShape fadeBackground(sf::Vector2f(DisplayService::WINDOW_WIDTH, DisplayService::WINDOW_HEIGHT));
+        fadeBackground.setFillColor(sf::Color(0, 0, 0, 150)); // Semi-transparent black
+        fadeBackground.setPosition({0, 0});
+
+        window.draw(fadeBackground);
+        window.draw(winText);
+        window.draw(newGameText);
     }
 }
 

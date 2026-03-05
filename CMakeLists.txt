@@ -62,6 +62,7 @@ set(DISPLAY_FILES
         src/display/scenes/PvPScene.cpp
         src/display/utils/getSharedFont.cpp
         src/display/DisplayService.cpp
+        src/display/scenes/DoubleStonesScene.cpp
 )
 
 set(MINMAX_FILES

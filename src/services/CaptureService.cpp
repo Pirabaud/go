@@ -40,11 +40,9 @@ bool CaptureService::winLineBreakable(Board& board, const bool isBlack, const in
 
             for (const int dir: directions) {
                 int afterIndex = checkStone + 2 * dir;
-                int beforeIndex = checkStone - 2 * dir; // (ou juste -dir selon ta logique)
+                int beforeIndex = checkStone - 2 * dir;
 
-                // Si on sort de la mémoire, on arrête tout
-                if (afterIndex < 0 || afterIndex >= 380 || beforeIndex < 0 || beforeIndex >= 384) {
-                    continue; // On passe à la direction suivante
+                if (afterIndex < 0 || afterIndex >= 380 || beforeIndex < 0 || beforeIndex >= 380) {
                 }
                 if (dirAlignment == dir || -dirAlignment == dir) {
                     continue;
