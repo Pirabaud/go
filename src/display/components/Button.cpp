@@ -10,7 +10,7 @@ Button::Button(const sf::Vector2f& size, const sf::Vector2f& position, const std
 {
     shape.setSize(size);
     shape.setPosition(position);
-    shape.setFillColor(sf::Color::Blue);
+    shape.setFillColor({59,166,255});
 
 
     text.setString(label);

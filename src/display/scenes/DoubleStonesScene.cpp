@@ -1,8 +1,4 @@
-//
-// Created by Pierre Rabaud on 06/10/2025.
-//
-
-#include "PvEScene.hpp"
+#include "DoubleStonesScene.hpp"
 #include "CheckWinService.hpp"
 #include "SFML/Graphics/Text.hpp"
 
@@ -11,12 +7,11 @@
 #include "CaptureService.hpp"
 #include "CheckLegalMove.hpp"
 #include "DisplayService.hpp"
-#include "HeuristicService.h"
 #include "utils/getSharedFont.hpp"
 #include "JsonService.hpp"
 #include "SFML/Graphics/RectangleShape.hpp"
 
-void PvEScene::handleEvent(const std::optional<sf::Event>& event, sf::RenderWindow& window) {
+void DoubleStonesScene::handleEvent(const std::optional<sf::Event>& event, sf::RenderWindow& window) {
     if (winningColor) return;
 
     if (handleStonePlacement(event, window)) {
@@ -27,7 +22,7 @@ void PvEScene::handleEvent(const std::optional<sf::Event>& event, sf::RenderWind
     }
 }
 
-void PvEScene::drawTexts(sf::RenderWindow& window) {
+void DoubleStonesScene::drawTexts(sf::RenderWindow& window) {
 
     sf::Text blackCapturesText(getSharedFont(),
                              "Black captures: " + std::to_string(board.getWhiteCaptured()));
@@ -59,7 +54,6 @@ void PvEScene::drawTexts(sf::RenderWindow& window) {
 
     window.draw(AITimeMs);
 
-
     if (winningColor) {
         sf::Text winText(getSharedFont(),
                          "Player " + std::string(*winningColor == sf::Color::White ? "White" : "Black") + " wins!");
@@ -85,7 +79,7 @@ void PvEScene::drawTexts(sf::RenderWindow& window) {
     }
 }
 
-bool PvEScene::handleStonePlacement(const std::optional<sf::Event>& event, sf::RenderWindow& window) {
+bool DoubleStonesScene::handleStonePlacement(const std::optional<sf::Event>& event, sf::RenderWindow& window) {
     int captures[8];
     int count = 0;
     if (!event || !event->is<sf::Event::MouseButtonPressed>()) {
@@ -106,22 +100,19 @@ bool PvEScene::handleStonePlacement(const std::optional<sf::Event>& event, sf::R
             return false;
         }
         auto playerMove = Position(row, col);
+        auto checkCapturesForBlack = colorToPlay == sf::Color::Black ;
 
         playMove(playerMove);
+        moveNumber++;
+        if (moveNumber % 2 != 0) {
+            nextTurn();
+        }
 
-        CaptureService::checkCapture(board, Board::getGlobalIndex(playerMove), true, captures, count);
+        CaptureService::checkCapture(board, Board::getGlobalIndex(playerMove), checkCapturesForBlack, captures, count);
         draw(window);
         if (CheckWinService::isWin(board)) {
             return true;
         }
-
-        json decisionTree = json::array();
-        moveHistory.push_back(playerMove);
-        const auto aiMove = handleAITurn();
-        playMove(aiMove);
-        CaptureService::checkCapture(board, Board::getGlobalIndex(aiMove), colorToPlay == sf::Color::White, captures, count);
-        //this->suggestedMove = handleAITurn();
-        return true;
-        }
+    }
     return false;
 }
