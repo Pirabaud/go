@@ -1,8 +1,7 @@
 #ifndef CAPTURE_SERVICE_HPP
 #define CAPTURE_SERVICE_HPP
 #include "Board.h"
-#include "Direction.hpp"
-#include "Position.hpp"
+#include "SFML/Audio.hpp"
 
 
 class CaptureService {
@@ -13,6 +12,7 @@ public:
     static std::array<int, 15> getBlockingCaptureIndex(const std::array<uint64_t, 6>& allyBitBoard,
                                                        const std::array<uint64_t, 6>& enemyBitBoard, int startIndex,
                                                        int dirAlignment);
+
 
 private:
     static int checkCaptureInDirection(Board& board, int globalIndex,
