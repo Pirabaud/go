@@ -7,6 +7,7 @@
 #include "DisplayService.hpp"
 #include "MinMax.hpp"
 #include "SFML/Graphics/CircleShape.hpp"
+#include "SFML/Audio.hpp"
 
 float BoardScene::PADDING = 40.0f;
 float BoardScene::BOARD_SIZE = DisplayService::WINDOW_HEIGHT - 2 * PADDING; // 200 is the width of the sidebar
@@ -16,6 +17,27 @@ float BoardScene::STONE_RADIUS = CELL_SIZE / 2.0f - 2.0f;
 
 BoardScene::BoardScene(sf::RenderWindow& window) {
     backgroundColor = sf::Color(206, 163, 70);
+    placeStoneSoundBuffer = new sf::SoundBuffer();
+    if (!placeStoneSoundBuffer->loadFromFile("../assets/move.mp3")) {
+        std::cerr << "Failed to load sound effect!" << std::endl;
+    } else {
+        this->placeStoneSound = new sf::Sound(*placeStoneSoundBuffer);
+    }
+
+    captureSoundBuffer = new sf::SoundBuffer();
+    if (!captureSoundBuffer->loadFromFile("../assets/capture.mp3")) {
+        std::cerr << "Failed to load sound effect!" << std::endl;
+    } else {
+        this->captureSound = new sf::Sound(*captureSoundBuffer);
+    }
+
+}
+
+BoardScene::~BoardScene() {
+    delete placeStoneSoundBuffer;
+    delete placeStoneSound;
+    delete captureSoundBuffer;
+    delete captureSound;
 }
 
 void BoardScene::draw(sf::RenderWindow& window) {
@@ -109,6 +131,10 @@ Position BoardScene::handleAITurn() {
 
 void BoardScene::playMove(Position pos) {
     this->suggestedMove = {-1, -1};
+    if (this->placeStoneSound)
+    {
+        this->placeStoneSound->play();
+    }
     colorToPlay == sf::Color::White ? board.addStoneWhite(pos) : board.addStoneBlack(pos);
     nextTurn();
 }

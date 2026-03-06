@@ -1,5 +1,7 @@
 #ifndef BOARD_SCENE_HPP
 #define BOARD_SCENE_HPP
+#include <SFML/Audio/Sound.hpp>
+
 #include "AbstractScene.hpp"
 #include "JsonService.hpp"
 #include "Board.h"
@@ -22,8 +24,13 @@ protected:
     sf::Color colorToPlay = sf::Color::Black;
     bool threeDetected = false;
     BoardScene(sf::RenderWindow& window);
+    ~BoardScene() override;
     long lastAITimeMs = 0;
     Position suggestedMove = {-1, -1};
+    sf::Sound *placeStoneSound = nullptr;
+    sf::SoundBuffer *placeStoneSoundBuffer = nullptr;
+    sf::Sound *captureSound = nullptr;
+    sf::SoundBuffer *captureSoundBuffer = nullptr;
 
 
     virtual void drawTexts(sf::RenderWindow& window) = 0;

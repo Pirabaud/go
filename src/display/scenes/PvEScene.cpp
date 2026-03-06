@@ -105,7 +105,10 @@ bool PvEScene::handleStonePlacement(const std::optional<sf::Event>& event, sf::R
 
         playMove(playerMove);
 
-        CaptureService::checkCapture(board, Board::getGlobalIndex(playerMove), true, captures, count);
+        if (CaptureService::checkCapture(board, Board::getGlobalIndex(playerMove), true, captures, count) != 0)
+        {
+            captureSound->play();
+        }
         draw(window);
         if (CheckWinService::isWin(board)) {
             return true;
@@ -115,7 +118,10 @@ bool PvEScene::handleStonePlacement(const std::optional<sf::Event>& event, sf::R
         moveHistory.push_back(playerMove);
         const auto aiMove = handleAITurn();
         playMove(aiMove);
-        CaptureService::checkCapture(board, Board::getGlobalIndex(aiMove), colorToPlay == sf::Color::White, captures, count);
+        if (CaptureService::checkCapture(board, Board::getGlobalIndex(aiMove), colorToPlay == sf::Color::White, captures, count) != 0)
+        {
+            captureSound->play();
+        }
         //this->suggestedMove = handleAITurn();
         return true;
         }

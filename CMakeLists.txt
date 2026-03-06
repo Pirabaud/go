@@ -17,7 +17,7 @@ set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS}")
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 include(FetchContent)
-set(SFML_BUILD_AUDIO OFF)
+set(SFML_BUILD_AUDIO ON)
 set(SFML_BUILD_NETWORK OFF)
 set(SFML_BUILD_WINDOW ON)
 set(SFML_BUILD_GRAPHICS ON)
@@ -108,6 +108,7 @@ target_include_directories(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME}
         PRIVATE SFML::Graphics
+        PRIVATE SFML::Audio
         nlohmann_json::nlohmann_json
 )
 

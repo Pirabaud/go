@@ -1,6 +1,7 @@
 #include "../../include/services/CheckLegalMove.hpp"
 
 #include "CaptureService.hpp"
+#include "Direction.hpp"
 
 
 IllegalMoves::Type CheckLegalMove::isLegalMove(int posIndex,

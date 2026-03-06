@@ -83,11 +83,14 @@ bool PvPScene::handleStonePlacement(const std::optional<sf::Event>& event, sf::R
         if (illegalMove != IllegalMoves::Type::NONE) {
             return false;
         }
-        CaptureService::checkCapture(
+
+        if (CaptureService::checkCapture(
             board,
             Board::getGlobalIndex({row, col}),
             colorToPlay == sf::Color::Black, captures, count
-        );
+        ) !=0 ) {
+            captureSound->play();
+        }
         playMove(Position{row, col});
         return true;
     }
