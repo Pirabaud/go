@@ -1,7 +1,3 @@
-//
-// Created by pirabaud on 1/13/26.
-//
-
 #ifndef GOMOKU_SCORES_HPP
 #define GOMOKU_SCORES_HPP
 

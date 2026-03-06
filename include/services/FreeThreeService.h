@@ -1,7 +1,3 @@
-//
-// Created by pirabaud on 9/24/25.
-//
-
 #ifndef GOMOKU_FREETHREESERVICE_H
 #define GOMOKU_FREETHREESERVICE_H
 

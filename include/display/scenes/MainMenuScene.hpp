@@ -1,6 +1,5 @@
 #ifndef MAIN_MENU_SCENE_HPP
 #define MAIN_MENU_SCENE_HPP
-#include <iostream>
 
 #include "AbstractScene.hpp"
 #include "Button.hpp"

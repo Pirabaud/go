@@ -1,7 +1,3 @@
-//
-// Created by dev-ecomicro on 20/07/2025.
-//
-
 #ifndef ALIGNMENTCHECKER_HPP
 #define ALIGNMENTCHECKER_HPP
 #include "Board.h"

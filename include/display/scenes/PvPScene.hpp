@@ -1,7 +1,3 @@
-//
-// Created by afaby on 6/20/25.
-//
-
 #ifndef PVP_SCENE_HPP
 #define PVP_SCENE_HPP
 #include "BoardScene.hpp"

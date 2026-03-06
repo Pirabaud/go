@@ -1,7 +1,3 @@
-//
-// Created by pirabaud on 12/12/25.
-//
-
 #ifndef GOMOKU_DIRECTION_HPP
 #define GOMOKU_DIRECTION_HPP
 #include "Board.h"

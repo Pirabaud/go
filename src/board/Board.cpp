@@ -1,7 +1,3 @@
-//
-// Created by pirabaud on 6/19/25.
-//
-
 #include "Board.h"
 
 #include <bitset>

@@ -1,7 +1,3 @@
-//
-// Created by Pierre Rabaud on 06/10/2025.
-//
-
 #ifndef DOUBLE_STONES_SCENE_HPP
 #define DOUBLE_STONES_SCENE_HPP
 #include "BoardScene.hpp"
