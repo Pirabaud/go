@@ -1,7 +1,3 @@
-//
-// Created by pirabaud on 6/19/25.
-//
-
 #ifndef BOARD_H
 #define BOARD_H
 #include <array>

@@ -1,7 +1,3 @@
-//
-// Created by Pierre Rabaud on 06/10/2025.
-//
-
 #include "PvEScene.hpp"
 #include "CheckWinService.hpp"
 #include "SFML/Graphics/Text.hpp"

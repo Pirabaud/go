@@ -1,7 +1,3 @@
-//
-// Created by afaby on 6/27/25.
-//
-
 #include "CaptureService.hpp"
 #include "Direction.hpp"
 #include <algorithm>

@@ -1,7 +1,3 @@
-//
-// Created by Pierre Rabaud on 06/10/2025.
-//
-
 #ifndef PVE_SCENE_HPP
 #define PVE_SCENE_HPP
 #include "BoardScene.hpp"

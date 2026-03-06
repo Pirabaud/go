@@ -1,7 +1,3 @@
-//
-// Created by pirabaud on 1/13/26.
-//
-
 #ifndef GOMOKU_PATTERN_HPP
 #define GOMOKU_PATTERN_HPP
 
