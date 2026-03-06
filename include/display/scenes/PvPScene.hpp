@@ -13,6 +13,7 @@ public:
         : BoardScene(window)
     {
         backgroundColor = sf::Color(206, 163, 70);
+       this->suggestedMove = { Board::SIZE / 2, Board::SIZE / 2 };
     }
 
     void handleEvent(const std::optional<sf::Event>&, sf::RenderWindow& window) override;
