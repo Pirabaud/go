@@ -110,7 +110,6 @@ void BoardScene::drawDefaultTexts(sf::RenderWindow& window) const
     window.draw(stoneToPlay);
 
     if (winningColor) {
-        std::cout << "End game detected, winning color: " << (*winningColor == sf::Color::White ? "White" : "Black") << std::endl;
         sf::Text winText(getSharedFont(),
                          "Player " + std::string(*winningColor == sf::Color::White ? "White" : "Black") + " wins!");
 
