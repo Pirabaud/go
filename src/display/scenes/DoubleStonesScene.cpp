@@ -16,9 +16,6 @@ void DoubleStonesScene::handleEvent(const std::optional<sf::Event>& event, sf::R
 
     if (handleStonePlacement(event, window)) {
         winningColor = CheckWinService::isWin(board);
-        if (winningColor) {
-            std::cout << "Player " << (*winningColor == sf::Color::White ? "White" : "Black") << " wins!" << std::endl;
-        }
     }
 }
 

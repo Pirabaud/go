@@ -168,6 +168,7 @@ int MinMax::minmax(Board &currentBoard, const int limitDepth, const int currentD
 
     //EVALUATION
     const int alphaOrig = alpha;
+    const int betaOrig = beta;
     int bestVal = isMaximizing ? INT_MIN : INT_MAX;
     int localBestMove = -1;
     const bool isWhite = isMaximizing;
@@ -198,8 +199,15 @@ int MinMax::minmax(Board &currentBoard, const int limitDepth, const int currentD
         const int blackScoreAfter = HeuristicService::evaluatePosition(currentBoard, moveIndex, true);
         const int whiteScoreAfter = HeuristicService::evaluatePosition(currentBoard, moveIndex, false);
         const int checkCapture = CaptureService::checkCapture(currentBoard, moveIndex, !isWhite, capture, countCapture);
+        bool isTrueWin = false;
+        if ((isWhite && whiteScoreAfter >= 30000) || (!isWhite && blackScoreAfter >= 30000)) {
+            if (CheckWinService::isWin(currentBoard) != nullptr) {
+                isTrueWin = true;
+            }
+        }
+
         int eval;
-        if ((isWhite && whiteScoreAfter >= 30000 && numPossibleMoves != 1) || (!isWhite && blackScoreAfter >= 30000 && numPossibleMoves != 1)) {
+        if (isTrueWin) {
             if (isWhite) {
                 eval = 300000 - currentDepth;
             } else {
@@ -245,7 +253,7 @@ int MinMax::minmax(Board &currentBoard, const int limitDepth, const int currentD
     if (!this->timeOut) {
         TTFlag flag;
         if (bestVal <= alphaOrig) flag = UPPERBOUND;
-        else if (bestVal >= beta) flag = LOWERBOUND;
+        else if (bestVal >= betaOrig) flag = LOWERBOUND;
         else flag = EXACT;
 
         transpositionTable.store(zobristKey, remainingDepth, bestVal, flag, localBestMove);
@@ -276,7 +284,7 @@ int MinMax::generatePossibleMoves(Board &currentBoard, std::array<int, 400>& out
                 outMoves[moveCount++] = blockingBreakableWinMoves[i];
             }
         }
-        if (moveCount != 0) {
+        if (moveCount == 1) {
             return moveCount;
         }
     }

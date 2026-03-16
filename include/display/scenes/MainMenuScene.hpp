@@ -12,7 +12,7 @@ private:
     Button pveButton;
     Button doubleStonesButton;
     Button proStartButton;
-    Button swapStartButton;
+    Button otherSizeButton;
 
 
 public:

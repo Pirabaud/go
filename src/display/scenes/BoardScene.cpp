@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "CaptureService.hpp"
+#include "CheckLegalMove.hpp"
 #include "CheckWinService.hpp"
 #include "DisplayService.hpp"
 #include "MinMax.hpp"
@@ -10,27 +11,30 @@
 #include "SFML/Audio.hpp"
 
 float BoardScene::PADDING = 40.0f;
-float BoardScene::BOARD_SIZE = DisplayService::WINDOW_HEIGHT - 2 * PADDING; // 200 is the width of the sidebar
+float BoardScene::BOARD_SIZE = DisplayService::WINDOW_HEIGHT - 2 * PADDING;
 float BoardScene::BOARD_SIZE_WITH_PADDING = BOARD_SIZE + 2 * PADDING;
 float BoardScene::CELL_SIZE = BOARD_SIZE / (Board::SIZE - 1);
 float BoardScene::STONE_RADIUS = CELL_SIZE / 2.0f - 2.0f;
 
 BoardScene::BoardScene(sf::RenderWindow& window) {
     backgroundColor = sf::Color(206, 163, 70);
-    placeStoneSoundBuffer = new sf::SoundBuffer();
-    if (!placeStoneSoundBuffer->loadFromFile("../assets/move.mp3")) {
-        std::cerr << "Failed to load sound effect!" << std::endl;
-    } else {
-        this->placeStoneSound = new sf::Sound(*placeStoneSoundBuffer);
-    }
+    _loadSound("../assets/move.mp3", placeStoneSoundBuffer, placeStoneSound);
+    _loadSound("../assets/capture.mp3", captureSoundBuffer, captureSound);
+    _loadSound("../assets/illegal.mp3", illegalMoveSoundBuffer, illegalMoveSound);
+    _loadSound("../assets/win.mp3", winSoundBuffer, winSound);
+    _loadSound("../assets/lose.mp3", loseSoundBuffer, loseSound);
+}
 
-    captureSoundBuffer = new sf::SoundBuffer();
-    if (!captureSoundBuffer->loadFromFile("../assets/capture.mp3")) {
-        std::cerr << "Failed to load sound effect!" << std::endl;
+void BoardScene::_loadSound(const std::string& filePath, sf::SoundBuffer*& buffer, sf::Sound*& sound) {
+    buffer = new sf::SoundBuffer();
+    if (!buffer->loadFromFile(filePath)) {
+        std::cerr << "Failed to load sound effect from " << filePath << "!" << std::endl;
+        delete buffer;
+        buffer = nullptr;
+        sound = nullptr;
     } else {
-        this->captureSound = new sf::Sound(*captureSoundBuffer);
+        sound = new sf::Sound(*buffer);
     }
-
 }
 
 BoardScene::~BoardScene() {
@@ -38,6 +42,12 @@ BoardScene::~BoardScene() {
     delete placeStoneSound;
     delete captureSoundBuffer;
     delete captureSound;
+    delete illegalMoveSoundBuffer;
+    delete illegalMoveSound;
+    delete winSoundBuffer;
+    delete winSound;
+    delete loseSoundBuffer;
+    delete loseSound;
 }
 
 void BoardScene::draw(sf::RenderWindow& window) {
@@ -141,4 +151,14 @@ void BoardScene::playMove(Position pos) {
 
 void BoardScene::nextTurn() {
     colorToPlay == sf::Color::White ? colorToPlay = sf::Color::Black : colorToPlay = sf::Color::White;
+}
+
+IllegalMoves::Type BoardScene::getLegalMove(const int row,const int col)
+{
+    IllegalMoves::Type legalMove = IllegalMoves::NONE;
+    legalMove = CheckLegalMove::isLegalMove(Board::getGlobalIndex({row, col}), board, colorToPlay == sf::Color::Black);
+    if (legalMove != IllegalMoves::Type::NONE && this->illegalMoveSound){
+        this->illegalMoveSound->play();
+    }
+    return legalMove;
 }

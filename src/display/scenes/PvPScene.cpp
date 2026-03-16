@@ -13,12 +13,8 @@ void PvPScene::handleEvent(const std::optional<sf::Event>& event, sf::RenderWind
     const bool doesStoneHaveBeenPlaced = handleStonePlacement(event, window);
     if (doesStoneHaveBeenPlaced) {
         winningColor = CheckWinService::isWin(board);
-        if (winningColor) {
-            std::cout << "Player " << (*winningColor == sf::Color::White ? "White" : "Black") << " wins!" << std::endl;
-        }
         draw(window);
         if (!winningColor) {
-            std::cout << "Run suggestion as " << (colorToPlay == sf::Color::Black ? "Black" : "White") << std::endl;
             this->suggestedMove = handleAITurn();
         }
     }
@@ -39,6 +35,10 @@ void PvPScene::drawTexts(sf::RenderWindow& window) {
 
 
     if (winningColor) {
+        if (winSound)
+        {
+            winSound->play();
+        }
         sf::Text winText(getSharedFont(),
                          "Player " + std::string(*winningColor == sf::Color::White ? "White" : "Black") + " wins!");
 
@@ -74,12 +74,7 @@ bool PvPScene::handleStonePlacement(const std::optional<sf::Event>& event, sf::R
         mousePressedEvent->button == sf::Mouse::Button::Left) {
         const auto& mousePos = mousePressedEvent->position;
         const auto [row, col] = getCellFromMousePosition(mousePos);
-        if (row == -1 || col == -1) {
-            illegalMove = IllegalMoves::Type::NOT_IN_BOARD;
-            return false;
-        }
-        illegalMove = CheckLegalMove::isLegalMove(Board::getGlobalIndex({row, col}), board, colorToPlay == sf::Color::Black);
-
+        illegalMove = getLegalMove(row, col);
         if (illegalMove != IllegalMoves::Type::NONE) {
             return false;
         }
@@ -89,7 +84,10 @@ bool PvPScene::handleStonePlacement(const std::optional<sf::Event>& event, sf::R
             Board::getGlobalIndex({row, col}),
             colorToPlay == sf::Color::Black, captures, count
         ) !=0 ) {
-            captureSound->play();
+            if (captureSound)
+            {
+                captureSound->play();
+            }
         }
         playMove(Position{row, col});
         return true;

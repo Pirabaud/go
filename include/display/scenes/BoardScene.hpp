@@ -24,6 +24,7 @@ protected:
     sf::Color colorToPlay = sf::Color::Black;
     bool threeDetected = false;
     BoardScene(sf::RenderWindow& window);
+    static void _loadSound(const std::string& filePath, sf::SoundBuffer*& buffer, sf::Sound*& sound);
     ~BoardScene() override;
     long lastAITimeMs = 0;
     Position suggestedMove = {-1, -1};
@@ -31,6 +32,12 @@ protected:
     sf::SoundBuffer *placeStoneSoundBuffer = nullptr;
     sf::Sound *captureSound = nullptr;
     sf::SoundBuffer *captureSoundBuffer = nullptr;
+    sf::Sound *illegalMoveSound = nullptr;
+    sf::SoundBuffer *illegalMoveSoundBuffer = nullptr;
+    sf::Sound *winSound = nullptr;
+    sf::SoundBuffer *winSoundBuffer = nullptr;
+    sf::Sound *loseSound = nullptr;
+    sf::SoundBuffer *loseSoundBuffer = nullptr;
 
 
     virtual void drawTexts(sf::RenderWindow& window) = 0;
@@ -49,6 +56,7 @@ protected:
 
     void playMove(Position pos);
     void nextTurn();
+    IllegalMoves::Type getLegalMove(int row, int col);
 };
 
 

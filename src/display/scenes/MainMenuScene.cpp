@@ -39,7 +39,7 @@ MainMenuScene::MainMenuScene(sf::RenderWindow& win):
     {
         DisplayService::changeScene(new PvEScene(win));
     }),
-    swapStartButton({BUTTON_WIDTH, BUTTON_HEIGHT}, {getButtonXPosition(), getButtonYPosition(4)}, "Swap start", [this, &win]()
+    otherSizeButton({BUTTON_WIDTH, BUTTON_HEIGHT}, {getButtonXPosition(), getButtonYPosition(4)}, "15x15", [this, &win]()
     {
         DisplayService::changeScene(new PvEScene(win));
     })
@@ -59,7 +59,7 @@ void MainMenuScene::handleEvent(const std::optional<sf::Event>& event, sf::Rende
     pveButton.handleEvent(event, window);
         doubleStonesButton.handleEvent(event, window);
         proStartButton.handleEvent(event, window);
-        swapStartButton.handleEvent(event, window);
+        otherSizeButton.handleEvent(event, window);
 }
 
 void MainMenuScene::draw(sf::RenderWindow& window)
@@ -69,7 +69,7 @@ void MainMenuScene::draw(sf::RenderWindow& window)
     pveButton.draw(window);
         doubleStonesButton.draw(window);
         proStartButton.draw(window);
-        swapStartButton.draw(window);
+        otherSizeButton.draw(window);
     window.display();
 }
 

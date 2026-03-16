@@ -80,8 +80,3 @@ std::array<int, 15> CheckWinService::getWinBlockingIndices(Board& board, const b
     }
     return result;
 }
-
-bool CheckWinService::isBreakableWinAlignment(Board &allyBoard, Board &enemyBoard, int startIndex, Direction dir) {
-    return false;
-}
-
