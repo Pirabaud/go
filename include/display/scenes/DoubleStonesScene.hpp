@@ -14,7 +14,6 @@ public:
     bool handleStonePlacement(const std::optional<sf::Event>& event, sf::RenderWindow& window) override;
 
 private:
-    const sf::Color* winningColor = nullptr;
     int moveNumber = 0;
 };
 

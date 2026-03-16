@@ -28,6 +28,11 @@ std::pair<Position, long> MinMax::run(const int timeLimitMs, const bool isBlack)
     this->timeOut = false;
     this->nodesVisited = 0;
 
+    if (board.isEmpty())
+    {
+        return {{Board::SIZE / 2, Board::SIZE / 2}, 0};
+    }
+
     int globalBestMove = -1;
     int currentBestMove = -1;
     int score = 0;

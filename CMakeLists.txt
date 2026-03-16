@@ -61,6 +61,7 @@ set(DISPLAY_FILES
         src/display/scenes/PvEScene.cpp
         src/display/scenes/PvPScene.cpp
         src/display/utils/getSharedFont.cpp
+        src/display/utils/loadSound.cpp
         src/display/DisplayService.cpp
         src/display/scenes/DoubleStonesScene.cpp
 )

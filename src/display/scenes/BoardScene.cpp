@@ -6,9 +6,13 @@
 #include "CheckLegalMove.hpp"
 #include "CheckWinService.hpp"
 #include "DisplayService.hpp"
+#include "getSharedFont.hpp"
+#include "loadSound.hpp"
 #include "MinMax.hpp"
 #include "SFML/Graphics/CircleShape.hpp"
 #include "SFML/Audio.hpp"
+#include "SFML/Graphics/RectangleShape.hpp"
+#include "SFML/Graphics/Text.hpp"
 
 float BoardScene::PADDING = 40.0f;
 float BoardScene::BOARD_SIZE = DisplayService::WINDOW_HEIGHT - 2 * PADDING;
@@ -18,25 +22,13 @@ float BoardScene::STONE_RADIUS = CELL_SIZE / 2.0f - 2.0f;
 
 BoardScene::BoardScene(sf::RenderWindow& window) {
     backgroundColor = sf::Color(206, 163, 70);
-    _loadSound("../assets/move.mp3", placeStoneSoundBuffer, placeStoneSound);
-    _loadSound("../assets/capture.mp3", captureSoundBuffer, captureSound);
-    _loadSound("../assets/illegal.mp3", illegalMoveSoundBuffer, illegalMoveSound);
-    _loadSound("../assets/win.mp3", winSoundBuffer, winSound);
-    _loadSound("../assets/lose.mp3", loseSoundBuffer, loseSound);
+    loadSound("../assets/move.mp3", placeStoneSoundBuffer, placeStoneSound);
+    loadSound("../assets/capture.mp3", captureSoundBuffer, captureSound);
+    loadSound("../assets/illegal.mp3", illegalMoveSoundBuffer, illegalMoveSound);
+    loadSound("../assets/win.mp3", winSoundBuffer, winSound);
+    loadSound("../assets/lose.mp3", loseSoundBuffer, loseSound);
+    loadSound("../assets/history.mp3", historySoundBuffer, historySound);
 }
-
-void BoardScene::_loadSound(const std::string& filePath, sf::SoundBuffer*& buffer, sf::Sound*& sound) {
-    buffer = new sf::SoundBuffer();
-    if (!buffer->loadFromFile(filePath)) {
-        std::cerr << "Failed to load sound effect from " << filePath << "!" << std::endl;
-        delete buffer;
-        buffer = nullptr;
-        sound = nullptr;
-    } else {
-        sound = new sf::Sound(*buffer);
-    }
-}
-
 BoardScene::~BoardScene() {
     delete placeStoneSoundBuffer;
     delete placeStoneSound;
@@ -54,6 +46,7 @@ void BoardScene::draw(sf::RenderWindow& window) {
     window.clear(backgroundColor);
     drawBoard(window);
     drawStones(window);
+    drawDefaultTexts(window);
     drawTexts(window);
     window.display();
 }
@@ -84,6 +77,64 @@ void BoardScene::drawStones(sf::RenderWindow& window) {
     }
 }
 
+void BoardScene::drawDefaultTexts(sf::RenderWindow& window) const
+{
+
+    sf::Text blackCapturesText(getSharedFont(),
+                               "Black captures: " + std::to_string(board.getWhiteCaptured()));
+    blackCapturesText.setCharacterSize(18);
+    blackCapturesText.setFillColor(sf::Color::Black);
+    blackCapturesText.setPosition({BOARD_SIZE_WITH_PADDING, PADDING + 20});
+    window.draw(blackCapturesText);
+    sf::Text whiteCapturesText(getSharedFont(),
+                               "White captures: " + std::to_string(board.getBlackCaptured()));
+    whiteCapturesText.setCharacterSize(18);
+    whiteCapturesText.setFillColor(sf::Color::White);
+    whiteCapturesText.setPosition({BOARD_SIZE_WITH_PADDING, PADDING + 40});
+    window.draw(whiteCapturesText);
+    if (illegalMove != IllegalMoves::Type::NONE)
+    {
+        sf::Text illegalMoveText(getSharedFont(),
+                                 "This is move is illegal because " + std::string(IllegalMoves::toString(illegalMove)) +
+                                 ".");
+        illegalMoveText.setCharacterSize(18);
+        illegalMoveText.setFillColor(sf::Color::Red);
+        illegalMoveText.setPosition({BOARD_SIZE_WITH_PADDING, PADDING + 60});
+
+        window.draw(illegalMoveText);
+    }
+
+    sf::CircleShape stoneToPlay(20);
+    stoneToPlay.setFillColor(colorToPlay);
+    stoneToPlay.setPosition({DisplayService::WINDOW_WIDTH - PADDING - 20, DisplayService::WINDOW_HEIGHT - PADDING - 20});
+    window.draw(stoneToPlay);
+
+    if (winningColor) {
+        std::cout << "End game detected, winning color: " << (*winningColor == sf::Color::White ? "White" : "Black") << std::endl;
+        sf::Text winText(getSharedFont(),
+                         "Player " + std::string(*winningColor == sf::Color::White ? "White" : "Black") + " wins!");
+
+        winText.setCharacterSize(30);
+        winText.setFillColor(sf::Color::White);
+        winText.setPosition({static_cast<float>(DisplayService::WINDOW_WIDTH / 2 - 100), static_cast<float>(DisplayService::WINDOW_HEIGHT / 2 - 50)});
+
+        sf::Text newGameText(getSharedFont(),
+                         "Press ESC to go to main menu.");
+
+        newGameText.setCharacterSize(18);
+        newGameText.setFillColor(sf::Color::White);
+        newGameText.setPosition({static_cast<float>(DisplayService::WINDOW_WIDTH / 2 - 110), static_cast<float>(DisplayService::WINDOW_HEIGHT / 2)});
+
+        sf::RectangleShape fadeBackground(sf::Vector2f(DisplayService::WINDOW_WIDTH, DisplayService::WINDOW_HEIGHT));
+        fadeBackground.setFillColor(sf::Color(0, 0, 0, 150)); // Semi-transparent black
+        fadeBackground.setPosition({0, 0});
+
+        window.draw(fadeBackground);
+        window.draw(winText);
+        window.draw(newGameText);
+    }
+}
+
 void BoardScene::drawSuggestedMove(sf::RenderWindow& window) const {
     const float x = BoardScene::PADDING + suggestedMove.y * BoardScene::CELL_SIZE;
     const float y = BoardScene::PADDING + suggestedMove.x * BoardScene::CELL_SIZE;
@@ -108,6 +159,74 @@ void BoardScene::drawSingleColorStone(const std::array<uint64_t, 6>& bitBoard, s
             }
         }
     }
+}
+
+bool BoardScene::handleHistoryEvent(const std::optional<sf::Event>& event, sf::RenderWindow& window)
+{
+    const auto* keyPressedEvent = event->getIf<sf::Event::KeyPressed>();
+    if (!keyPressedEvent) return false;
+    if (keyPressedEvent->code == sf::Keyboard::Key::Left)
+    {
+        if (pastMoves.empty())
+        {
+            if (illegalMoveSound)
+            {
+                illegalMoveSound->play();
+            }
+            return false;
+        }
+        suggestedMove = {-1, -1};
+        auto lastMove = pastMoves.top();
+        colorToPlay = lastMove.isBlack ? sf::Color::Black : sf::Color::White;
+        lastMove.isBlack ? board.removeBlackStone(Board::getGlobalIndex(lastMove.pos)) : board.removeWhiteStone(Board::getGlobalIndex(lastMove.pos));
+        for (const auto& capturedIndex : lastMove.capturedIndices)
+        {
+            if (capturedIndex == -1) continue;
+            lastMove.isBlack ? board.addStoneWhite(capturedIndex) :
+                board.addStoneBlack(capturedIndex);
+            board.addCaptures(lastMove.isBlack,-1);
+        }
+        pastMoves.pop();
+        futureMoves.push(lastMove);
+        if (historySound)
+        {
+            historySound->setPitch(.7f);
+            historySound->play();
+        }
+        return true;
+    }
+    if (keyPressedEvent->code == sf::Keyboard::Key::Right)
+    {
+        if (futureMoves.empty()) {
+            if (illegalMoveSound)
+            {
+                illegalMoveSound->play();
+            }
+            return false;
+        };
+        suggestedMove = {-1, -1};
+        auto nextMove = futureMoves.top();
+        colorToPlay = nextMove.isBlack ? sf::Color::White : sf::Color::Black;
+        nextMove.isBlack ? board.addStoneBlack(nextMove.pos) : board.addStoneWhite(nextMove.pos);
+        for (const auto& capturedIndex : nextMove.capturedIndices)
+        {
+            if (capturedIndex == -1) continue;
+            nextMove.isBlack ? board.removeWhiteStone(capturedIndex) :
+                board.removeBlackStone(capturedIndex);
+            board.addCaptures(nextMove.isBlack,1);
+
+        }
+        futureMoves.pop();
+        pastMoves.push(nextMove);
+
+        if (historySound)
+        {
+            historySound->setPitch(.9f);
+            historySound->play();
+        }
+        return true;
+    }
+    return false;
 }
 
 std::pair<int, int> BoardScene::getCellFromMousePosition(const sf::Vector2i& mousePos) const {
@@ -140,11 +259,30 @@ Position BoardScene::handleAITurn() {
 }
 
 void BoardScene::playMove(Position pos) {
+    int captures[8] = {-1};
+    int count = 0;
+    futureMoves = std::stack<MoveInfo>();
     this->suggestedMove = {-1, -1};
     if (this->placeStoneSound)
     {
         this->placeStoneSound->play();
     }
+    if (CaptureService::checkCapture(board, Board::getGlobalIndex(pos), colorToPlay == sf::Color::Black, captures, count))
+    {
+        if (captureSound)
+        {
+            captureSound->play();
+        }
+    }
+    MoveInfo historicalMove = {.pos = pos, .isBlack = colorToPlay == sf::Color::Black, .capturedIndices = {}};
+    for (int i = 0; i < count; ++i)
+    {
+        if (captures[i] != -1)
+        {
+            historicalMove.capturedIndices.push_back(captures[i]);
+        }
+    }
+    pastMoves.push(historicalMove);
     colorToPlay == sf::Color::White ? board.addStoneWhite(pos) : board.addStoneBlack(pos);
     nextTurn();
 }

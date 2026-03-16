@@ -19,34 +19,18 @@ void PvEScene::handleEvent(const std::optional<sf::Event>& event, sf::RenderWind
     if (handleStonePlacement(event, window))
     {
         winningColor = CheckWinService::isWin(board);
+        if (winningColor && *winningColor == sf::Color::White && loseSound)
+        {
+            loseSound->play();
+        } else if (winningColor && winSound)
+        {
+            winSound->play();
+        }
     }
 }
 
 void PvEScene::drawTexts(sf::RenderWindow& window)
 {
-    sf::Text blackCapturesText(getSharedFont(),
-                               "Black captures: " + std::to_string(board.getWhiteCaptured()));
-    blackCapturesText.setCharacterSize(18);
-    blackCapturesText.setFillColor(sf::Color::Black);
-    blackCapturesText.setPosition({BOARD_SIZE_WITH_PADDING, PADDING + 20});
-    window.draw(blackCapturesText);
-    sf::Text whiteCapturesText(getSharedFont(),
-                               "White captures: " + std::to_string(board.getBlackCaptured()));
-    whiteCapturesText.setCharacterSize(18);
-    whiteCapturesText.setFillColor(sf::Color::White);
-    whiteCapturesText.setPosition({BOARD_SIZE_WITH_PADDING, PADDING + 40});
-    window.draw(whiteCapturesText);
-    if (illegalMove != IllegalMoves::Type::NONE)
-    {
-        sf::Text illegalMoveText(getSharedFont(),
-                                 "This is move is illegal because " + std::string(IllegalMoves::toString(illegalMove)) +
-                                 ".");
-        illegalMoveText.setCharacterSize(18);
-        illegalMoveText.setFillColor(sf::Color::Red);
-        illegalMoveText.setPosition({BOARD_SIZE_WITH_PADDING, PADDING + 60});
-
-        window.draw(illegalMoveText);
-    }
     sf::Text AITimeMs(getSharedFont(),
                       "Time taken : " + (colorToPlay == sf::Color::Black
                                              ? std::to_string(lastAITimeMs) + " ms"
@@ -60,14 +44,6 @@ void PvEScene::drawTexts(sf::RenderWindow& window)
 
     if (winningColor)
     {
-        if (*winningColor == sf::Color::Black && winSound)
-        {
-            winSound->play();
-        }
-        else if (loseSound)
-        {
-            loseSound->play();
-        }
         sf::Text winText(getSharedFont(),
                          "Player " + std::string(*winningColor == sf::Color::White ? "White" : "Black") + " wins!");
 
@@ -100,7 +76,7 @@ void PvEScene::drawTexts(sf::RenderWindow& window)
 
 bool PvEScene::handleStonePlacement(const std::optional<sf::Event>& event, sf::RenderWindow& window)
 {
-    int captures[8];
+    int captures[8] = {};
     int count = 0;
     if (!event || !event->is<sf::Event::MouseButtonPressed>())
     {
@@ -120,14 +96,6 @@ bool PvEScene::handleStonePlacement(const std::optional<sf::Event>& event, sf::R
         auto playerMove = Position(row, col);
 
         playMove(playerMove);
-
-        if (CaptureService::checkCapture(board, Board::getGlobalIndex(playerMove), true, captures, count) != 0)
-        {
-            if (captureSound)
-            {
-                captureSound->play();
-            }
-        }
         draw(window);
         if (CheckWinService::isWin(board))
         {
@@ -146,7 +114,6 @@ bool PvEScene::handleStonePlacement(const std::optional<sf::Event>& event, sf::R
                 captureSound->play();
             }
         }
-        //this->suggestedMove = handleAITurn();
         return true;
     }
     return false;

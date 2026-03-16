@@ -57,9 +57,9 @@ void MainMenuScene::handleEvent(const std::optional<sf::Event>& event, sf::Rende
     }
     pvpButton.handleEvent(event, window);
     pveButton.handleEvent(event, window);
-        doubleStonesButton.handleEvent(event, window);
-        proStartButton.handleEvent(event, window);
-        otherSizeButton.handleEvent(event, window);
+    doubleStonesButton.handleEvent(event, window);
+    proStartButton.handleEvent(event, window);
+    otherSizeButton.handleEvent(event, window);
 }
 
 void MainMenuScene::draw(sf::RenderWindow& window)

@@ -3,6 +3,7 @@
 
 #include <iostream>
 
+#include "loadSound.hpp"
 #include "utils/getSharedFont.hpp"
 
 Button::Button(const sf::Vector2f& size, const sf::Vector2f& position, const std::string& label,
@@ -10,7 +11,7 @@ Button::Button(const sf::Vector2f& size, const sf::Vector2f& position, const std
 {
     shape.setSize(size);
     shape.setPosition(position);
-    shape.setFillColor({59,166,255});
+    shape.setFillColor(BUTTON_COLOR);
 
 
     text.setString(label);
@@ -22,6 +23,7 @@ Button::Button(const sf::Vector2f& size, const sf::Vector2f& position, const std
     text.setPosition(position + size / 2.0f);
 
     onClick = callback;
+    loadSound("../assets/click.mp3", clickSoundBuffer, clickSound);
 }
 
 void Button::draw(sf::RenderWindow& window) const
@@ -30,9 +32,22 @@ void Button::draw(sf::RenderWindow& window) const
     window.draw(text);
 }
 
-void Button::handleEvent(const std::optional<sf::Event>& event, const sf::RenderWindow& window) const
+void Button::handleEvent(const std::optional<sf::Event>& event, const sf::RenderWindow& window)
 {
     if (!event.has_value()) return;
+    const auto* mouseMoved = event->getIf<sf::Event::MouseMoved>();
+    if (mouseMoved)
+    {
+        const sf::Vector2f mousePos = window.mapPixelToCoords({mouseMoved->position.x, mouseMoved->position.y});
+        if (shape.getGlobalBounds().contains(mousePos))
+        {
+            shape.setFillColor(BUTTON_HOVER_COLOR);
+        } else {
+            shape.setFillColor(BUTTON_COLOR);
+        }
+        return;
+    }
+
     const auto* mouseButtonPressed = event->getIf<sf::Event::MouseButtonPressed>();
     if (!mouseButtonPressed) return;
     if (mouseButtonPressed->button == sf::Mouse::Button::Left)
@@ -43,6 +58,10 @@ void Button::handleEvent(const std::optional<sf::Event>& event, const sf::Render
         });
         if (shape.getGlobalBounds().contains(mousePos))
         {
+            if (clickSound)
+            {
+                clickSound->play();
+            }
             onClick();
         }
     }
