@@ -40,11 +40,14 @@ bool CaptureService::winLineBreakable(Board& board, const bool isBlack, const in
 
             for (const int dir: directions) {
                 int afterIndex = checkStone + 2 * dir;
-                int beforeIndex = checkStone - 2 * dir; // (ou juste -dir selon ta logique)
+                int beforeIndex = checkStone - 2 * dir;
 
-                // Si on sort de la mémoire, on arrête tout
-                if (afterIndex < 0 || afterIndex >= 380 || beforeIndex < 0 || beforeIndex >= 384) {
-                    continue; // On passe à la direction suivante
+                if (afterIndex < 0 || afterIndex >= 380 || beforeIndex < 0 || beforeIndex >= 380) {
+                    continue;
+                }
+
+                if (Board::isOutOfBounds(checkStone, 2, dir) || Board::isOutOfBounds(checkStone, -2, dir)) {
+                    continue;
                 }
                 if (dirAlignment == dir || -dirAlignment == dir) {
                     continue;
@@ -103,7 +106,11 @@ std::array<int, 15> CaptureService::getBlockingCaptureIndex(const std::array<uin
                 int afterIndex = checkStone + 2 * dir;
                 int beforeIndex = checkStone - 2 * dir;
 
-                if (afterIndex < 0 || afterIndex >= 380 || beforeIndex < 0 || beforeIndex >= 384) {
+                if (afterIndex < 0 || afterIndex >= 380 || beforeIndex < 0 || beforeIndex >= 380) {
+                    continue;
+                }
+
+                if (Board::isOutOfBounds(checkStone, 2, dir) || Board::isOutOfBounds(checkStone, -2, dir)) {
                     continue;
                 }
                 if (dirAlignment == dir || -dirAlignment == dir) {
@@ -159,9 +166,13 @@ int CaptureService::checkCaptureInDirection(Board& board, const int globalIndex,
     const std::array<uint64_t, 6>& allyBitBoard = isBlack ? board.getBitBoardBlack() : board.getBitBoardWhite();
     std::array<uint64_t, 6>& enemyBitBoard = isBlack ? board.getBitBoardWhite() : board.getBitBoardBlack();
     //check ally
+    if (globalIndex + 3 * dir < 0 || globalIndex + 3 * dir >= 380 || Board::isOutOfBounds(globalIndex, 3, dir)) {
+        return 0;
+    }
     if (!Board::isBitAt(allyBitBoard, globalIndex + 3 * dir)) {
         return 0;
     }
+
     const int firstEnemyGlobalIndex = (globalIndex + 1 * dir);
     const int secondEnemyGlobalIndex = (globalIndex + 2 * dir);
     const int firstEnemyArrayIndex = firstEnemyGlobalIndex / 64;

@@ -73,9 +73,8 @@ void Board::removeBlackStone(const int index) {
 template<int Offset>
 void updatePattern(int& index, int center, int dir, const std::array<uint64_t, 6>& ally, const std::array<uint64_t, 6>& enemy) {
     const int pos = center + Offset * dir;
-    if (pos < 0 || pos >= 380) {
-        // If out of bounds, consider it as a wall
-        index = (index << 2) | HeuristicService::WALL_BITS_MASK;
+    if (pos < 0 || pos >= 380 || Board::isOutOfBounds(center, Offset, dir)) {
+        index = (index << 2) | 2;
         return;
     }
 
@@ -234,4 +233,18 @@ std::ostream &operator<<(std::ostream &os, const Board &board) {
         os << '\n';
     }
     return os;
+}
+
+bool Board::isOutOfBounds(int startIndex, int offsetMultiplier, int dir) {
+    int startCol = startIndex % 20;
+    int dx = 0;
+
+    if (dir == 1 || dir == -1) dx = (dir > 0) ? 1 : -1;
+    else if (dir == 20 || dir == -20) dx = 0;
+    else if (dir == 21 || dir == -21) dx = (dir > 0) ? 1 : -1;
+    else if (dir == 19 || dir == -19) dx = (dir > 0) ? -1 : 1;
+
+    int expectedCol = startCol + (offsetMultiplier * dx);
+
+    return (expectedCol < 0 || expectedCol > 18);
 }

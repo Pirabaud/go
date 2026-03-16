@@ -87,6 +87,7 @@ int AlignmentChecker::countLines(const std::array<uint64_t, 6> &allyBitBoard, co
         int bitPos = currentIndex % 64;
         if ((allyBitBoard[arrayIndex] & (1ULL << bitPos)) != 0) {
             result++;
+            if (Board::isOutOfBounds(currentIndex, 1, dir)) break;
             currentIndex += dir;
         } else {
             break;

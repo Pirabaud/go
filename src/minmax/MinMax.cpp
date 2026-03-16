@@ -44,7 +44,6 @@ std::pair<Position, long> MinMax::run(const int timeLimitMs, const bool isBlack)
         globalBestMove = currentBestMove;
         score = val;
     }
-    std::cout << "Reached depth: " << maxDepthReached << ", score: " << score << ", nodes visited: " << nodesVisited << std::endl;
     const auto endTime = std::chrono::high_resolution_clock::now();
     const long elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
     std::cout << "Reached depth: " << maxDepthReached << ", score: " << score << ", nodes visited: " << nodesVisited <<
@@ -175,21 +174,25 @@ int MinMax::minmax(Board &currentBoard, const int limitDepth, const int currentD
     int movesTested = 0;
 
     for (int i = 0; i < numPossibleMoves; ++i) {
+        const auto &moveData = rankedMoves[i];
+        const int moveIndex = moveData.moveIndex;
+
+        if (CheckLegalMove::isLegalMove(moveIndex, currentBoard, isWhite) != IllegalMoves::Type::NONE) {
+            continue;
+        }
         if (movesTested >= MAX_MOVES_TO_TEST
+            && localBestMove != -1 // NE PAS élaguer si on n'a pas encore de coup valide !
             && rankedMoves[i].moveIndex != ttMoveIndex
             && rankedMoves[i].totalScore < 1500
             && !rankedMoves[i].isBlocking
             && !rankedMoves[i].isWin
             && !rankedMoves[i].isCapture
             ) {
-            continue;
+           continue;
         }
 
         movesTested++;
 
-        const auto &moveData = rankedMoves[i];
-        const int moveIndex = moveData.moveIndex;
-        // ... suite de ton code (blackScoreBefore, etc.) ...
         int capture[8];
         int countCapture = 0;
 
@@ -198,21 +201,31 @@ int MinMax::minmax(Board &currentBoard, const int limitDepth, const int currentD
         const int blackScoreAfter = HeuristicService::evaluatePosition(currentBoard, moveIndex, true);
         const int whiteScoreAfter = HeuristicService::evaluatePosition(currentBoard, moveIndex, false);
         const int checkCapture = CaptureService::checkCapture(currentBoard, moveIndex, !isWhite, capture, countCapture);
-        int eval;
-        if ((isWhite && whiteScoreAfter >= 30000 && numPossibleMoves != 1) || (!isWhite && blackScoreAfter >= 30000 && numPossibleMoves != 1)) {
-            if (isWhite) {
-                eval = 300000 - currentDepth;
-            } else {
-                eval = -300000 + currentDepth;
+
+        bool isTrueWin = false;
+        if ((isWhite && whiteScoreAfter >= 30000) || (!isWhite && blackScoreAfter >= 30000)) {
+            if (CheckWinService::isWin(currentBoard) != nullptr) {
+                isTrueWin = true;
             }
         }
+
+        int eval;
+        if (isTrueWin) {
+            eval = isWhite ? (300000 - currentDepth) : (-300000 + currentDepth);
+        }
         else {
+
             int newScore = currentScore + (whiteScoreAfter - moveData.whiteScoreBefore) - (blackScoreAfter - moveData.blackScoreBefore);
             if (checkCapture > 0) {
                 const int captureBonus = checkCapture * 8000;
                 newScore += isMaximizing ? captureBonus : -captureBonus;
             }
             eval = executePVS(currentBoard, limitDepth, currentDepth, alpha, beta, isMaximizing, newScore, firstMove);
+        }
+
+        if (this->timeOut) {
+            undoMove(currentBoard, moveData.moveIndex, isWhite, checkCapture, capture, countCapture);
+            break;
         }
 
         firstMove = false;
@@ -234,12 +247,16 @@ int MinMax::minmax(Board &currentBoard, const int limitDepth, const int currentD
         }
 
         if (beta <= alpha) {
-            break; // Coupure Beta !
+            break;
         }
     }
 
     if (outBestMoveIndex != nullptr) {
         *outBestMoveIndex = localBestMove;
+    }
+
+    if (bestVal == INT_MIN || bestVal == INT_MAX) {
+        return currentScore;
     }
 
     if (!this->timeOut) {
@@ -261,7 +278,7 @@ void MinMax::checkTime() {
     }
 }
 
-int MinMax::generatePossibleMoves(Board &currentBoard, std::array<int, 400>& outMoves, int isMaximize) {
+int MinMax::generatePossibleMoves(Board &currentBoard, std::array<int, 400>& outMoves, const int isMaximize) {
     int moveCount = 0;
 
     if (currentBoard.isEmpty()) {
@@ -276,7 +293,7 @@ int MinMax::generatePossibleMoves(Board &currentBoard, std::array<int, 400>& out
                 outMoves[moveCount++] = blockingBreakableWinMoves[i];
             }
         }
-        if (moveCount != 0) {
+        if (moveCount == 1) {
             return moveCount;
         }
     }
@@ -306,10 +323,6 @@ int MinMax::generatePossibleMoves(Board &currentBoard, std::array<int, 400>& out
         while (candidates != 0) {
             const int index = i * 64 + std::countr_zero(candidates);
             if (index < 380 && (index % 20) != 19) {
-                if (CheckLegalMove::isLegalMove(index, currentBoard, !isMaximize) != IllegalMoves::Type::NONE) {
-                    candidates &= candidates - 1;
-                    continue;
-                }
                 if (AlignmentChecker::checkWinAt(allyBitboard, index)) {
                      outMoves[0] = index;
                      return 1;

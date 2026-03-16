@@ -7,7 +7,7 @@ IllegalMoves::Type CheckLegalMove::isLegalMove(int posIndex,
                                                Board& board,
                                                const bool& isBlack)
 {
-    if (posIndex < 0 || posIndex > (Board::SIZE + 1) * Board::SIZE)
+    if (posIndex < 0 || posIndex > (Board::SIZE + 1) * Board::SIZE )
     {
         return IllegalMoves::Type::NOT_IN_BOARD;
     }
@@ -52,8 +52,12 @@ bool CheckLegalMove::createsAutoCapture(int posIndex, Board& board, const bool& 
 bool CheckLegalMove::checkCaptureInDirection(Board& board, const int globalIndex,
                                              const int dir, const bool isBlack)
 {
+    if (globalIndex - 1 * dir < 0 || globalIndex - 1 * dir >= 380 || Board::isOutOfBounds(globalIndex, -1, dir)) return false;
+    if (globalIndex + 2 * dir < 0 || globalIndex + 2 * dir >= 380 || Board::isOutOfBounds(globalIndex, 2, dir)) return false;
+
     const std::array<uint64_t, 6>& allyBitBoard = isBlack ? board.getBitBoardBlack() : board.getBitBoardWhite();
     std::array<uint64_t, 6>& enemyBitBoard = isBlack ? board.getBitBoardWhite() : board.getBitBoardBlack();
+
 
     //check ally
     const int firstEnemyGlobalIndex = (globalIndex - 1 * dir);
