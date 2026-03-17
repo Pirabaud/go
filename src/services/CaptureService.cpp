@@ -6,6 +6,7 @@
 #include "Direction.hpp"
 #include <algorithm>
 
+
 #include "CheckLegalMove.hpp"
 
 int CaptureService::checkCapture(Board &board, int globalIndex, const bool isBlack, int *capture, int &count) {
@@ -39,7 +40,7 @@ bool CaptureService::winLineBreakable(Board& board, const bool isBlack, const in
             const int checkStone = startIndex + i * dirAlignment;
 
             for (const int dir: directions) {
-                int afterIndex = checkStone + 2 * dir;
+                const int afterIndex = checkStone + 2 * dir;
                 int beforeIndex = checkStone - 2 * dir;
 
                 if (afterIndex < 0 || afterIndex >= 380 || beforeIndex < 0 || beforeIndex >= 380) {
@@ -49,9 +50,11 @@ bool CaptureService::winLineBreakable(Board& board, const bool isBlack, const in
                 if (Board::isOutOfBounds(checkStone, 2, dir) || Board::isOutOfBounds(checkStone, -2, dir)) {
                     continue;
                 }
+
                 if (dirAlignment == dir || -dirAlignment == dir) {
                     continue;
                 }
+
                 if (Board::isBitAt(allyBitBoard, checkStone + dir)) {
                     const bool isEnemyAfter = Board::isBitAt(enemyBitBoard, checkStone + 2 * dir);
                     const bool isEnemyBefore = Board::isBitAt(enemyBitBoard, checkStone -  dir);
@@ -87,7 +90,7 @@ bool CaptureService::winLineBreakable(Board& board, const bool isBlack, const in
 // Return index where it is possible to capture and break the alignment.
 std::array<int, 15> CaptureService::getBlockingCaptureIndex(const std::array<uint64_t, 6>& allyBitBoard,
                                                             const std::array<uint64_t, 6>& enemyBitBoard,
-                                                            int startIndex, int dirAlignment) {
+                                                            const int startIndex, const int dirAlignment) {
     std::array<int, 15> result = {};
     std::ranges::fill(result, -1);
     int nextIndex = 0;
@@ -103,7 +106,7 @@ std::array<int, 15> CaptureService::getBlockingCaptureIndex(const std::array<uin
             const int checkStone = startIndex + i * dirAlignment;
 
             for (const int dir: directions) {
-                int afterIndex = checkStone + 2 * dir;
+                const int afterIndex = checkStone + 2 * dir;
                 int beforeIndex = checkStone - 2 * dir;
 
                 if (afterIndex < 0 || afterIndex >= 380 || beforeIndex < 0 || beforeIndex >= 380) {

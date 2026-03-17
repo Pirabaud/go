@@ -167,6 +167,7 @@ int MinMax::minmax(Board &currentBoard, const int limitDepth, const int currentD
 
     //EVALUATION
     const int alphaOrig = alpha;
+    const int betaOrig = beta;
     int bestVal = isMaximizing ? INT_MIN : INT_MAX;
     int localBestMove = -1;
     const bool isWhite = isMaximizing;
@@ -214,7 +215,6 @@ int MinMax::minmax(Board &currentBoard, const int limitDepth, const int currentD
             eval = isWhite ? (300000 - currentDepth) : (-300000 + currentDepth);
         }
         else {
-
             int newScore = currentScore + (whiteScoreAfter - moveData.whiteScoreBefore) - (blackScoreAfter - moveData.blackScoreBefore);
             if (checkCapture > 0) {
                 const int captureBonus = checkCapture * 8000;
@@ -222,16 +222,11 @@ int MinMax::minmax(Board &currentBoard, const int limitDepth, const int currentD
             }
             eval = executePVS(currentBoard, limitDepth, currentDepth, alpha, beta, isMaximizing, newScore, firstMove);
         }
-
-        if (this->timeOut) {
-            undoMove(currentBoard, moveData.moveIndex, isWhite, checkCapture, capture, countCapture);
-            break;
-        }
-
-        firstMove = false;
-
         undoMove(currentBoard, moveData.moveIndex, isWhite, checkCapture, capture, countCapture);
-
+        if (this->timeOut) {
+           break;
+        }
+        firstMove = false;
         if (isMaximizing) {
             if (eval > bestVal) {
                 bestVal = eval;
@@ -245,7 +240,6 @@ int MinMax::minmax(Board &currentBoard, const int limitDepth, const int currentD
             }
             beta = std::min(beta, bestVal);
         }
-
         if (beta <= alpha) {
             break;
         }
@@ -254,7 +248,6 @@ int MinMax::minmax(Board &currentBoard, const int limitDepth, const int currentD
     if (outBestMoveIndex != nullptr) {
         *outBestMoveIndex = localBestMove;
     }
-
     if (bestVal == INT_MIN || bestVal == INT_MAX) {
         return currentScore;
     }
@@ -262,12 +255,10 @@ int MinMax::minmax(Board &currentBoard, const int limitDepth, const int currentD
     if (!this->timeOut) {
         TTFlag flag;
         if (bestVal <= alphaOrig) flag = UPPERBOUND;
-        else if (bestVal >= beta) flag = LOWERBOUND;
+        else if (bestVal >= betaOrig) flag = LOWERBOUND;
         else flag = EXACT;
-
         transpositionTable.store(zobristKey, remainingDepth, bestVal, flag, localBestMove);
     }
-
     return bestVal;
 }
 
@@ -282,7 +273,7 @@ int MinMax::generatePossibleMoves(Board &currentBoard, std::array<int, 400>& out
     int moveCount = 0;
 
     if (currentBoard.isEmpty()) {
-        outMoves[moveCount++] = 180;
+        outMoves[moveCount++] = 189;
         return moveCount;
     }
 

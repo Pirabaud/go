@@ -89,7 +89,7 @@ bool PvEScene::handleStonePlacement(const std::optional<sf::Event>& event, sf::R
         if (illegalMove != IllegalMoves::Type::NONE) {
             return false;
         }
-        auto playerMove = Position(row, col);
+        const auto playerMove = Position(row, col);
 
         playMove(playerMove);
 
@@ -99,12 +99,10 @@ bool PvEScene::handleStonePlacement(const std::optional<sf::Event>& event, sf::R
             return true;
         }
 
-        json decisionTree = json::array();
         moveHistory.push_back(playerMove);
         const auto aiMove = handleAITurn();
         playMove(aiMove);
         CaptureService::checkCapture(board, Board::getGlobalIndex(aiMove), colorToPlay == sf::Color::White, captures, count);
-        //this->suggestedMove = handleAITurn();
         return true;
         }
     return false;
