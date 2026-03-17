@@ -20,6 +20,15 @@ float BoardScene::BOARD_SIZE_WITH_PADDING = BOARD_SIZE + 2 * PADDING;
 float BoardScene::CELL_SIZE = BOARD_SIZE / (Board::SIZE - 1);
 float BoardScene::STONE_RADIUS = CELL_SIZE / 2.0f - 2.0f;
 
+void BoardScene::setBoardVars()
+{
+    PADDING = 40.0f;
+    BOARD_SIZE = DisplayService::WINDOW_HEIGHT - 2 * PADDING;
+    CELL_SIZE = BOARD_SIZE / (Board::SIZE - 1);
+    BOARD_SIZE_WITH_PADDING = BOARD_SIZE + 2 * PADDING;
+    STONE_RADIUS = CELL_SIZE / 2.0f - 2.0f;
+}
+
 BoardScene::BoardScene(sf::RenderWindow& window) {
     backgroundColor = sf::Color(206, 163, 70);
     loadSound("../assets/move.mp3", placeStoneSoundBuffer, placeStoneSound);

@@ -18,6 +18,8 @@ class BoardScene : public AbstractScene {
 public:
     void draw(sf::RenderWindow& window) override;
 
+    static void setBoardVars();
+
     static float PADDING;
     static float BOARD_SIZE;
     static float BOARD_SIZE_WITH_PADDING;

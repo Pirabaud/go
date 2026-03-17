@@ -25,23 +25,28 @@ float getButtonYPosition(int buttonIndex) {
 MainMenuScene::MainMenuScene(sf::RenderWindow& win):
     pvpButton({BUTTON_WIDTH, BUTTON_HEIGHT}, {getButtonXPosition(), getButtonYPosition(0)}, "PvP", [this, &win]()
     {
+        Board::setBoardSize(19);
         DisplayService::changeScene(new PvPScene(win));
     }),
     pveButton({BUTTON_WIDTH, BUTTON_HEIGHT}, {getButtonXPosition(), getButtonYPosition(1)}, "PvE", [this, &win]()
     {
+        Board::setBoardSize(19);
         DisplayService::changeScene(new PvEScene(win));
     }),
     doubleStonesButton({BUTTON_WIDTH, BUTTON_HEIGHT}, {getButtonXPosition(), getButtonYPosition(2)}, "Double Stones", [this, &win]()
     {
+        Board::setBoardSize(19);
         DisplayService::changeScene(new DoubleStonesScene(win));
     }),
     proStartButton({BUTTON_WIDTH, BUTTON_HEIGHT}, {getButtonXPosition(), getButtonYPosition(3)}, "Pro start", [this, &win]()
     {
+        Board::setBoardSize(19);
         DisplayService::changeScene(new PvEScene(win));
     }),
     otherSizeButton({BUTTON_WIDTH, BUTTON_HEIGHT}, {getButtonXPosition(), getButtonYPosition(4)}, "15x15", [this, &win]()
     {
-        DisplayService::changeScene(new PvEScene(win));
+        Board::setBoardSize(15);
+        DisplayService::changeScene(new PvPScene(win));
     })
 
 {

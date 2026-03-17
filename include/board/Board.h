@@ -8,7 +8,7 @@ class Board {
 public:
     static uint64_t ZOBRIST_TABLE[400][2];
 
-    static constexpr int SIZE = 19;
+    static int SIZE;
 
     static std::array<uint64_t, 6> shift_right_board(const std::array<uint64_t, 6> &currentBitboard, int shift);
     static std::array<uint64_t, 6> shift_left_board(const std::array<uint64_t, 6> &currentBitboard, int shift);
@@ -41,6 +41,8 @@ public:
     [[nodiscard]] std::array<uint64_t, 6> &getBitBoardBlack();
     [[nodiscard]] const std::array<uint64_t, 6> &getBitBoardWhite() const;
     [[nodiscard]] const std::array<uint64_t, 6> &getBitBoardBlack() const;
+
+    static void setBoardSize(int size);
 
     static bool isBitAt(const std::array<uint64_t, 6>& bitBoard, int globalIndex) ;
     static void clearBitAt( std::array<uint64_t, 6>& bitBoard, int globalIndex);

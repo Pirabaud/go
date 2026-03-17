@@ -1,7 +1,6 @@
 #include "../../include/services/CheckLegalMove.hpp"
 
 #include "CaptureService.hpp"
-#include "Direction.hpp"
 
 
 IllegalMoves::Type CheckLegalMove::isLegalMove(int posIndex,
@@ -29,12 +28,7 @@ IllegalMoves::Type CheckLegalMove::isLegalMove(int posIndex,
 
 bool CheckLegalMove::createsAutoCapture(int posIndex, Board& board, const bool& isBlack)
 {
-    constexpr std::array<int, 4> directions = {
-        HORIZONTAL,
-        VERTICAL,
-        DIAGONAL_TOP_RIGHT,
-        DIAGONAL_TOP_LEFT,
-    };
+    const std::array<int, 4> directions = {1, Board::SIZE + 1, Board::SIZE, Board::SIZE + 2};
 
     for (const int dir : directions)
     {
@@ -83,7 +77,7 @@ bool CheckLegalMove::createsDoubleFreeThree(int posIndex, Board& board, const bo
 {
     int freeThreeCount = 0;
 
-    constexpr int directions[4] = {1, 20, 21, 19};
+    const std::array<int, 4> directions = {1, Board::SIZE + 1, Board::SIZE, Board::SIZE + 2};
 
     for (const int dir : directions)
     {

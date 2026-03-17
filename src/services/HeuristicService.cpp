@@ -85,16 +85,12 @@ int HeuristicService::evaluatePosition(const Board &board, const int positionInd
     int score = 0;
 
     //Compute pattern indices for all four directions
-    // Horizontal (shift = 1)
     int patternIndex = board.getPatternIndex(positionIndex, isBlackPlayer, 1);
     score += getScore(patternIndex);
-    // Vertical (shift = SIZE + 1 = 20)
     patternIndex = board.getPatternIndex(positionIndex, isBlackPlayer, Board::SIZE + 1);
     score += getScore(patternIndex);
-    // Diagonal down-right (shift = SIZE + 1 + 1 = 21)
     patternIndex = board.getPatternIndex(positionIndex, isBlackPlayer, Board::SIZE + 2);
     score += getScore(patternIndex);
-    // Diagonal down-left (shift = SIZE + 1 - 1 = 19)
     patternIndex = board.getPatternIndex(positionIndex, isBlackPlayer, Board::SIZE);
     score += getScore(patternIndex);
     return score;

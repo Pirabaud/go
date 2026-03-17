@@ -66,7 +66,7 @@ std::array<int, 15> AlignmentChecker::checkBreakableAlignment(const std::array<u
 }
 
 bool AlignmentChecker::checkWinAt(const std::array<uint64_t, 6>& allyBB, int index) {
-    int directions[] = {1, 20, 19, 21};
+    int directions[] = {1, Board::SIZE + 1, Board::SIZE, Board::SIZE + 2};
 
     for (int dir : directions) {
         int count = 1;

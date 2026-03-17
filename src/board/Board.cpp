@@ -5,10 +5,18 @@
 #include <iostream>
 #include <random>
 
+#include "BoardScene.hpp"
+#include "DisplayService.hpp"
 #include "HeuristicService.h"
 #include "Position.hpp"
 
 uint64_t Board::ZOBRIST_TABLE[400][2] = {};
+int Board::SIZE = 19;
+
+void Board::setBoardSize(int size) {
+    SIZE = size;
+    BoardScene::setBoardVars();
+}
 
 int Board::getWhiteCaptured() const {
     return this->whiteStoneCaptured;
@@ -69,7 +77,7 @@ void Board::removeBlackStone(const int index) {
 template<int Offset>
 void updatePattern(int& index, int center, int dir, const std::array<uint64_t, 6>& ally, const std::array<uint64_t, 6>& enemy) {
     const int pos = center + Offset * dir;
-    if (pos < 0 || pos >= 380) {
+    if (pos < 0 || pos >= (Board::SIZE * (Board::SIZE + 1))) {
         // If out of bounds, consider it as a wall
         index = (index << 2) | HeuristicService::WALL_BITS_MASK;
         return;
@@ -87,7 +95,6 @@ void updatePattern(int& index, int center, int dir, const std::array<uint64_t, 6
 int Board::getPatternIndex(int positionIndex, bool isBlackPlayer, int direction) const {
 
 
-    // direction : 1 (horizontal), 20 (vertical), 21 (Diag /), 19 (Diag \)
     int index = 0;
     // Use ALLY_BITS_MASK and ENEMY_BITS_MASK to build the index
     // Bitboards are of type std::array<uint64_t, 6>
@@ -105,7 +112,6 @@ int Board::getPatternIndex(int positionIndex, bool isBlackPlayer, int direction)
     updatePattern<4>(index, positionIndex, direction, allyBitBoard, enemyBitBoard);
     updatePattern<5>(index, positionIndex, direction, allyBitBoard, enemyBitBoard);
 
-    // Print index in binary
     return index;
 }
 
@@ -187,7 +193,7 @@ int Board::getGlobalIndex(const Position pos) {
 }
 
 bool Board::isBitAt(const std::array<uint64_t, 6> &bitBoard, const int globalIndex) {
-    if (globalIndex < 0 || globalIndex >= 380) return false;
+    if (globalIndex < 0 || globalIndex >= (Board::SIZE * (Board::SIZE + 1))) return false;
     const int arrayIndex = globalIndex / 64;
     const int bitIndex = globalIndex % 64;
     return (bitBoard[arrayIndex] & (1ULL << bitIndex)) != 0;

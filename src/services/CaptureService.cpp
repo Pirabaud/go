@@ -1,5 +1,4 @@
 #include "CaptureService.hpp"
-#include "Direction.hpp"
 #include <algorithm>
 
 #include "CheckLegalMove.hpp"
@@ -8,12 +7,7 @@ int CaptureService::checkCapture(Board &board, int globalIndex, const bool isBla
     int result = 0;
 
 
-    constexpr std::array<int, 4> directions = {
-        HORIZONTAL,
-        VERTICAL,
-        DIAGONAL_TOP_RIGHT,
-        DIAGONAL_TOP_LEFT,
-    };
+    const std::array<int, 4> directions = {1, Board::SIZE + 1, Board::SIZE, Board::SIZE + 2};
     for (const int dir: directions) {
         result += checkCaptureInDirection(board, globalIndex, dir, isBlack, capture, count);
         result += checkCaptureInDirection(board, globalIndex, -dir, isBlack, capture, count);
@@ -24,12 +18,7 @@ int CaptureService::checkCapture(Board &board, int globalIndex, const bool isBla
 bool CaptureService::winLineBreakable(Board& board, const bool isBlack, const int startIndex, const int dirAlignment) {
     const auto allyBitBoard = isBlack ? board.getBitBoardBlack() : board.getBitBoardWhite();
     const auto enemyBitBoard = isBlack ? board.getBitBoardWhite() : board.getBitBoardBlack();
-    constexpr std::array<int, 4> directions = {
-        HORIZONTAL,
-        VERTICAL,
-        DIAGONAL_TOP_RIGHT,
-        DIAGONAL_TOP_LEFT,
-    };
+    const std::array<int, 4> directions = {1, Board::SIZE + 1, Board::SIZE, Board::SIZE + 2};
         for (int i = 0; i < 5; i++) {
 
             const int checkStone = startIndex + i * dirAlignment;
@@ -38,7 +27,7 @@ bool CaptureService::winLineBreakable(Board& board, const bool isBlack, const in
                 int afterIndex = checkStone + 2 * dir;
                 int beforeIndex = checkStone - 2 * dir;
 
-                if (afterIndex < 0 || afterIndex >= 380 || beforeIndex < 0 || beforeIndex >= 380) {
+                if (afterIndex < 0 || afterIndex >= (Board::SIZE * (Board::SIZE + 1)) || beforeIndex < 0 || beforeIndex >= (Board::SIZE * (Board::SIZE + 1))) {
                 }
                 if (dirAlignment == dir || -dirAlignment == dir) {
                     continue;
@@ -83,12 +72,7 @@ std::array<int, 15> CaptureService::getBlockingCaptureIndex(const std::array<uin
     std::ranges::fill(result, -1);
     int nextIndex = 0;
 
-    constexpr std::array<int, 4> directions = {
-        HORIZONTAL,
-        VERTICAL,
-        DIAGONAL_TOP_RIGHT,
-        DIAGONAL_TOP_LEFT,
-    };
+    const std::array<int, 4> directions = {1, Board::SIZE + 1, Board::SIZE, Board::SIZE + 2};
         for (int i = 0; i < 5; i++) {
 
             const int checkStone = startIndex + i * dirAlignment;
@@ -97,7 +81,7 @@ std::array<int, 15> CaptureService::getBlockingCaptureIndex(const std::array<uin
                 int afterIndex = checkStone + 2 * dir;
                 int beforeIndex = checkStone - 2 * dir;
 
-                if (afterIndex < 0 || afterIndex >= 380 || beforeIndex < 0 || beforeIndex >= 384) {
+                if (afterIndex < 0 || afterIndex >= (Board::SIZE * (Board::SIZE + 1)) || beforeIndex < 0 || beforeIndex >= (Board::SIZE * (Board::SIZE + 1))) {
                     continue;
                 }
                 if (dirAlignment == dir || -dirAlignment == dir) {

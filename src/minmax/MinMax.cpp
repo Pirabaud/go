@@ -307,18 +307,18 @@ int MinMax::generatePossibleMoves(Board &currentBoard, std::array<int, 400>& out
     const std::array<uint64_t, 6> left = Board::shift_left_board(occupied, 1);
     const std::array<uint64_t, 6> occupied_horizontal = Board::bitBoardOr(occupied_right, left);
 
-    const std::array<uint64_t, 6> top = Board::shift_right_board(occupied_horizontal, 20);
+    const std::array<uint64_t, 6> top = Board::shift_right_board(occupied_horizontal, Board::SIZE + 1);
     const std::array<uint64_t, 6> occupied_top = Board::bitBoardOr(occupied_horizontal, top);
-    const std::array<uint64_t, 6> down = Board::shift_left_board(occupied_horizontal, 20);
+    const std::array<uint64_t, 6> down = Board::shift_left_board(occupied_horizontal, Board::SIZE + 1);
     const std::array<uint64_t, 6> occupied_total = Board::bitBoardOr(occupied_top, down);
 
-    const std::array<uint64_t, 6> allyBitboard =isMaximize ? currentBoard.getBitBoardWhite() : currentBoard.getBitBoardBlack();
+    const std::array<uint64_t, 6> allyBitboard = isMaximize ? currentBoard.getBitBoardWhite() : currentBoard.getBitBoardBlack();
 
     for (int i = 0; i < 6; i++) {
         uint64_t candidates = occupied_total[i] & ~occupied[i];
         while (candidates != 0) {
             const int index = i * 64 + std::countr_zero(candidates);
-            if (index < 380 && (index % 20) != 19) {
+            if (index < (Board::SIZE * (Board::SIZE + 1)) && (index % (Board::SIZE + 1)) != Board::SIZE) {
                 if (CheckLegalMove::isLegalMove(index, currentBoard, !isMaximize) != IllegalMoves::Type::NONE) {
                     candidates &= candidates - 1;
                     continue;
