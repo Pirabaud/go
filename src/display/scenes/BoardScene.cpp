@@ -265,7 +265,21 @@ Position BoardScene::handleAITurn(int* depthLive, int* outNodesVisited) {
         return aiMove;
 }
 
-void BoardScene::playMove(Position pos) {
+bool BoardScene::checkWinCapture(const bool isBlack) {
+    int capture[8] = {-1};
+    int count = 0;
+    for (int index = 0; index < Board::SIZE * Board::SIZE + 1; index++) {
+        if (CheckLegalMove::isLegalMove(index, board, isBlack)) {
+            continue;
+        }
+        if (CaptureService::checkCapture(board, index, isBlack, capture, count, false)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void BoardScene::playMove(const Position pos) {
     int captures[8] = {-1};
     int count = 0;
     futureMoves = std::stack<MoveInfo>();
@@ -291,6 +305,8 @@ void BoardScene::playMove(Position pos) {
     }
     pastMoves.push(historicalMove);
     colorToPlay == sf::Color::White ? board.addStoneWhite(pos) : board.addStoneBlack(pos);
+    if (board.getBlackCaptured() == 8 && checkWinCapture(false)) winningColor = &sf::Color::White;
+    if (board.getWhiteCaptured() == 8 && checkWinCapture(true)) winningColor = &sf::Color::Black;
     nextTurn();
 }
 
