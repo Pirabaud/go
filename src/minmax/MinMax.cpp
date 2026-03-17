@@ -155,12 +155,6 @@ int MinMax::minmax(Board& currentBoard, const int limitDepth, const int currentD
     else if (currentDepth <= 5) MAX_MOVES_TO_TEST = 8;
     else if (currentDepth <= 10) MAX_MOVES_TO_TEST = 4;
     else MAX_MOVES_TO_TEST = 3;
-    struct MoveData {
-        int totalScore;
-        int moveIndex;
-        int blackScoreBefore;
-        int whiteScoreBefore;
-    };
     MoveData rankedMoves[400];
     moveOrdering(currentBoard, possibleMoveIndexes, numPossibleMoves, ttMoveIndex, rankedMoves, MAX_MOVES_TO_TEST);
 
@@ -175,12 +169,8 @@ int MinMax::minmax(Board& currentBoard, const int limitDepth, const int currentD
     int movesTested = 0;
 
     for (int i = 0; i < numPossibleMoves; ++i) {
-        const auto &moveData = rankedMoves[i];
+        const auto& moveData = rankedMoves[i];
         const int moveIndex = moveData.moveIndex;
-
-        if (CheckLegalMove::isLegalMove(moveIndex, currentBoard, isWhite) != IllegalMoves::Type::NONE) {
-            continue;
-        }
         if (movesTested >= MAX_MOVES_TO_TEST
             && localBestMove != -1
             && rankedMoves[i].moveIndex != ttMoveIndex
@@ -189,13 +179,11 @@ int MinMax::minmax(Board& currentBoard, const int limitDepth, const int currentD
             && !rankedMoves[i].isWin
             && !rankedMoves[i].isCapture
         ) {
-           continue;
+            continue;
         }
 
         movesTested++;
 
-        const auto& moveData = rankedMoves[i];
-        const int moveIndex = moveData.moveIndex;
         int capture[8];
         int countCapture = 0;
 

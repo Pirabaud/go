@@ -141,7 +141,8 @@ int CaptureService::checkCaptureInDirection(Board& board, const int globalIndex,
     const std::array<uint64_t, 6>& allyBitBoard = isBlack ? board.getBitBoardBlack() : board.getBitBoardWhite();
     std::array<uint64_t, 6>& enemyBitBoard = isBlack ? board.getBitBoardWhite() : board.getBitBoardBlack();
     //check ally
-    if (globalIndex + 3 * dir < 0 || globalIndex + 3 * dir >= (Board::SIZE * (Board::SZIE + 1)) || Board::isOutOfBounds(globalIndex, 3, dir)) {
+    if (globalIndex + 3 * dir < 0 || globalIndex + 3 * dir >= (Board::SIZE * (Board::SIZE + 1)) || Board::isOutOfBounds(
+        globalIndex, 3, dir)) {
         return 0;
     }
     if (!Board::isBitAt(allyBitBoard, globalIndex + 3 * dir)) {
