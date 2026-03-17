@@ -239,15 +239,15 @@ std::ostream &operator<<(std::ostream &os, const Board &board) {
 }
 
 bool Board::isOutOfBounds(const int startIndex, const int offsetMultiplier, const int dir) {
-    const int startCol = startIndex % 20;
+    const int startCol = startIndex % (SIZE + 1);
     int dx = 0;
 
     if (dir == 1 || dir == -1) dx = (dir > 0) ? 1 : -1;
-    else if (dir == 20 || dir == -20) dx = 0;
-    else if (dir == 21 || dir == -21) dx = (dir > 0) ? 1 : -1;
-    else if (dir == 19 || dir == -19) dx = (dir > 0) ? -1 : 1;
+    else if (dir == (SIZE + 1) || dir == -(SIZE + 1)) dx = 0;
+    else if (dir == (SIZE + 2) || dir == -(SIZE + 2)) dx = (dir > 0) ? 1 : -1;
+    else if (dir == SIZE || dir == -SIZE) dx = (dir > 0) ? -1 : 1;
 
     const int expectedCol = startCol + (offsetMultiplier * dx);
 
-    return (expectedCol < 0 || expectedCol > 18);
+    return (expectedCol < 0 || expectedCol > (SIZE - 1));
 }
