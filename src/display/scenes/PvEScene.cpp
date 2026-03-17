@@ -93,7 +93,7 @@ bool PvEScene::handleStonePlacement(const std::optional<sf::Event>& event, sf::R
         {
             return false;
         }
-        auto playerMove = Position(row, col);
+        const auto playerMove = Position(row, col);
 
         playMove(playerMove);
         draw(window);

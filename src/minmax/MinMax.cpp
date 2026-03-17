@@ -49,12 +49,8 @@ std::pair<Position, long> MinMax::run(const int timeLimitMs, const bool isBlack)
         globalBestMove = currentBestMove;
         score = val;
     }
-    std::cout << "Reached depth: " << maxDepthReached << ", score: " << score << ", nodes visited: " << nodesVisited << std::endl;
     const auto endTime = std::chrono::high_resolution_clock::now();
     const long elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
-    std::cout << "Reached depth: " << maxDepthReached << ", score: " << score << ", nodes visited: " << nodesVisited <<
-            std::endl;
-
     if (globalBestMove != -1) {
         const int x = globalBestMove / (Board::SIZE + 1);
         const int y = globalBestMove % (Board::SIZE + 1);
@@ -181,21 +177,25 @@ int MinMax::minmax(Board &currentBoard, const int limitDepth, const int currentD
     int movesTested = 0;
 
     for (int i = 0; i < numPossibleMoves; ++i) {
+        const auto &moveData = rankedMoves[i];
+        const int moveIndex = moveData.moveIndex;
+
+        if (CheckLegalMove::isLegalMove(moveIndex, currentBoard, isWhite) != IllegalMoves::Type::NONE) {
+            continue;
+        }
         if (movesTested >= MAX_MOVES_TO_TEST
+            && localBestMove != -1
             && rankedMoves[i].moveIndex != ttMoveIndex
             && rankedMoves[i].totalScore < 1500
             && !rankedMoves[i].isBlocking
             && !rankedMoves[i].isWin
             && !rankedMoves[i].isCapture
             ) {
-            continue;
+           continue;
         }
 
         movesTested++;
 
-        const auto &moveData = rankedMoves[i];
-        const int moveIndex = moveData.moveIndex;
-        // ... suite de ton code (blackScoreBefore, etc.) ...
         int capture[8];
         int countCapture = 0;
 
@@ -227,11 +227,11 @@ int MinMax::minmax(Board &currentBoard, const int limitDepth, const int currentD
             }
             eval = executePVS(currentBoard, limitDepth, currentDepth, alpha, beta, isMaximizing, newScore, firstMove);
         }
-
-        firstMove = false;
-
         undoMove(currentBoard, moveData.moveIndex, isWhite, checkCapture, capture, countCapture);
-
+        if (this->timeOut) {
+           break;
+        }
+        firstMove = false;
         if (isMaximizing) {
             if (eval > bestVal) {
                 bestVal = eval;
@@ -245,14 +245,16 @@ int MinMax::minmax(Board &currentBoard, const int limitDepth, const int currentD
             }
             beta = std::min(beta, bestVal);
         }
-
         if (beta <= alpha) {
-            break; // Coupure Beta !
+            break;
         }
     }
 
     if (outBestMoveIndex != nullptr) {
         *outBestMoveIndex = localBestMove;
+    }
+    if (bestVal == INT_MIN || bestVal == INT_MAX) {
+        return currentScore;
     }
 
     if (!this->timeOut) {
@@ -260,10 +262,8 @@ int MinMax::minmax(Board &currentBoard, const int limitDepth, const int currentD
         if (bestVal <= alphaOrig) flag = UPPERBOUND;
         else if (bestVal >= betaOrig) flag = LOWERBOUND;
         else flag = EXACT;
-
         transpositionTable.store(zobristKey, remainingDepth, bestVal, flag, localBestMove);
     }
-
     return bestVal;
 }
 
@@ -274,11 +274,11 @@ void MinMax::checkTime() {
     }
 }
 
-int MinMax::generatePossibleMoves(Board &currentBoard, std::array<int, 400>& outMoves, int isMaximize) {
+int MinMax::generatePossibleMoves(Board &currentBoard, std::array<int, 400>& outMoves, const int isMaximize) {
     int moveCount = 0;
 
     if (currentBoard.isEmpty()) {
-        outMoves[moveCount++] = 180;
+        outMoves[moveCount++] = 189;
         return moveCount;
     }
 

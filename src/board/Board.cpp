@@ -214,7 +214,7 @@ void Board::initZobrist() {
     }
 }
 
-void Board::updateCurrentZobristKey(int index, bool isBlack) {
+void Board::updateCurrentZobristKey(const int index, const bool isBlack) {
     currentZobristKey ^= ZOBRIST_TABLE[index][isBlack ? 1 : 0];
 }
 
@@ -236,4 +236,18 @@ std::ostream &operator<<(std::ostream &os, const Board &board) {
         os << '\n';
     }
     return os;
+}
+
+bool Board::isOutOfBounds(const int startIndex, const int offsetMultiplier, const int dir) {
+    const int startCol = startIndex % 20;
+    int dx = 0;
+
+    if (dir == 1 || dir == -1) dx = (dir > 0) ? 1 : -1;
+    else if (dir == 20 || dir == -20) dx = 0;
+    else if (dir == 21 || dir == -21) dx = (dir > 0) ? 1 : -1;
+    else if (dir == 19 || dir == -19) dx = (dir > 0) ? -1 : 1;
+
+    const int expectedCol = startCol + (offsetMultiplier * dx);
+
+    return (expectedCol < 0 || expectedCol > 18);
 }

@@ -29,6 +29,11 @@ void PvPScene::handleEvent(const std::optional<sf::Event>& event, sf::RenderWind
             needsAiSuggestion = true;
             aiSuggestionTimer.restart();
         }
+        draw(window);
+        if (!winningColor) {
+            std::cout << "Run suggestion as " << (colorToPlay == sf::Color::Black ? "Black" : "White") << std::endl;
+            this->suggestedMove = handleAITurn();
+        }
     }
 }
 
