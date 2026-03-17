@@ -41,37 +41,13 @@ void PvEScene::drawTexts(sf::RenderWindow& window)
 
     window.draw(AITimeMs);
 
+    sf::Text depthLiveText(getSharedFont(),
+                      "AI Depth: " + std::to_string(depthLive) + " | Nodes visited: " + std::to_string(nodesVisited));
+    depthLiveText.setCharacterSize(18);
+    depthLiveText.setFillColor(sf::Color(0, 150, 0));
+    depthLiveText.setPosition({BOARD_SIZE_WITH_PADDING, DisplayService::WINDOW_HEIGHT - PADDING - 40});
 
-    if (winningColor)
-    {
-        sf::Text winText(getSharedFont(),
-                         "Player " + std::string(*winningColor == sf::Color::White ? "White" : "Black") + " wins!");
-
-        winText.setCharacterSize(30);
-        winText.setFillColor(sf::Color::White);
-        winText.setPosition({
-            static_cast<float>(DisplayService::WINDOW_WIDTH / 2 - 100),
-            static_cast<float>(DisplayService::WINDOW_HEIGHT / 2 - 50)
-        });
-
-        sf::Text newGameText(getSharedFont(),
-                             "Press ESC to go to main menu.");
-
-        newGameText.setCharacterSize(18);
-        newGameText.setFillColor(sf::Color::White);
-        newGameText.setPosition({
-            static_cast<float>(DisplayService::WINDOW_WIDTH / 2 - 110),
-            static_cast<float>(DisplayService::WINDOW_HEIGHT / 2)
-        });
-
-        sf::RectangleShape fadeBackground(sf::Vector2f(DisplayService::WINDOW_WIDTH, DisplayService::WINDOW_HEIGHT));
-        fadeBackground.setFillColor(sf::Color(0, 0, 0, 150)); // Semi-transparent black
-        fadeBackground.setPosition({0, 0});
-
-        window.draw(fadeBackground);
-        window.draw(winText);
-        window.draw(newGameText);
-    }
+    window.draw(depthLiveText);
 }
 
 bool PvEScene::handleStonePlacement(const std::optional<sf::Event>& event, sf::RenderWindow& window)
@@ -104,7 +80,7 @@ bool PvEScene::handleStonePlacement(const std::optional<sf::Event>& event, sf::R
 
         json decisionTree = json::array();
         moveHistory.push_back(playerMove);
-        const auto aiMove = handleAITurn();
+        const auto aiMove = handleAITurn(&depthLive, &nodesVisited);
         playMove(aiMove);
         if (CaptureService::checkCapture(board, Board::getGlobalIndex(aiMove), colorToPlay == sf::Color::White,
                                          captures, count) != 0)

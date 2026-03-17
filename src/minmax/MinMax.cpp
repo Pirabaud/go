@@ -22,8 +22,8 @@ Board &MinMax::getBoard() const {
     return board;
 }
 
-std::pair<Position, long> MinMax::run(const int timeLimitMs, const bool isBlack) {
-    this->timeLimit = std::chrono::milliseconds(timeLimitMs - 15);
+std::pair<Position, long> MinMax::run(const int timeLimitMs, const bool isBlack, int* depthLive, int* outNodesVisited) {
+    this->timeLimit = std::chrono::milliseconds(timeLimitMs - 20);
     this->startTime = std::chrono::high_resolution_clock::now();
     this->timeOut = false;
     this->nodesVisited = 0;
@@ -51,6 +51,12 @@ std::pair<Position, long> MinMax::run(const int timeLimitMs, const bool isBlack)
     }
     const auto endTime = std::chrono::high_resolution_clock::now();
     const long elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
+    if (depthLive) {
+        *depthLive = maxDepthReached;
+    }
+    if (outNodesVisited) {
+        *outNodesVisited = nodesVisited;
+    }
     if (globalBestMove != -1) {
         const int x = globalBestMove / (Board::SIZE + 1);
         const int y = globalBestMove % (Board::SIZE + 1);

@@ -15,6 +15,8 @@ public:
 
 private:
     std::vector<Position> moveHistory;
+    int depthLive = 0;
+    int nodesVisited = 0;
 };
 
 #endif

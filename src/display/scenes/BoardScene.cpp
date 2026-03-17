@@ -258,9 +258,9 @@ std::pair<int, int> BoardScene::getCellFromMousePosition(const sf::Vector2i& mou
     return {-1, -1}; // Return an invalid position if no stone was placed
 }
 
-Position BoardScene::handleAITurn() {
+Position BoardScene::handleAITurn(int* depthLive, int* outNodesVisited) {
         MinMax ai(board);
-        auto [aiMove, elapsedTimeMS] = ai.run(500, colorToPlay != sf::Color::White);
+        auto [aiMove, elapsedTimeMS] = ai.run(500, colorToPlay != sf::Color::White, depthLive, outNodesVisited);
         lastAITimeMs = elapsedTimeMS;
         return aiMove;
 }

@@ -24,7 +24,7 @@ public:
 
     [[nodiscard]] Board& getBoard() const;
 
-    std::pair<Position, long> run(int timeLimitMs, bool isBlack);
+    std::pair<Position, long> run(int timeLimitMs, bool isBlack, int* depthLive, int* outNodesVisited);
 
     int minmax(Board &currentBoard, int limitDepth, int currentDepth, int alpha, int beta,
                       bool isMaximizing,

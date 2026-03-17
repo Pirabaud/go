@@ -67,7 +67,7 @@ protected:
 
     [[nodiscard]] std::pair<int, int> getCellFromMousePosition(const sf::Vector2i& mousePos) const;
 
-    Position handleAITurn();
+    Position handleAITurn(int* depthLive = nullptr, int* outNodesVisited = nullptr);
 
     void playMove(Position pos);
     void nextTurn();
