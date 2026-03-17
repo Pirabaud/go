@@ -1,5 +1,6 @@
 #ifndef BOARD_SCENE_HPP
 #define BOARD_SCENE_HPP
+#include <stack>
 #include <SFML/Audio/Sound.hpp>
 
 #include "AbstractScene.hpp"

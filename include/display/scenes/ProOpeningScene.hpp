@@ -1,7 +1,3 @@
-//
-// Created by Arthur FABY on 17/03/2026.
-//
-
 #ifndef GOMOKU_PROOPENINGSCENE_HPP
 #define GOMOKU_PROOPENINGSCENE_HPP
 #include "BoardScene.hpp"

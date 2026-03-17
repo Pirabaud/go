@@ -13,7 +13,6 @@ public:
                                                        const std::array<uint64_t, 6>& enemyBitBoard, int startIndex,
                                                        int dirAlignment);
 
-
 private:
     static int checkCaptureInDirection(Board& board, int globalIndex,
                                        int dir, bool isBlack, int* capture, int& count);

@@ -2,6 +2,7 @@
 #define BOARD_H
 #include <array>
 #include <iosfwd>
+#include <cstdint>
 #include "Position.hpp"
 
 class Board {
