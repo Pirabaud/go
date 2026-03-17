@@ -1,14 +1,13 @@
 cmake_minimum_required(VERSION 3.29)
 project(Gomoku)
 set(CMAKE_POLICY_VERSION_MINIMUM 3.5 CACHE STRING "Silence CMake < 3.5 errors")
-enable_testing()
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_BUILD_TYPE Release)
 
 if (NOT CMAKE_BUILD_TYPE MATCHES Debug)
-    add_compile_options(-O3 -g -march=native -ffast-math -DNDEBUG)
+    add_compile_options(-O3 -march=native -ffast-math -DNDEBUG)
 endif ()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
@@ -63,16 +62,6 @@ FetchContent_Declare(SFML
         EXCLUDE_FROM_ALL
         SYSTEM)
 FetchContent_MakeAvailable(SFML)
-
-FetchContent_Declare(
-        Catch2
-        GIT_REPOSITORY https://github.com/catchorg/Catch2.git
-        GIT_TAG v3.5.4
-)
-FetchContent_MakeAvailable(Catch2)
-
-list(APPEND CMAKE_MODULE_PATH ${Catch2_SOURCE_DIR}/extras)
-include(Catch)
 
 set(BOARD_FILES
         src/board/Board.cpp
@@ -135,12 +124,4 @@ target_link_libraries(${PROJECT_NAME}
         PRIVATE SFML::Graphics
         PRIVATE SFML::Audio
 )
-
-
-#option(ENABLE_TESTS "Enable tests" ON)
-
-#if (ENABLE_TESTS)
-#    enable_testing()
-#    add_subdirectory(tests)
-#endif ()
 

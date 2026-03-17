@@ -3,7 +3,6 @@
 #include "AlignmentChecker.hpp"
 
 
-// Check local win -> if 5 in a row found, check if breakable
 const sf::Color* CheckWinService::isWin(Board& board) {
     if (board.getBlackCaptured() >= 10) {
         return &sf::Color::White;
