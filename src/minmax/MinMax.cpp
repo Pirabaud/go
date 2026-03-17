@@ -233,11 +233,10 @@ int MinMax::minmax(Board &currentBoard, const int limitDepth, const int currentD
             }
             eval = executePVS(currentBoard, limitDepth, currentDepth, alpha, beta, isMaximizing, newScore, firstMove);
         }
-        undoMove(currentBoard, moveData.moveIndex, isWhite, checkCapture, capture, countCapture);
-        if (this->timeOut) {
-           break;
-        }
         firstMove = false;
+        undoMove(currentBoard, moveData.moveIndex, isWhite, checkCapture, capture, countCapture);
+        if (this->timeOut) return 0;
+
         if (isMaximizing) {
             if (eval > bestVal) {
                 bestVal = eval;
