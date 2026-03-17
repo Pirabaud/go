@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <bitset>
 #include <iostream>
-
+#include <bit>
 #include "CaptureService.hpp"
 #include "CheckLegalMove.hpp"
 
