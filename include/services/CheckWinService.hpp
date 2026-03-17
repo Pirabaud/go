@@ -1,15 +1,14 @@
 #ifndef CHECK_WIN_SERVICE_HPP
 #define CHECK_WIN_SERVICE_HPP
-#include "../board/Board.h"
+#include "../board/Board.hpp"
 #include "SFML/Graphics/Color.hpp"
 
 #define WIN_LENGTH_CONDITION 5
 
-class CheckWinService
-{
+class CheckWinService {
 public:
-    static const sf::Color* isWin(Board &board);
-    static std::array<int, 15>  getWinBlockingIndices(Board& board, bool isBlack);
+    static const sf::Color* isWin(Board& board);
+    static std::array<int, 15> getWinBlockingIndices(Board& board, bool isBlack);
 
 private:
     CheckWinService() = default;

@@ -1,7 +1,7 @@
-#ifndef GOMOKU_LOADSOUND_H
-#define GOMOKU_LOADSOUND_H
+#ifndef GOMOKU_LOAD_SOUND_H
+#define GOMOKU_LOAD_SOUND_H
 #include "SFML/Audio.hpp"
 
 bool loadSound(const std::string& filePath, sf::SoundBuffer*& buffer, sf::Sound*& sound);
 
-#endif //GOMOKU_LOADSOUND_H
+#endif //GOMOKU_LOAD_SOUND_H

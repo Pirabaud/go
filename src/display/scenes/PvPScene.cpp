@@ -1,18 +1,11 @@
 #include "PvPScene.hpp"
-
-#include <iostream>
-
 #include "CaptureService.hpp"
 #include "CheckLegalMove.hpp"
-#include "../../../include/services/CheckWinService.hpp"
-#include "display/utils/getSharedFont.hpp"
-#include "SFML/Graphics/Text.hpp"
+#include "CheckWinService.hpp"
 
 void PvPScene::handleEvent(const std::optional<sf::Event>& event, sf::RenderWindow& window) {
-
     if (winningColor) return;
-    if (handleHistoryEvent(event, window))
-    {
+    if (handleHistoryEvent(event, window)) {
         needsAiSuggestion = true;
         aiSuggestionTimer.restart();
         draw(window);
@@ -20,8 +13,7 @@ void PvPScene::handleEvent(const std::optional<sf::Event>& event, sf::RenderWind
     const bool doesStoneHaveBeenPlaced = handleStonePlacement(event, window);
     if (doesStoneHaveBeenPlaced) {
         winningColor = CheckWinService::isWin(board);
-        if (winningColor && winSound)
-        {
+        if (winningColor && winSound) {
             winSound->play();
         }
         draw(window);

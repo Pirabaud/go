@@ -3,7 +3,7 @@
 #include <map>
 #include <vector>
 
-#include "Board.h"
+#include "Board.hpp"
 
 #define PATTERNS_FILE_PATH "../patterns.txt"
 
@@ -20,9 +20,11 @@ public:
     static int getScore(const int index) {
         return PRECOMPUTED_SCORES[index];
     }
+
     static void init();
 
-    static int evaluatePosition(const Board &board, int positionIndex, bool isBlackPlayer);
+    static int evaluatePosition(const Board& board, int positionIndex, bool isBlackPlayer);
+
 private:
     static std::vector<std::pair<std::string, int16_t>> loadPatternsFromFile();
     static std::string indexToString(int index);

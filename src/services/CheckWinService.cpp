@@ -1,19 +1,10 @@
-#include "../../include/services/CheckWinService.hpp"
-
+#include "CheckWinService.hpp"
 #include <algorithm>
-#include <bitset>
-#include <iostream>
-#include <ostream>
-#include <vector>
-
 #include "AlignmentChecker.hpp"
-#include "LineBlockState.hpp"
 
 
-// TODO optimize
 // Check local win -> if 5 in a row found, check if breakable
-const sf::Color* CheckWinService::isWin(Board& board)
-{
+const sf::Color* CheckWinService::isWin(Board& board) {
     if (board.getBlackCaptured() >= 10) {
         return &sf::Color::White;
     }
@@ -26,28 +17,30 @@ const sf::Color* CheckWinService::isWin(Board& board)
         AlignmentChecker::checkWinAlignment(board, false, Board::SIZE) ||
         AlignmentChecker::checkWinAlignment(board, false, Board::SIZE + 2)) {
         return &sf::Color::White;
-        }
+    }
     if (AlignmentChecker::checkWinAlignment(board, true, 1) ||
         AlignmentChecker::checkWinAlignment(board, true, Board::SIZE + 1) ||
         AlignmentChecker::checkWinAlignment(board, true, Board::SIZE) ||
         AlignmentChecker::checkWinAlignment(board, true, Board::SIZE + 2)) {
         return &sf::Color::Black;
-        }
+    }
 
     return nullptr;
 }
 
-std::array<int, 15> CheckWinService::getWinBlockingIndices(Board& board, const bool isBlack)
-{
+std::array<int, 15> CheckWinService::getWinBlockingIndices(Board& board, const bool isBlack) {
     std::array<int, 15> result = {};
     std::ranges::fill(result, -1);
     int nextIndex = 0;
     const auto allyBitBoard = isBlack ? board.getBitBoardBlack() : board.getBitBoardWhite();
     const auto enemyBitBoard = isBlack ? board.getBitBoardWhite() : board.getBitBoardBlack();
     const auto blockingIndexHorizontal = AlignmentChecker::checkBreakableAlignment(allyBitBoard, enemyBitBoard, 1);
-    const auto blockingIndexVertical = AlignmentChecker::checkBreakableAlignment(allyBitBoard, enemyBitBoard, Board::SIZE + 1);
-    const auto blockingIndexDiagonalTopLeft = AlignmentChecker::checkBreakableAlignment(allyBitBoard, enemyBitBoard, Board::SIZE);
-    const auto blockingIndexDiagonalTopRight = AlignmentChecker::checkBreakableAlignment(allyBitBoard, enemyBitBoard, Board::SIZE + 2);
+    const auto blockingIndexVertical = AlignmentChecker::checkBreakableAlignment(
+        allyBitBoard, enemyBitBoard, Board::SIZE + 1);
+    const auto blockingIndexDiagonalTopLeft = AlignmentChecker::checkBreakableAlignment(
+        allyBitBoard, enemyBitBoard, Board::SIZE);
+    const auto blockingIndexDiagonalTopRight = AlignmentChecker::checkBreakableAlignment(
+        allyBitBoard, enemyBitBoard, Board::SIZE + 2);
 
     int blockingIndexIndex = 0;
     while (blockingIndexHorizontal[blockingIndexIndex++] != -1) {

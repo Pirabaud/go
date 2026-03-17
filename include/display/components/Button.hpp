@@ -9,8 +9,7 @@
 #define BUTTON_COLOR {59, 166, 255}
 #define BUTTON_HOVER_COLOR {79, 186, 255}
 
-class Button
-{
+class Button {
 public:
     Button(const sf::Vector2f& size, const sf::Vector2f& position, const std::string& label,
            const std::function<void()>& callback);

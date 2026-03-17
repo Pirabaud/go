@@ -1,7 +1,5 @@
 #include "DisplayService.hpp"
-
 #include <iostream>
-
 #include "BoardScene.hpp"
 #include "MainMenuScene.hpp"
 #include "SFML/Window/VideoMode.hpp"

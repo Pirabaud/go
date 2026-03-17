@@ -1,43 +1,33 @@
-#include "../../include/services/CheckLegalMove.hpp"
-
+#include "CheckLegalMove.hpp"
 #include "CaptureService.hpp"
 
 
 IllegalMoves::Type CheckLegalMove::isLegalMove(int posIndex,
                                                Board& board,
-                                               const bool& isBlack)
-{
-    if (posIndex < 0 || posIndex > (Board::SIZE + 1) * Board::SIZE || (posIndex % (Board::SIZE + 1)) == Board::SIZE)
-    {
+                                               const bool& isBlack) {
+    if (posIndex < 0 || posIndex > (Board::SIZE + 1) * Board::SIZE || (posIndex % (Board::SIZE + 1)) == Board::SIZE) {
         return IllegalMoves::Type::NOT_IN_BOARD;
     }
-    if (Board::isBitAt(board.getBitBoardBlack(), posIndex) || Board::isBitAt(board.getBitBoardWhite(), posIndex))
-    {
+    if (Board::isBitAt(board.getBitBoardBlack(), posIndex) || Board::isBitAt(board.getBitBoardWhite(), posIndex)) {
         return IllegalMoves::Type::OCCUPIED;
     }
-    if (createsDoubleFreeThree(posIndex, board, isBlack))
-    {
+    if (createsDoubleFreeThree(posIndex, board, isBlack)) {
         return IllegalMoves::Type::DOUBLE_FREE_CAPTURE;
     }
-    if (createsAutoCapture(posIndex, board, isBlack))
-    {
+    if (createsAutoCapture(posIndex, board, isBlack)) {
         return IllegalMoves::Type::CREATE_CAPTURE;
     }
     return IllegalMoves::Type::NONE;
 }
 
-bool CheckLegalMove::createsAutoCapture(int posIndex, Board& board, const bool& isBlack)
-{
+bool CheckLegalMove::createsAutoCapture(int posIndex, Board& board, const bool& isBlack) {
     const std::array<int, 4> directions = {1, Board::SIZE + 1, Board::SIZE, Board::SIZE + 2};
 
-    for (const int dir : directions)
-    {
-        if (checkCaptureInDirection(board, posIndex, dir, isBlack))
-        {
+    for (const int dir : directions) {
+        if (checkCaptureInDirection(board, posIndex, dir, isBlack)) {
             return true;
         }
-        if (checkCaptureInDirection(board, posIndex, -dir, isBlack))
-        {
+        if (checkCaptureInDirection(board, posIndex, -dir, isBlack)) {
             return true;
         }
     }
@@ -45,15 +35,12 @@ bool CheckLegalMove::createsAutoCapture(int posIndex, Board& board, const bool& 
 }
 
 bool CheckLegalMove::checkCaptureInDirection(Board& board, const int globalIndex,
-                                             const int dir, const bool isBlack)
-{
+                                             const int dir, const bool isBlack) {
     if (globalIndex - 1 * dir < 0 || globalIndex - 1 * dir >= 380 || Board::isOutOfBounds(globalIndex, -1, dir)) return false;
     if (globalIndex + 2 * dir < 0 || globalIndex + 2 * dir >= 380 || Board::isOutOfBounds(globalIndex, 2, dir)) return false;
-
     const std::array<uint64_t, 6>& allyBitBoard = isBlack ? board.getBitBoardBlack() : board.getBitBoardWhite();
     std::array<uint64_t, 6>& enemyBitBoard = isBlack ? board.getBitBoardWhite() : board.getBitBoardBlack();
 
-    //check ally
     const int firstEnemyGlobalIndex = (globalIndex - 1 * dir);
     const int secondEnemyGlobalIndex = (globalIndex + 2 * dir);
     const int allyGlobalIndex = (globalIndex + 1 * dir);
@@ -69,26 +56,21 @@ bool CheckLegalMove::checkCaptureInDirection(Board& board, const int globalIndex
 
 
     if (enemyBitBoard[firstEnemyArrayIndex] & firstEnemyMask && enemyBitBoard[secondEnemyArrayIndex] &
-        secondEnemyMask && allyBitBoard[allyArrayIndex] & allyMask)
-    {
+        secondEnemyMask && allyBitBoard[allyArrayIndex] & allyMask) {
         return true;
     }
     return false;
 }
 
-bool CheckLegalMove::createsDoubleFreeThree(int posIndex, Board& board, const bool& isBlack)
-{
+bool CheckLegalMove::createsDoubleFreeThree(int posIndex, Board& board, const bool& isBlack) {
     int freeThreeCount = 0;
+    const std::array directions = {1, Board::SIZE + 1, Board::SIZE, Board::SIZE + 2};
 
-    const std::array<int, 4> directions = {1, Board::SIZE + 1, Board::SIZE, Board::SIZE + 2};
-
-    for (const int dir : directions)
-    {
+    for (const int dir : directions) {
         const int patternIndex = board.getPatternIndex(posIndex, isBlack, dir);
 
         // Simulate ally stone in the middle of the pattern index
         const int testIndex = (patternIndex & ~(0b11 << 10)) | (0b01 << 10);
-
         constexpr int MASK_12 = 0b111111111111;
 
         // Create all slices of 12 bits (6 cases) to check for "Free three" patterns
@@ -105,28 +87,22 @@ bool CheckLegalMove::createsDoubleFreeThree(int posIndex, Board& board, const bo
 
         bool isFreeThree = false;
 
-        if (slice8 == PATTERN_CONTIGUOUS_1 || slice8 == PATTERN_SPLIT_1 || slice8 == PATTERN_SPLIT_2)
-        {
+        if (slice8 == PATTERN_CONTIGUOUS_1 || slice8 == PATTERN_SPLIT_1 || slice8 == PATTERN_SPLIT_2) {
             isFreeThree = true;
         }
-        else if (slice6 == PATTERN_CONTIGUOUS_1 || slice6 == PATTERN_CONTIGUOUS_2 || slice6 == PATTERN_SPLIT_1)
-        {
+        else if (slice6 == PATTERN_CONTIGUOUS_1 || slice6 == PATTERN_CONTIGUOUS_2 || slice6 == PATTERN_SPLIT_1) {
             isFreeThree = true;
         }
-        else if (slice4 == PATTERN_CONTIGUOUS_1 || slice4 == PATTERN_CONTIGUOUS_2 || slice4 == PATTERN_SPLIT_2)
-        {
+        else if (slice4 == PATTERN_CONTIGUOUS_1 || slice4 == PATTERN_CONTIGUOUS_2 || slice4 == PATTERN_SPLIT_2) {
             isFreeThree = true;
         }
-        else if (slice2 == PATTERN_CONTIGUOUS_2 || slice2 == PATTERN_SPLIT_1 || slice2 == PATTERN_SPLIT_2)
-        {
+        else if (slice2 == PATTERN_CONTIGUOUS_2 || slice2 == PATTERN_SPLIT_1 || slice2 == PATTERN_SPLIT_2) {
             isFreeThree = true;
         }
 
-        if (isFreeThree)
-        {
+        if (isFreeThree) {
             freeThreeCount++;
-            if (freeThreeCount >= 2)
-            {
+            if (freeThreeCount >= 2) {
                 return true;
             }
         }

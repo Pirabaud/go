@@ -11,10 +11,12 @@ public:
 
     static int SIZE;
 
-    static std::array<uint64_t, 6> shift_right_board(const std::array<uint64_t, 6> &currentBitboard, int shift);
-    static std::array<uint64_t, 6> shift_left_board(const std::array<uint64_t, 6> &currentBitboard, int shift);
-    static std::array<uint64_t, 6> bitBoardAnd(const std::array<uint64_t, 6> &bitBoard1, const std::array<uint64_t, 6> &bitBoard2);
-    static std::array<uint64_t, 6> bitBoardOr(const std::array<uint64_t, 6> &bitBoard1, const std::array<uint64_t, 6> &bitBoard2);
+    static std::array<uint64_t, 6> shift_right_board(const std::array<uint64_t, 6>& currentBitboard, int shift);
+    static std::array<uint64_t, 6> shift_left_board(const std::array<uint64_t, 6>& currentBitboard, int shift);
+    static std::array<uint64_t, 6> bitBoardAnd(const std::array<uint64_t, 6>& bitBoard1,
+                                               const std::array<uint64_t, 6>& bitBoard2);
+    static std::array<uint64_t, 6> bitBoardOr(const std::array<uint64_t, 6>& bitBoard1,
+                                              const std::array<uint64_t, 6>& bitBoard2);
     static bool isOutOfBounds(int startIndex, int offsetMultiplier, int dir);
 
     void addStoneWhite(Position pos);
@@ -32,22 +34,22 @@ public:
 
     bool isEmpty() const;
 
-    static int getGlobalIndex(Position pos) ;
+    static int getGlobalIndex(Position pos);
 
 
     [[nodiscard]] int getWhiteCaptured() const;
 
     [[nodiscard]] int getBlackCaptured() const;
 
-    [[nodiscard]] std::array<uint64_t, 6> &getBitBoardWhite();
-    [[nodiscard]] std::array<uint64_t, 6> &getBitBoardBlack();
-    [[nodiscard]] const std::array<uint64_t, 6> &getBitBoardWhite() const;
-    [[nodiscard]] const std::array<uint64_t, 6> &getBitBoardBlack() const;
+    [[nodiscard]] std::array<uint64_t, 6>& getBitBoardWhite();
+    [[nodiscard]] std::array<uint64_t, 6>& getBitBoardBlack();
+    [[nodiscard]] const std::array<uint64_t, 6>& getBitBoardWhite() const;
+    [[nodiscard]] const std::array<uint64_t, 6>& getBitBoardBlack() const;
 
     static void setBoardSize(int size);
 
-    static bool isBitAt(const std::array<uint64_t, 6>& bitBoard, int globalIndex) ;
-    static void clearBitAt( std::array<uint64_t, 6>& bitBoard, int globalIndex);
+    static bool isBitAt(const std::array<uint64_t, 6>& bitBoard, int globalIndex);
+    static void clearBitAt(std::array<uint64_t, 6>& bitBoard, int globalIndex);
 
     static void initZobrist();
 
@@ -57,14 +59,12 @@ public:
 
     uint64_t currentZobristKey = 0;
 
-
 private:
     std::array<uint64_t, 6> bitBoardWhite{};
     std::array<uint64_t, 6> bitBoardBlack{};
 
     int blackStoneCaptured = 0;
     int whiteStoneCaptured = 0;
-
 };
 
 std::ostream& operator<<(std::ostream& os, const Board& board);

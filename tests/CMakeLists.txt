@@ -13,11 +13,8 @@ add_executable(GomokuTests
         ../src/board/Board.cpp
         ../src/minmax/MinMax.cpp
         ../src/services/HeuristicService.cpp
-        ../src/services/JsonService.cpp
         ../src/minmax/TranspositionTable.cpp
 )
-
-target_link_libraries(GomokuTests PRIVATE SFML::Graphics nlohmann_json::nlohmann_json)
 
 target_link_libraries(GomokuTests
         PRIVATE Catch2::Catch2WithMain
@@ -31,6 +28,7 @@ target_include_directories(GomokuTests
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../include/structs
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../include/services
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../cmake-build-debug/_deps/sfml-src/include
+        PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../build/_deps/sfml-src/include
 )
 
 catch_discover_tests(GomokuTests)

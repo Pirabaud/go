@@ -1,7 +1,4 @@
 #include "DoubleStonesScene.hpp"
-
-#include <iostream>
-
 #include "CheckWinService.hpp"
 #include "CaptureService.hpp"
 #include "CheckLegalMove.hpp"
@@ -11,35 +8,29 @@ void DoubleStonesScene::handleEvent(const std::optional<sf::Event>& event, sf::R
     if (winningColor) return;
 
     const auto* keyPressedEvent = event->getIf<sf::Event::KeyPressed>();
-    if (keyPressedEvent && keyPressedEvent->code == sf::Keyboard::Key::Left)
-    {
-        if (!pastMoves.empty())
-        {
+    if (keyPressedEvent && keyPressedEvent->code == sf::Keyboard::Key::Left) {
+        if (!pastMoves.empty()) {
             moveNumber--;
         }
-    } else if (keyPressedEvent && keyPressedEvent->code == sf::Keyboard::Key::Right)
-    {
-        if (!futureMoves.empty())
-        {
+    }
+    else if (keyPressedEvent && keyPressedEvent->code == sf::Keyboard::Key::Right) {
+        if (!futureMoves.empty()) {
             moveNumber++;
         }
     }
-    if (handleHistoryEvent(event, window))
-    {
+    if (handleHistoryEvent(event, window)) {
         colorToPlay = ((moveNumber / 2) % 2 == 0) ? sf::Color::Black : sf::Color::White;
     }
 
     if (handleStonePlacement(event, window)) {
         winningColor = CheckWinService::isWin(board);
-        if (winningColor && winSound)
-        {
+        if (winningColor && winSound) {
             winSound->play();
         }
     }
 }
 
 void DoubleStonesScene::drawTexts(sf::RenderWindow& window) {
-
 }
 
 bool DoubleStonesScene::handleStonePlacement(const std::optional<sf::Event>& event, sf::RenderWindow& window) {
@@ -55,7 +46,7 @@ bool DoubleStonesScene::handleStonePlacement(const std::optional<sf::Event>& eve
         if (illegalMove != IllegalMoves::Type::NONE) {
             return false;
         }
-        auto playerMove = Position(row, col);
+        Position playerMove = {row, col};
 
         playMove(playerMove);
         moveNumber++;

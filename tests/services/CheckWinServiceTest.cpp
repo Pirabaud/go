@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "Board.h"
+#include "Board.hpp"
 #include "CheckWinService.hpp"
 #include "SFML/Graphics/Color.hpp"
 #include "catch2/catch_test_macros.hpp"
