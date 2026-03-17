@@ -69,6 +69,8 @@ protected:
 
     Position handleAITurn(int* depthLive = nullptr, int* outNodesVisited = nullptr);
 
+    bool checkWinCapture(bool isBlack);
+
     void playMove(Position pos);
     void nextTurn();
     IllegalMoves::Type getLegalMove(int row, int col);

@@ -1,6 +1,7 @@
 #ifndef BOARD_H
 #define BOARD_H
 #include <array>
+#include <cstdint>
 #include <iosfwd>
 #include <cstdint>
 #include "Position.hpp"

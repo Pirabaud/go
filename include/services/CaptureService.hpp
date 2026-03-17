@@ -6,7 +6,7 @@
 
 class CaptureService {
 public:
-    static int checkCapture(Board& board, int globalIndex, bool isBlack, int* capture, int& count);
+    static int checkCapture(Board& board, int globalIndex, bool isBlack, int* capture, int& count, bool removeStone = true);
     static bool winLineBreakable(
         Board& board, bool isBlack, int startIndex, int dirAlignment);
     static std::array<int, 15> getBlockingCaptureIndex(const std::array<uint64_t, 6>& allyBitBoard,
@@ -15,7 +15,7 @@ public:
 
 private:
     static int checkCaptureInDirection(Board& board, int globalIndex,
-                                       int dir, bool isBlack, int* capture, int& count);
+                                       int dir, bool isBlack, int* capture, int& count, bool removeSTone);
 };
 
 
