@@ -1,24 +1,21 @@
 #include "MinMax.hpp"
-
 #include <fstream>
 #include <iostream>
 #include <climits>
-
 #include "AlignmentChecker.hpp"
 #include "CaptureService.hpp"
 #include "CheckLegalMove.hpp"
-#include "JsonService.hpp"
 #include "CheckWinService.hpp"
-#include "HeuristicService.h"
+#include "HeuristicService.hpp"
 
 
-MinMax::MinMax(Board &board) : board(board) {
+MinMax::MinMax(Board& board) : board(board) {
     transpositionTable = TranspositionTable();
 }
 
 MinMax::~MinMax() = default;
 
-Board &MinMax::getBoard() const {
+Board& MinMax::getBoard() const {
     return board;
 }
 
@@ -28,26 +25,21 @@ std::pair<Position, long> MinMax::run(const int timeLimitMs, const bool isBlack,
     this->timeOut = false;
     this->nodesVisited = 0;
 
-    if (board.isEmpty())
-    {
+    if (board.isEmpty()) {
         return {{Board::SIZE / 2, Board::SIZE / 2}, 0};
     }
 
     int globalBestMove = -1;
     int currentBestMove = -1;
-    int score = 0;
     int maxDepthReached = 0;
 
     for (int depth = 1; depth <= 42; ++depth) {
-        const int val = minmax(board, depth, 1, INT_MIN, INT_MAX, !isBlack, 0, &currentBestMove);
-
+        minmax(board, depth, 1, INT_MIN, INT_MAX, !isBlack, 0, &currentBestMove);
         if (this->timeOut) {
             break;
         }
-
         maxDepthReached = depth;
         globalBestMove = currentBestMove;
-        score = val;
     }
     const auto endTime = std::chrono::high_resolution_clock::now();
     const long elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
@@ -72,8 +64,7 @@ inline void moveOrdering(
     const int numPossibleMoves,
     const int ttMoveIndex,
     MoveData* outRankedMoves,
-    const int maxMovesToTest)
-{
+    const int maxMovesToTest) {
     if (numPossibleMoves == 1) {
         outRankedMoves[0] = {1000000, possibleMoveIndexes[0], 0, 0, false, true};
         return;
@@ -87,20 +78,20 @@ inline void moveOrdering(
 
         const bool isBlk = (scoreBlack >= 20000 || scoreWhite >= 20000);
         const bool isCap = (scoreBlack >= 7000 || scoreWhite >= 7000);
-        // -----------------------------
 
         if (move == ttMoveIndex) {
             outRankedMoves[idx] = {1000000, move, scoreBlack, scoreWhite, isCap, isBlk};
-        } else {
+        }
+        else {
             outRankedMoves[idx] = {moveScore, move, scoreBlack, scoreWhite, isCap, isBlk};
         }
     }
 
-    // Le tri partiel ultra-rapide dont on a parlé !
     int movesToSort = std::min(numPossibleMoves, maxMovesToTest);
-    std::partial_sort(outRankedMoves, outRankedMoves + movesToSort, outRankedMoves + numPossibleMoves, [](const auto& a, const auto& b) {
-        return a.totalScore > b.totalScore;
-    });
+    std::partial_sort(outRankedMoves, outRankedMoves + movesToSort, outRankedMoves + numPossibleMoves,
+                      [](const auto& a, const auto& b) {
+                          return a.totalScore > b.totalScore;
+                      });
 }
 
 inline void applyMove(Board& board, const int moveIndex, const bool isWhite) {
@@ -108,7 +99,8 @@ inline void applyMove(Board& board, const int moveIndex, const bool isWhite) {
     else board.addStoneBlack(moveIndex);
 }
 
-inline void undoMove(Board& board, const int moveIndex, const bool isWhite, const int checkCapture, const int* capture, const int countCapture) {
+inline void undoMove(Board& board, const int moveIndex, const bool isWhite, const int checkCapture, const int* capture,
+                     const int countCapture) {
     if (isWhite) board.removeWhiteStone(moveIndex);
     else board.removeBlackStone(moveIndex);
 
@@ -121,8 +113,8 @@ inline void undoMove(Board& board, const int moveIndex, const bool isWhite, cons
     }
 }
 
-int MinMax::minmax(Board &currentBoard, const int limitDepth, const int currentDepth, int alpha, int beta,
-                   const bool isMaximizing, const int currentScore, int *outBestMoveIndex) {
+int MinMax::minmax(Board& currentBoard, const int limitDepth, const int currentDepth, int alpha, int beta,
+                   const bool isMaximizing, const int currentScore, int* outBestMoveIndex) {
     if ((nodesVisited++ & 4095) == 0) {
         checkTime();
     }
@@ -196,12 +188,14 @@ int MinMax::minmax(Board &currentBoard, const int limitDepth, const int currentD
             && !rankedMoves[i].isBlocking
             && !rankedMoves[i].isWin
             && !rankedMoves[i].isCapture
-            ) {
+        ) {
            continue;
         }
 
         movesTested++;
 
+        const auto& moveData = rankedMoves[i];
+        const int moveIndex = moveData.moveIndex;
         int capture[8];
         int countCapture = 0;
 
@@ -221,12 +215,14 @@ int MinMax::minmax(Board &currentBoard, const int limitDepth, const int currentD
         if (isTrueWin) {
             if (isWhite) {
                 eval = 300000 - currentDepth;
-            } else {
+            }
+            else {
                 eval = -300000 + currentDepth;
             }
         }
         else {
-            int newScore = currentScore + (whiteScoreAfter - moveData.whiteScoreBefore) - (blackScoreAfter - moveData.blackScoreBefore);
+            int newScore = currentScore + (whiteScoreAfter - moveData.whiteScoreBefore) - (blackScoreAfter - moveData.
+                blackScoreBefore);
             if (checkCapture > 0) {
                 const int captureBonus = checkCapture * 8000;
                 newScore += isMaximizing ? captureBonus : -captureBonus;
@@ -243,7 +239,8 @@ int MinMax::minmax(Board &currentBoard, const int limitDepth, const int currentD
                 localBestMove = moveIndex;
             }
             alpha = std::max(alpha, bestVal);
-        } else {
+        }
+        else {
             if (eval < bestVal) {
                 bestVal = eval;
                 localBestMove = moveIndex;
@@ -279,7 +276,7 @@ void MinMax::checkTime() {
     }
 }
 
-int MinMax::generatePossibleMoves(Board &currentBoard, std::array<int, 400>& outMoves, const int isMaximize) {
+int MinMax::generatePossibleMoves(Board& currentBoard, std::array<int, 400>& outMoves, const int isMaximize) {
     int moveCount = 0;
 
     if (currentBoard.isEmpty()) {
@@ -290,7 +287,8 @@ int MinMax::generatePossibleMoves(Board &currentBoard, std::array<int, 400>& out
     const auto blockingBreakableWinMoves = CheckWinService::getWinBlockingIndices(currentBoard, !isMaximize);
     if (blockingBreakableWinMoves[0] != -1) {
         for (int i = 0; i < blockingBreakableWinMoves.size() && blockingBreakableWinMoves[i] != -1; i++) {
-            if (CheckLegalMove::isLegalMove(blockingBreakableWinMoves[i], currentBoard, !isMaximize) == IllegalMoves::Type::NONE) {
+            if (CheckLegalMove::isLegalMove(blockingBreakableWinMoves[i], currentBoard, !isMaximize) ==
+                IllegalMoves::Type::NONE) {
                 outMoves[moveCount++] = blockingBreakableWinMoves[i];
             }
         }
@@ -305,8 +303,6 @@ int MinMax::generatePossibleMoves(Board &currentBoard, std::array<int, 400>& out
         occupied[i] = currentBoard.getBitBoardWhite()[i] | currentBoard.getBitBoardBlack()[i];
     }
 
-    //return if check win
-
     const std::array<uint64_t, 6> right = Board::shift_right_board(occupied, 1);
     const std::array<uint64_t, 6> occupied_right = Board::bitBoardOr(occupied, right);
     const std::array<uint64_t, 6> left = Board::shift_left_board(occupied, 1);
@@ -317,7 +313,9 @@ int MinMax::generatePossibleMoves(Board &currentBoard, std::array<int, 400>& out
     const std::array<uint64_t, 6> down = Board::shift_left_board(occupied_horizontal, Board::SIZE + 1);
     const std::array<uint64_t, 6> occupied_total = Board::bitBoardOr(occupied_top, down);
 
-    const std::array<uint64_t, 6> allyBitboard = isMaximize ? currentBoard.getBitBoardWhite() : currentBoard.getBitBoardBlack();
+    const std::array<uint64_t, 6> allyBitboard = isMaximize
+                                                     ? currentBoard.getBitBoardWhite()
+                                                     : currentBoard.getBitBoardBlack();
 
     for (int i = 0; i < 6; i++) {
         uint64_t candidates = occupied_total[i] & ~occupied[i];
@@ -329,9 +327,9 @@ int MinMax::generatePossibleMoves(Board &currentBoard, std::array<int, 400>& out
                     continue;
                 }
                 if (AlignmentChecker::checkWinAt(allyBitboard, index)) {
-                     outMoves[0] = index;
-                     return 1;
-                 }
+                    outMoves[0] = index;
+                    return 1;
+                }
                 outMoves[moveCount++] = index;
             }
             candidates &= candidates - 1;
@@ -340,7 +338,7 @@ int MinMax::generatePossibleMoves(Board &currentBoard, std::array<int, 400>& out
     return moveCount;
 }
 
-inline int MinMax::executePVS(Board &currentBoard, const int limitDepth, const int currentDepth,
+inline int MinMax::executePVS(Board& currentBoard, const int limitDepth, const int currentDepth,
                               const int alpha, const int beta, const bool isMaximizing,
                               const int newScore, const bool firstMove) {
     if (firstMove) {
@@ -349,26 +347,16 @@ inline int MinMax::executePVS(Board &currentBoard, const int limitDepth, const i
 
     int eval;
     if (isMaximizing) {
-        eval = minmax(currentBoard, limitDepth, currentDepth + 1, alpha, alpha + 1, !isMaximizing, newScore, nullptr);
+        eval = minmax(currentBoard, limitDepth, currentDepth + 1, alpha, alpha + 1, false, newScore, nullptr);
         if (eval > alpha && eval < beta) {
-            eval = minmax(currentBoard, limitDepth, currentDepth + 1, alpha, beta, !isMaximizing, newScore, nullptr);
+            eval = minmax(currentBoard, limitDepth, currentDepth + 1, alpha, beta, false, newScore, nullptr);
         }
-    } else {
-        eval = minmax(currentBoard, limitDepth, currentDepth + 1, beta - 1, beta, !isMaximizing, newScore, nullptr);
+    }
+    else {
+        eval = minmax(currentBoard, limitDepth, currentDepth + 1, beta - 1, beta, true, newScore, nullptr);
         if (eval < beta && eval > alpha) {
-            eval = minmax(currentBoard, limitDepth, currentDepth + 1, alpha, beta, !isMaximizing, newScore, nullptr);
+            eval = minmax(currentBoard, limitDepth, currentDepth + 1, alpha, beta, true, newScore, nullptr);
         }
     }
     return eval;
-}
-
-void MinMax::saveDecisionTree(const json &tree) {
-    std::ofstream file("data.json");
-    if (file.is_open()) {
-        file << tree.dump(2); // Pretty print avec indentation
-        file.close();
-        std::cout << "Arbre de décision sauvegardé dans data.json" << std::endl;
-    } else {
-        std::cerr << "Erreur: Impossible de sauvegarder l'arbre de décision" << std::endl;
-    }
 }

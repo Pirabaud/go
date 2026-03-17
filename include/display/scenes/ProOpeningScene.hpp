@@ -5,26 +5,23 @@
 #include "DisplayService.hpp"
 
 
-class ProOpeningScene : public BoardScene
-{
+class ProOpeningScene : public BoardScene {
 public:
-    explicit  ProOpeningScene(sf::RenderWindow& window)
-         : BoardScene(window)
-    {
+    explicit ProOpeningScene(sf::RenderWindow& window)
+        : BoardScene(window) {
         backgroundColor = sf::Color(206, 163, 70);
-        this->suggestedMove = { -1, -1 };
+        this->suggestedMove = {-1, -1};
     }
 
     void handleEvent(const std::optional<sf::Event>&, sf::RenderWindow& window) override;
-    void drawTexts(sf::RenderWindow& window);
-    static bool isOutsideProZone(int row, int col) ;
+    void drawTexts(sf::RenderWindow& window) override;
+    static bool isOutsideProZone(int row, int col);
     bool handleStonePlacement(const std::optional<sf::Event>& event, sf::RenderWindow& window) override;
 
 protected:
     sf::Clock aiSuggestionTimer;
     bool needsAiSuggestion = false;
     int moveNumber = 0;
-
 };
 
 

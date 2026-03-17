@@ -1,5 +1,4 @@
 #include "MainMenuScene.hpp"
-
 #include "BoardScene.hpp"
 #include "DisplayService.hpp"
 #include "DoubleStonesScene.hpp"
@@ -20,45 +19,39 @@ float getTotalHeightButtons(int numberOfButtons) {
 }
 
 float getButtonYPosition(int buttonIndex) {
-    return DisplayService::WINDOW_HEIGHT / 2 - getTotalHeightButtons(5) / 2 + buttonIndex * (BUTTON_HEIGHT + BUTTON_GAP);
+    return DisplayService::WINDOW_HEIGHT / 2 - getTotalHeightButtons(5) / 2 + buttonIndex * (BUTTON_HEIGHT +
+        BUTTON_GAP);
 }
 
-MainMenuScene::MainMenuScene(sf::RenderWindow& win):
-    pvpButton({BUTTON_WIDTH, BUTTON_HEIGHT}, {getButtonXPosition(), getButtonYPosition(0)}, "PvP", [this, &win]()
-    {
+MainMenuScene::MainMenuScene(sf::RenderWindow& win) :
+    pvpButton({BUTTON_WIDTH, BUTTON_HEIGHT}, {getButtonXPosition(), getButtonYPosition(0)}, "PvP", [this, &win]() {
         Board::setBoardSize(19);
         DisplayService::changeScene(new PvPScene(win));
     }),
-    pveButton({BUTTON_WIDTH, BUTTON_HEIGHT}, {getButtonXPosition(), getButtonYPosition(1)}, "PvE", [this, &win]()
-    {
+    pveButton({BUTTON_WIDTH, BUTTON_HEIGHT}, {getButtonXPosition(), getButtonYPosition(1)}, "PvE", [this, &win]() {
         Board::setBoardSize(19);
         DisplayService::changeScene(new PvEScene(win));
     }),
-    doubleStonesButton({BUTTON_WIDTH, BUTTON_HEIGHT}, {getButtonXPosition(), getButtonYPosition(2)}, "Double Stones", [this, &win]()
-    {
-        Board::setBoardSize(19);
-        DisplayService::changeScene(new DoubleStonesScene(win));
-    }),
-    proStartButton({BUTTON_WIDTH, BUTTON_HEIGHT}, {getButtonXPosition(), getButtonYPosition(3)}, "Pro opening", [this, &win]()
-    {
-        Board::setBoardSize(19);
-        DisplayService::changeScene(new ProOpeningScene(win));
-    }),
-    otherSizeButton({BUTTON_WIDTH, BUTTON_HEIGHT}, {getButtonXPosition(), getButtonYPosition(4)}, "15x15", [this, &win]()
-    {
-        Board::setBoardSize(15);
-        DisplayService::changeScene(new PvPScene(win));
-    })
-
-{
+    doubleStonesButton({BUTTON_WIDTH, BUTTON_HEIGHT}, {getButtonXPosition(), getButtonYPosition(2)}, "Double Stones",
+                       [this, &win]() {
+                           Board::setBoardSize(19);
+                           DisplayService::changeScene(new DoubleStonesScene(win));
+                       }),
+    proStartButton({BUTTON_WIDTH, BUTTON_HEIGHT}, {getButtonXPosition(), getButtonYPosition(3)}, "Pro opening",
+                   [this, &win]() {
+                       Board::setBoardSize(19);
+                       DisplayService::changeScene(new ProOpeningScene(win));
+                   }),
+    otherSizeButton({BUTTON_WIDTH, BUTTON_HEIGHT}, {getButtonXPosition(), getButtonYPosition(4)}, "15x15",
+                    [this, &win]() {
+                        Board::setBoardSize(15);
+                        DisplayService::changeScene(new PvPScene(win));
+                    }) {
     backgroundColor = sf::Color(200, 200, 200);
 }
 
-void MainMenuScene::handleEvent(const std::optional<sf::Event>& event, sf::RenderWindow& window)
-
-{
-    if (event->is<sf::Event::Closed>())
-    {
+void MainMenuScene::handleEvent(const std::optional<sf::Event>& event, sf::RenderWindow& window) {
+    if (event->is<sf::Event::Closed>()) {
         window.close();
     }
     pvpButton.handleEvent(event, window);
@@ -68,14 +61,13 @@ void MainMenuScene::handleEvent(const std::optional<sf::Event>& event, sf::Rende
     otherSizeButton.handleEvent(event, window);
 }
 
-void MainMenuScene::draw(sf::RenderWindow& window)
-{
+void MainMenuScene::draw(sf::RenderWindow& window) {
     window.clear(backgroundColor);
     pvpButton.draw(window);
     pveButton.draw(window);
-        doubleStonesButton.draw(window);
-        proStartButton.draw(window);
-        otherSizeButton.draw(window);
+    doubleStonesButton.draw(window);
+    proStartButton.draw(window);
+    otherSizeButton.draw(window);
     window.display();
 }
 

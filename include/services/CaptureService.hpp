@@ -1,6 +1,6 @@
 #ifndef CAPTURE_SERVICE_HPP
 #define CAPTURE_SERVICE_HPP
-#include "Board.h"
+#include "Board.hpp"
 #include "SFML/Audio.hpp"
 
 

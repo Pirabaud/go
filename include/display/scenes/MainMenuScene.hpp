@@ -5,21 +5,19 @@
 #include "Button.hpp"
 
 
-class MainMenuScene final : public AbstractScene
-{
+class MainMenuScene final : public AbstractScene {
+public:
+    explicit MainMenuScene(sf::RenderWindow& win);
+
+    void handleEvent(const std::optional<sf::Event>& event, sf::RenderWindow& window) override;
+    void draw(sf::RenderWindow& window) override;
+
 private:
     Button pvpButton;
     Button pveButton;
     Button doubleStonesButton;
     Button proStartButton;
     Button otherSizeButton;
-
-
-public:
-    explicit MainMenuScene(sf::RenderWindow& win);
-
-    void handleEvent(const std::optional<sf::Event>& event, sf::RenderWindow& window) override;
-    void draw(sf::RenderWindow& window) override;
 };
 
 

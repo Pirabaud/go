@@ -4,8 +4,7 @@
 #include <SFML/Audio/Sound.hpp>
 
 #include "AbstractScene.hpp"
-#include "JsonService.hpp"
-#include "Board.h"
+#include "Board.hpp"
 #include "structs/IllegalMoves.hpp"
 
 struct MoveInfo {
@@ -28,29 +27,35 @@ public:
     static float STONE_RADIUS;
 
 protected:
-    IllegalMoves::Type illegalMove = IllegalMoves::NONE;
-    Board board;
-    sf::Color colorToPlay = sf::Color::Black;
-    bool threeDetected = false;
-    BoardScene(sf::RenderWindow& window);
+    explicit BoardScene(sf::RenderWindow& window);
     ~BoardScene() override;
-    long lastAITimeMs = 0;
+
+    Board board;
+
+    IllegalMoves::Type illegalMove = IllegalMoves::NONE;
+
     const sf::Color* winningColor = nullptr;
+    sf::Color colorToPlay = sf::Color::Black;
+
+    long lastAITimeMs = 0;
+
     Position suggestedMove = {-1, -1};
+
     std::stack<MoveInfo> pastMoves = {};
     std::stack<MoveInfo> futureMoves = {};
-    sf::Sound *placeStoneSound = nullptr;
-    sf::SoundBuffer *placeStoneSoundBuffer = nullptr;
-    sf::Sound *captureSound = nullptr;
-    sf::SoundBuffer *captureSoundBuffer = nullptr;
-    sf::Sound *illegalMoveSound = nullptr;
-    sf::SoundBuffer *illegalMoveSoundBuffer = nullptr;
-    sf::Sound *winSound = nullptr;
-    sf::SoundBuffer *winSoundBuffer = nullptr;
-    sf::Sound *loseSound = nullptr;
-    sf::SoundBuffer *loseSoundBuffer = nullptr;
-    sf::Sound *historySound = nullptr;
-    sf::SoundBuffer *historySoundBuffer = nullptr;
+
+    sf::Sound* placeStoneSound = nullptr;
+    sf::SoundBuffer* placeStoneSoundBuffer = nullptr;
+    sf::Sound* captureSound = nullptr;
+    sf::SoundBuffer* captureSoundBuffer = nullptr;
+    sf::Sound* illegalMoveSound = nullptr;
+    sf::SoundBuffer* illegalMoveSoundBuffer = nullptr;
+    sf::Sound* winSound = nullptr;
+    sf::SoundBuffer* winSoundBuffer = nullptr;
+    sf::Sound* loseSound = nullptr;
+    sf::SoundBuffer* loseSoundBuffer = nullptr;
+    sf::Sound* historySound = nullptr;
+    sf::SoundBuffer* historySoundBuffer = nullptr;
 
 
     virtual void drawTexts(sf::RenderWindow& window) = 0;
@@ -60,7 +65,7 @@ protected:
     void drawDefaultTexts(sf::RenderWindow& window) const;
     void drawBoard(sf::RenderWindow& window);
     void drawStones(sf::RenderWindow& window);
-    void drawSuggestedMove(sf::RenderWindow &window) const;
+    void drawSuggestedMove(sf::RenderWindow& window) const;
 
     void drawSingleColorStone(const std::array<uint64_t, 6>& bitBoard, sf::RenderWindow& window,
                               const sf::Color& color);

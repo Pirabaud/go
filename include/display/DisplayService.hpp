@@ -5,8 +5,7 @@
 #include "SFML/Graphics/RenderWindow.hpp"
 #include "SFML/Window/Window.hpp"
 
-class DisplayService
-{
+class DisplayService {
 public:
     DisplayService();
     ~DisplayService();

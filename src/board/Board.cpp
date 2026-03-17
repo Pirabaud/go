@@ -1,19 +1,17 @@
-#include "Board.h"
-
+#include "Board.hpp"
 #include <bitset>
 #include <iomanip>
 #include <iostream>
 #include <random>
-
 #include "BoardScene.hpp"
 #include "DisplayService.hpp"
-#include "HeuristicService.h"
+#include "HeuristicService.hpp"
 #include "Position.hpp"
 
 uint64_t Board::ZOBRIST_TABLE[400][2] = {};
 int Board::SIZE = 19;
 
-void Board::setBoardSize(int size) {
+void Board::setBoardSize(const int size) {
     SIZE = size;
     BoardScene::setBoardVars();
 }
@@ -26,19 +24,19 @@ int Board::getBlackCaptured() const {
     return this->blackStoneCaptured;
 }
 
-std::array<uint64_t, 6> &Board::getBitBoardWhite() {
+std::array<uint64_t, 6>& Board::getBitBoardWhite() {
     return this->bitBoardWhite;
 }
 
-const std::array<uint64_t, 6> &Board::getBitBoardWhite() const {
+const std::array<uint64_t, 6>& Board::getBitBoardWhite() const {
     return this->bitBoardWhite;
 }
 
-std::array<uint64_t, 6> &Board::getBitBoardBlack() {
+std::array<uint64_t, 6>& Board::getBitBoardBlack() {
     return this->bitBoardBlack;
 }
 
-const std::array<uint64_t, 6> &Board::getBitBoardBlack() const {
+const std::array<uint64_t, 6>& Board::getBitBoardBlack() const {
     return this->bitBoardBlack;
 }
 
@@ -74,8 +72,9 @@ void Board::removeBlackStone(const int index) {
     this->updateCurrentZobristKey(index, true);
 }
 
-template<int Offset>
-void updatePattern(int& index, int center, int dir, const std::array<uint64_t, 6>& ally, const std::array<uint64_t, 6>& enemy) {
+template <int Offset>
+void updatePattern(int& index, const int center, const int dir, const std::array<uint64_t, 6>& ally,
+                   const std::array<uint64_t, 6>& enemy) {
     const int pos = center + Offset * dir;
     if (pos < 0 || pos >= (Board::SIZE * (Board::SIZE + 1))) {
         // If out of bounds, consider it as a wall
@@ -92,14 +91,11 @@ void updatePattern(int& index, int center, int dir, const std::array<uint64_t, 6
     index = (index << 2) | (e << 1 | a);
 }
 
-int Board::getPatternIndex(int positionIndex, bool isBlackPlayer, int direction) const {
-
-
+int Board::getPatternIndex(const int positionIndex, const bool isBlackPlayer, const int direction) const {
     int index = 0;
     // Use ALLY_BITS_MASK and ENEMY_BITS_MASK to build the index
-    // Bitboards are of type std::array<uint64_t, 6>
-    const std::array<uint64_t, 6> &allyBitBoard = isBlackPlayer ? this->bitBoardBlack : this->bitBoardWhite;
-    const std::array<uint64_t, 6> &enemyBitBoard = isBlackPlayer ? this->bitBoardWhite : this->bitBoardBlack;
+    const std::array<uint64_t, 6>& allyBitBoard = isBlackPlayer ? this->bitBoardBlack : this->bitBoardWhite;
+    const std::array<uint64_t, 6>& enemyBitBoard = isBlackPlayer ? this->bitBoardWhite : this->bitBoardBlack;
     updatePattern<-5>(index, positionIndex, direction, allyBitBoard, enemyBitBoard);
     updatePattern<-4>(index, positionIndex, direction, allyBitBoard, enemyBitBoard);
     updatePattern<-3>(index, positionIndex, direction, allyBitBoard, enemyBitBoard);
@@ -119,7 +115,8 @@ int Board::getPatternIndex(int positionIndex, bool isBlackPlayer, int direction)
 void Board::addCaptures(const bool isStoneWhite, const int stoneCount) {
     if (isStoneWhite) {
         this->whiteStoneCaptured += stoneCount;
-    } else {
+    }
+    else {
         this->blackStoneCaptured += stoneCount;
     }
 }
@@ -127,7 +124,8 @@ void Board::addCaptures(const bool isStoneWhite, const int stoneCount) {
 void Board::removeCaptures(const bool isStoneWhite, const int stoneCount) {
     if (!isStoneWhite) {
         this->whiteStoneCaptured -= stoneCount;
-    } else {
+    }
+    else {
         this->blackStoneCaptured -= stoneCount;
     }
 }
@@ -141,7 +139,7 @@ bool Board::isEmpty() const {
     return true;
 }
 
-std::array<uint64_t, 6> Board::shift_right_board(const std::array<uint64_t, 6> &currentBitboard, const int shift) {
+std::array<uint64_t, 6> Board::shift_right_board(const std::array<uint64_t, 6>& currentBitboard, const int shift) {
     std::array<uint64_t, 6> board{};
 
     uint64_t carry = 0;
@@ -154,7 +152,7 @@ std::array<uint64_t, 6> Board::shift_right_board(const std::array<uint64_t, 6> &
     return board;
 }
 
-std::array<uint64_t, 6> Board::shift_left_board(const std::array<uint64_t, 6> &currentBitboard, const int shift) {
+std::array<uint64_t, 6> Board::shift_left_board(const std::array<uint64_t, 6>& currentBitboard, const int shift) {
     std::array<uint64_t, 6> board{};
 
     uint64_t carry = 0;
@@ -168,8 +166,8 @@ std::array<uint64_t, 6> Board::shift_left_board(const std::array<uint64_t, 6> &c
 }
 
 std::array<uint64_t, 6> Board::bitBoardAnd(
-    const std::array<uint64_t, 6> &bitBoard1,
-    const std::array<uint64_t, 6> &bitBoard2) {
+    const std::array<uint64_t, 6>& bitBoard1,
+    const std::array<uint64_t, 6>& bitBoard2) {
     std::array<uint64_t, 6> result{};
     for (int i = 0; i < 6; i++) {
         result[i] = bitBoard1[i] & bitBoard2[i];
@@ -178,28 +176,27 @@ std::array<uint64_t, 6> Board::bitBoardAnd(
 }
 
 std::array<uint64_t, 6> Board::bitBoardOr(
-    const std::array<uint64_t, 6> &bitBoard1,
-    const std::array<uint64_t, 6> &bitBoard2) {
+    const std::array<uint64_t, 6>& bitBoard1,
+    const std::array<uint64_t, 6>& bitBoard2) {
     std::array<uint64_t, 6> result{};
     for (int i = 0; i < 6; i++) {
         result[i] = bitBoard1[i] | bitBoard2[i];
     }
     return result;
-
 }
 
 int Board::getGlobalIndex(const Position pos) {
     return pos.x * (SIZE + 1) + pos.y;
 }
 
-bool Board::isBitAt(const std::array<uint64_t, 6> &bitBoard, const int globalIndex) {
+bool Board::isBitAt(const std::array<uint64_t, 6>& bitBoard, const int globalIndex) {
     if (globalIndex < 0 || globalIndex >= (Board::SIZE * (Board::SIZE + 1))) return false;
     const int arrayIndex = globalIndex / 64;
     const int bitIndex = globalIndex % 64;
     return (bitBoard[arrayIndex] & (1ULL << bitIndex)) != 0;
 }
 
-void Board::clearBitAt(std::array<uint64_t, 6> &bitBoard, const int globalIndex) {
+void Board::clearBitAt(std::array<uint64_t, 6>& bitBoard, const int globalIndex) {
     const int arrayIndex = globalIndex / 64;
     const int bitIndex = globalIndex % 64;
     bitBoard[arrayIndex] &= ~(1ULL << bitIndex);
@@ -208,7 +205,7 @@ void Board::clearBitAt(std::array<uint64_t, 6> &bitBoard, const int globalIndex)
 void Board::initZobrist() {
     std::mt19937_64 rng(42); // Fixed seed for reproducibility
     std::uniform_int_distribution<uint64_t> dist;
-    for (auto & indecesPosition : ZOBRIST_TABLE) {
+    for (auto& indecesPosition : ZOBRIST_TABLE) {
         indecesPosition[0] = dist(rng); // Black stone
         indecesPosition[1] = dist(rng); // White stone
     }
@@ -218,7 +215,7 @@ void Board::updateCurrentZobristKey(const int index, const bool isBlack) {
     currentZobristKey ^= ZOBRIST_TABLE[index][isBlack ? 1 : 0];
 }
 
-std::ostream &operator<<(std::ostream &os, const Board &board) {
+std::ostream& operator<<(std::ostream& os, const Board& board) {
     for (int i = 0; i < Board::SIZE; i++) {
         os << std::setw(2) << std::setfill(' ') << i;
         os << ':';

@@ -1,18 +1,12 @@
-#include "../../../include/display/scenes/ProOpeningScene.hpp"
-
+#include "ProOpeningScene.hpp"
 #include <iostream>
-
 #include "CaptureService.hpp"
 #include "CheckLegalMove.hpp"
-#include "../../../include/services/CheckWinService.hpp"
-#include "display/utils/getSharedFont.hpp"
-#include "SFML/Graphics/Text.hpp"
+#include "CheckWinService.hpp"
 
 void ProOpeningScene::handleEvent(const std::optional<sf::Event>& event, sf::RenderWindow& window) {
-
     if (winningColor) return;
-    if (handleHistoryEvent(event, window))
-    {
+    if (handleHistoryEvent(event, window)) {
         needsAiSuggestion = true;
         aiSuggestionTimer.restart();
         draw(window);
@@ -20,8 +14,7 @@ void ProOpeningScene::handleEvent(const std::optional<sf::Event>& event, sf::Ren
     const bool doesStoneHaveBeenPlaced = handleStonePlacement(event, window);
     if (doesStoneHaveBeenPlaced) {
         winningColor = CheckWinService::isWin(board);
-        if (winningColor && winSound)
-        {
+        if (winningColor && winSound) {
             winSound->play();
         }
         draw(window);
@@ -71,6 +64,6 @@ bool ProOpeningScene::handleStonePlacement(const std::optional<sf::Event>& event
         draw(window);
         moveNumber++;
         return true;
-        }
+    }
     return false;
 }

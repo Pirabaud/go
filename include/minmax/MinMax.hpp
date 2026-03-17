@@ -1,8 +1,9 @@
 #ifndef MINMAX_HPP
 #define MINMAX_HPP
 
-#include "Board.h"
-#include "JsonService.hpp"
+#include <chrono>
+
+#include "Board.hpp"
 #include "TranspositionTable.hpp"
 
 
@@ -14,7 +15,6 @@ struct MoveData {
     bool isCapture;
     bool isBlocking;
     bool isWin;
-
 };
 
 class MinMax {
@@ -26,14 +26,14 @@ public:
 
     std::pair<Position, long> run(int timeLimitMs, bool isBlack, int* depthLive, int* outNodesVisited);
 
-    int minmax(Board &currentBoard, int limitDepth, int currentDepth, int alpha, int beta,
-                      bool isMaximizing,
-                      int currentScore, int *outBestMoveIndex) ;
+    int minmax(Board& currentBoard, int limitDepth, int currentDepth, int alpha, int beta,
+               bool isMaximizing,
+               int currentScore, int* outBestMoveIndex);
 
     void checkTime();
 
-    static int generatePossibleMoves(Board &currentBoard, std::array<int, 400> &outMoves, int isMaximize);
-    static void saveDecisionTree(const json& tree);
+    static int generatePossibleMoves(Board& currentBoard, std::array<int, 400>& outMoves, int isMaximize);
+
 private:
     Board& board;
 
@@ -47,7 +47,6 @@ private:
 
     bool timeOut = false;
     long nodesVisited = 0;
-
 };
 
 

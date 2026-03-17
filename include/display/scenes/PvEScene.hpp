@@ -9,6 +9,7 @@ public:
         backgroundColor = sf::Color(135, 206, 235);
         suggestedMove = {-1, -1};
     }
+
     void handleEvent(const std::optional<sf::Event>&, sf::RenderWindow& window) override;
     void drawTexts(sf::RenderWindow& window) override;
     bool handleStonePlacement(const std::optional<sf::Event>& event, sf::RenderWindow& window) override;

@@ -1,13 +1,9 @@
-#include "HeuristicService.h"
-
+#include "HeuristicService.hpp"
 #include <fstream>
 #include <iostream>
-#include <map>
 #include <ostream>
 #include <regex>
-
 #include "AlignmentChecker.hpp"
-#include "scores.hpp"
 
 std::array<int16_t, HeuristicService::MAX_INDEX> HeuristicService::PRECOMPUTED_SCORES = {};
 
@@ -20,7 +16,6 @@ void HeuristicService::init() {
         int16_t currentMaxScore = 0;
         // For each pattern, check if it exists in the current board slice
         for (const auto& [patternStr, score] : patterns) {
-
             // If pattern found in board slice, add its score
             if (boardSlice.find(patternStr) != std::string::npos) {
                 // Accumulate the maximum absolute score, this way, we prioritize the most significant patterns
@@ -57,7 +52,8 @@ std::vector<std::pair<std::string, int16_t>> HeuristicService::loadPatternsFromF
                 continue;
             }
             patterns.emplace_back(matches[1].str(), static_cast<int16_t>(value));
-        } else {
+        }
+        else {
             std::cerr << "[WARNING] Could not parse line: " << line << std::endl;
         }
     }
@@ -73,19 +69,18 @@ std::string HeuristicService::indexToString(int index) {
         const int shift = (10 - i) * 2;
         const int val = (index >> shift) & 0b11;
 
-        if (val == ALLY_BITS_MASK) patternString += 'A';        // Ally
-        else if (val == ENEMY_BITS_MASK) patternString += 'E';  // Enemy
-        else if (val == WALL_BITS_MASK) patternString += 'W';   // Wall (out of bounds)
-        else patternString += 'O';                              // Empty
+        if (val == ALLY_BITS_MASK) patternString += 'A'; // Ally
+        else if (val == ENEMY_BITS_MASK) patternString += 'E'; // Enemy
+        else if (val == WALL_BITS_MASK) patternString += 'W'; // Wall (out of bounds)
+        else patternString += 'O'; // Empty
     }
     return patternString;
 }
 
-int HeuristicService::evaluatePosition(const Board &board, const int positionIndex, const bool isBlackPlayer) {
+int HeuristicService::evaluatePosition(const Board& board, const int positionIndex, const bool isBlackPlayer) {
     int score = 0;
-
-    //Compute pattern indices for all four directions
     int patternIndex = board.getPatternIndex(positionIndex, isBlackPlayer, 1);
+
     score += getScore(patternIndex);
     patternIndex = board.getPatternIndex(positionIndex, isBlackPlayer, Board::SIZE + 1);
     score += getScore(patternIndex);

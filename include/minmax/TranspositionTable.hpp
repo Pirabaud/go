@@ -1,5 +1,5 @@
-#ifndef GOMOKU_TRANSPOSITIONTABLE_H
-#define GOMOKU_TRANSPOSITIONTABLE_H
+#ifndef GOMOKU_TRANSPOSITION_TABLE_H
+#define GOMOKU_TRANSPOSITION_TABLE_H
 
 
 #include <cstdint>
@@ -24,8 +24,7 @@ public:
 
     void store(uint64_t zobristKey, int depth, int score, TTFlag flag, int bestMove);
     const TTEntry* retrieve(uint64_t zobristKey) const;
-
 };
 
 
-#endif //GOMOKU_TRANSPOSITIONTABLE_H
+#endif //GOMOKU_TRANSPOSITION_TABLE_H

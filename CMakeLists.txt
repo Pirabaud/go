@@ -1,15 +1,14 @@
 cmake_minimum_required(VERSION 3.29)
 project(Gomoku)
-
-enable_testing()
+set(CMAKE_POLICY_VERSION_MINIMUM 3.5 CACHE STRING "Silence CMake < 3.5 errors")
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_BUILD_TYPE Release)
 
-if(NOT CMAKE_BUILD_TYPE MATCHES Debug)
-    add_compile_options(-O3 -g -march=native -ffast-math -DNDEBUG)
-endif()
+if (NOT CMAKE_BUILD_TYPE MATCHES Debug)
+    add_compile_options(-O3 -march=native -ffast-math -DNDEBUG)
+endif ()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS}")
@@ -23,6 +22,39 @@ set(SFML_BUILD_WINDOW ON)
 set(SFML_BUILD_GRAPHICS ON)
 set(SFML_BUILD_SYSTEM ON)
 
+FetchContent_Declare(
+        Ogg
+        GIT_REPOSITORY https://github.com/xiph/ogg.git
+        GIT_TAG v1.3.5
+        GIT_SHALLOW ON
+        EXCLUDE_FROM_ALL
+        OVERRIDE_FIND_PACKAGE
+)
+FetchContent_MakeAvailable(Ogg)
+
+if (TARGET ogg AND NOT TARGET Ogg::ogg)
+    add_library(Ogg::ogg ALIAS ogg)
+endif ()
+
+FetchContent_Declare(
+        Vorbis
+        GIT_REPOSITORY https://github.com/xiph/vorbis.git
+        GIT_TAG v1.3.7
+        GIT_SHALLOW ON
+        EXCLUDE_FROM_ALL
+        OVERRIDE_FIND_PACKAGE
+)
+FetchContent_MakeAvailable(Vorbis)
+if (TARGET vorbis AND NOT TARGET Vorbis::vorbis)
+    add_library(Vorbis::vorbis ALIAS vorbis)
+endif ()
+if (TARGET vorbisfile AND NOT TARGET Vorbis::vorbisfile)
+    add_library(Vorbis::vorbisfile ALIAS vorbisfile)
+endif ()
+if (TARGET vorbisenc AND NOT TARGET Vorbis::vorbisenc)
+    add_library(Vorbis::vorbisenc ALIAS vorbisenc)
+endif ()
+
 FetchContent_Declare(SFML
         GIT_REPOSITORY https://github.com/SFML/SFML.git
         GIT_TAG 3.0.1
@@ -30,25 +62,6 @@ FetchContent_Declare(SFML
         EXCLUDE_FROM_ALL
         SYSTEM)
 FetchContent_MakeAvailable(SFML)
-
-FetchContent_Declare(
-        nlohmann_json
-        GIT_REPOSITORY https://github.com/nlohmann/json.git
-        GIT_TAG v3.11.3
-        GIT_SHALLOW ON
-        EXCLUDE_FROM_ALL
-)
-FetchContent_MakeAvailable(nlohmann_json)
-
-FetchContent_Declare(
-        Catch2
-        GIT_REPOSITORY https://github.com/catchorg/Catch2.git
-        GIT_TAG v3.5.4
-)
-FetchContent_MakeAvailable(Catch2)
-
-list(APPEND CMAKE_MODULE_PATH ${Catch2_SOURCE_DIR}/extras)
-include(Catch)
 
 set(BOARD_FILES
         src/board/Board.cpp
@@ -78,7 +91,6 @@ set(SERVICES_FILES
         src/services/CheckLegalMove.cpp
         src/services/CheckWinService.cpp
         src/services/HeuristicService.cpp
-        src/services/JsonService.cpp
 )
 
 set(SOURCE_FILES
@@ -111,14 +123,5 @@ target_include_directories(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
         PRIVATE SFML::Graphics
         PRIVATE SFML::Audio
-        nlohmann_json::nlohmann_json
 )
-
-
-option(ENABLE_TESTS "Enable tests" ON)
-
-if (ENABLE_TESTS)
-    enable_testing()
-    add_subdirectory(tests)
-endif ()
 
