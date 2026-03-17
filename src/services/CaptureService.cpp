@@ -2,7 +2,8 @@
 #include <algorithm>
 #include "CheckLegalMove.hpp"
 
-int CaptureService::checkCapture(Board& board, int globalIndex, const bool isBlack, int* capture, int& count,  bool removeStone) {
+int CaptureService::checkCapture(Board& board, int globalIndex, const bool isBlack, int* capture, int& count,
+                                 bool removeStone) {
     int result = 0;
 
     const std::array<int, 4> directions = {1, Board::SIZE + 1, Board::SIZE, Board::SIZE + 2};
@@ -81,8 +82,9 @@ std::array<int, 15> CaptureService::getBlockingCaptureIndex(const std::array<uin
             const int afterIndex = checkStone + 2 * dir;
             const int beforeIndex = checkStone - 2 * dir;
 
-            if (afterIndex < 0 || afterIndex >= (Board::SIZE * (Board::SIZE + 1)) || beforeIndex < 0 || beforeIndex >= (
-                Board::SIZE * (Board::SIZE + 1))) {
+            if (afterIndex < 0 || afterIndex >= (Board::SIZE * (Board::SIZE + 1)) || beforeIndex < 0 || beforeIndex
+                >= (
+                    Board::SIZE * (Board::SIZE + 1))) {
                 continue;
             }
             if (dirAlignment == dir || -dirAlignment == dir) {
@@ -134,7 +136,8 @@ std::array<int, 15> CaptureService::getBlockingCaptureIndex(const std::array<uin
 }
 
 int CaptureService::checkCaptureInDirection(Board& board, const int globalIndex,
-                                            const int dir, const bool isBlack, int* capture, int& count,bool removeSTone) {
+                                            const int dir, const bool isBlack, int* capture, int& count,
+                                            bool removeSTone) {
     const std::array<uint64_t, 6>& allyBitBoard = isBlack ? board.getBitBoardBlack() : board.getBitBoardWhite();
     std::array<uint64_t, 6>& enemyBitBoard = isBlack ? board.getBitBoardWhite() : board.getBitBoardBlack();
     //check ally
@@ -157,7 +160,9 @@ int CaptureService::checkCaptureInDirection(Board& board, const int globalIndex,
         secondEnemyMask) {
         if (removeSTone) {
             isBlack ? board.removeWhiteStone(firstEnemyGlobalIndex) : board.removeBlackStone(firstEnemyGlobalIndex);
-            isBlack ? board.removeWhiteStone(secondEnemyGlobalIndex) : board.removeBlackStone(secondEnemyGlobalIndex);
+            isBlack
+                ? board.removeWhiteStone(secondEnemyGlobalIndex)
+                : board.removeBlackStone(secondEnemyGlobalIndex);
             isBlack ? board.addCaptures(true, 2) : board.addCaptures(false, 2);
             capture[count++] = firstEnemyGlobalIndex;
             capture[count++] = secondEnemyGlobalIndex;
