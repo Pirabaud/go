@@ -3,6 +3,7 @@
 #include "BoardScene.hpp"
 #include "DisplayService.hpp"
 #include "DoubleStonesScene.hpp"
+#include "ProOpeningScene.hpp"
 #include "PvEScene.hpp"
 #include "PvPScene.hpp"
 
@@ -38,10 +39,10 @@ MainMenuScene::MainMenuScene(sf::RenderWindow& win):
         Board::setBoardSize(19);
         DisplayService::changeScene(new DoubleStonesScene(win));
     }),
-    proStartButton({BUTTON_WIDTH, BUTTON_HEIGHT}, {getButtonXPosition(), getButtonYPosition(3)}, "Pro start", [this, &win]()
+    proStartButton({BUTTON_WIDTH, BUTTON_HEIGHT}, {getButtonXPosition(), getButtonYPosition(3)}, "Pro opening", [this, &win]()
     {
         Board::setBoardSize(19);
-        DisplayService::changeScene(new PvEScene(win));
+        DisplayService::changeScene(new ProOpeningScene(win));
     }),
     otherSizeButton({BUTTON_WIDTH, BUTTON_HEIGHT}, {getButtonXPosition(), getButtonYPosition(4)}, "15x15", [this, &win]()
     {

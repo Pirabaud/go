@@ -1,0 +1,35 @@
+//
+// Created by Arthur FABY on 17/03/2026.
+//
+
+#ifndef GOMOKU_PROOPENINGSCENE_HPP
+#define GOMOKU_PROOPENINGSCENE_HPP
+#include "BoardScene.hpp"
+#include "Button.hpp"
+#include "DisplayService.hpp"
+
+
+class ProOpeningScene : public BoardScene
+{
+public:
+    explicit  ProOpeningScene(sf::RenderWindow& window)
+         : BoardScene(window)
+    {
+        backgroundColor = sf::Color(206, 163, 70);
+        this->suggestedMove = { Board::SIZE / 2, Board::SIZE / 2 };
+    }
+
+    void handleEvent(const std::optional<sf::Event>&, sf::RenderWindow& window) override;
+    void drawTexts(sf::RenderWindow& window);
+    static bool isOutsideProZone(int row, int col) ;
+    bool handleStonePlacement(const std::optional<sf::Event>& event, sf::RenderWindow& window) override;
+
+protected:
+    sf::Clock aiSuggestionTimer;
+    bool needsAiSuggestion = false;
+    int moveNumber = 0;
+
+};
+
+
+#endif //GOMOKU_PROOPENINGSCENE_HPP

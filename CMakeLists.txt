@@ -60,6 +60,7 @@ set(DISPLAY_FILES
         src/display/scenes/MainMenuScene.cpp
         src/display/scenes/PvEScene.cpp
         src/display/scenes/PvPScene.cpp
+        src/display/scenes/ProOpeningScene.cpp
         src/display/utils/getSharedFont.cpp
         src/display/utils/loadSound.cpp
         src/display/DisplayService.cpp

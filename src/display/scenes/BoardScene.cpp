@@ -104,7 +104,7 @@ void BoardScene::drawDefaultTexts(sf::RenderWindow& window) const
     if (illegalMove != IllegalMoves::Type::NONE)
     {
         sf::Text illegalMoveText(getSharedFont(),
-                                 "This is move is illegal because " + std::string(IllegalMoves::toString(illegalMove)) +
+                                 "This move is illegal because " + std::string(IllegalMoves::toString(illegalMove)) +
                                  ".");
         illegalMoveText.setCharacterSize(18);
         illegalMoveText.setFillColor(sf::Color::Red);

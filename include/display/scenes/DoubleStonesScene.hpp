@@ -6,7 +6,7 @@ class DoubleStonesScene : public BoardScene {
 public:
     explicit DoubleStonesScene(sf::RenderWindow& window)
         : BoardScene(window) {
-        backgroundColor = sf::Color(135, 206, 235);
+        backgroundColor = sf::Color(185, 156, 235);
         this->suggestedMove = {-1,-1};
     }
     void handleEvent(const std::optional<sf::Event>&, sf::RenderWindow& window) override;
