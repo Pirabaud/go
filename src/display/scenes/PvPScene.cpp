@@ -1,7 +1,4 @@
 #include "PvPScene.hpp"
-
-#include <iostream>
-
 #include "CaptureService.hpp"
 #include "CheckLegalMove.hpp"
 #include "CheckWinService.hpp"
@@ -21,10 +18,6 @@ void PvPScene::handleEvent(const std::optional<sf::Event> &event, sf::RenderWind
     if (!winningColor) {
         needsAiSuggestion = true;
         aiSuggestionTimer.restart();
-    }
-    draw(window);
-    if (!winningColor) {
-        this->suggestedMove = handleAITurn();
     }
 }
 
