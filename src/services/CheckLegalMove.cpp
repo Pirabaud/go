@@ -63,6 +63,11 @@ bool CheckLegalMove::checkCaptureInDirection(Board& board, const int globalIndex
 }
 
 bool CheckLegalMove::createsDoubleFreeThree(int posIndex, Board& board, const bool& isBlack) {
+    int captures[8] = {-1};
+    int count = 0;
+    if (CaptureService::checkCapture(board, posIndex, isBlack, captures, count, false) != 0 ) {
+        return false;
+    }
     int freeThreeCount = 0;
     const std::array directions = {1, Board::SIZE + 1, Board::SIZE, Board::SIZE + 2};
 
