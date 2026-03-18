@@ -132,7 +132,7 @@ int MinMax::minmax(Board& currentBoard, const int limitDepth, const int currentD
 
     if (const auto ttEntry = transpositionTable.retrieve(zobristKey)) {
         if (ttEntry->depth >= remainingDepth) {
-            if (ttEntry->flag == EXACT) {
+            if (ttEntry->flag == EXACT && CheckLegalMove::isLegalMove(ttEntry->bestMove, currentBoard, !isMaximizing)) {
                 if (outBestMoveIndex != nullptr) *outBestMoveIndex = ttEntry->bestMove;
                 return ttEntry->score;
             }
