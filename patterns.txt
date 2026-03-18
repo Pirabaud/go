@@ -2,30 +2,17 @@
 AAAAA:30000
 
 # --- Menaces Mortelles (Taille 4) ---
-# Victoire assurée
 OAAAAO:28000
-# Doit bloquer
 EAAAAO:25000
 OAAAAE:25000
 
-# --- Jeu de Capture & Attaque ---
-# Capture (Gros bonus)
+# --- Capture & Attaque ---
 AEEA:8000
-# 3 Ouvert (Très fort)
 OAAAO:2500
 OAOAAO:2500
-# Menace de capture
 AEEO:1500
 
 # --- Construction ---
-# 3 Fermé
 EAAAO:200
 OAAAE:200
-
-# --- Bases et Risques ---
-# Base saine
 OAAO:50
-# DANGER: Paire vulnérable
-# EAAO:-3000
-# DANGER: Paire vulnérable
-# OAAE:-3000
