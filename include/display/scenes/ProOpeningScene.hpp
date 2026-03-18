@@ -16,7 +16,8 @@ public:
     void handleEvent(const std::optional<sf::Event>&, sf::RenderWindow& window) override;
     void drawTexts(sf::RenderWindow& window) override;
     static bool isOutsideProZone(int row, int col);
-    bool handleStonePlacement(const std::optional<sf::Event>& event, sf::RenderWindow& window) override;
+
+    const sf::Color *handleStonePlacement(const std::optional<sf::Event> &event, sf::RenderWindow &window) override;
 
 protected:
     sf::Clock aiSuggestionTimer;

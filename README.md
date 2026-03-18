@@ -38,32 +38,7 @@ Gomoku is a two-player strategy game played on a 19x19 grid where players altern
 - No limits on stone count or board positions
 - Captures take priority over alignments in endgame
 
----
-## Requirements
-
-- `Make`
-- `Java 17`
-- `Maven`
-- `Git`
-
-## Installation
-
-1. Clone the repository :
-```bash
-git clone https://github.com/pirabaud/Gomoku.git
-```
-2. Navigate to the project directory :
-```bash
-cd Gomoku
-```
-3. Build the project using Makefile :
-```bash
-make
-```
-This will download the required dependencies and build the project.
-
-4. Run the project :
+### Run the project :
 ```bash
 make run
 ```
-5. Happy playing!******

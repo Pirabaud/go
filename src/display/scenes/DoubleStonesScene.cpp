@@ -22,20 +22,19 @@ void DoubleStonesScene::handleEvent(const std::optional<sf::Event>& event, sf::R
         colorToPlay = ((moveNumber / 2) % 2 == 0) ? sf::Color::Black : sf::Color::White;
     }
 
-    if (handleStonePlacement(event, window)) {
-        winningColor = CheckWinService::isWin(board);
+    winningColor = handleStonePlacement(event, window);
         if (winningColor && winSound) {
             winSound->play();
         }
-    }
 }
 
 void DoubleStonesScene::drawTexts(sf::RenderWindow& window) {
 }
 
-bool DoubleStonesScene::handleStonePlacement(const std::optional<sf::Event>& event, sf::RenderWindow& window) {
+const sf::Color *DoubleStonesScene::handleStonePlacement(const std::optional<sf::Event> &event,
+                                                         sf::RenderWindow &window) {
     if (!event || !event->is<sf::Event::MouseButtonPressed>()) {
-        return false;
+        return nullptr;
     }
 
     if (const auto& mousePressedEvent = event->getIf<sf::Event::MouseButtonPressed>(); mousePressedEvent &&
@@ -44,19 +43,20 @@ bool DoubleStonesScene::handleStonePlacement(const std::optional<sf::Event>& eve
         const auto [row, col] = getCellFromMousePosition(mousePos);
         illegalMove = getLegalMove(row, col);
         if (illegalMove != IllegalMoves::Type::NONE) {
-            return false;
+            return nullptr;
         }
         Position playerMove = {row, col};
 
         playMove(playerMove);
+        if (winningColor) {
+            return winningColor;
+        }
         moveNumber++;
         if (moveNumber % 2 != 0) {
             nextTurn();
         }
         draw(window);
-        if (CheckWinService::isWin(board)) {
-            return true;
-        }
+        return CheckWinService::isWin(board);
     }
-    return false;
+    return nullptr;
 }

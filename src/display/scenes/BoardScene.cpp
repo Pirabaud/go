@@ -1,4 +1,7 @@
 #include "BoardScene.hpp"
+
+#include <iostream>
+
 #include "CaptureService.hpp"
 #include "CheckLegalMove.hpp"
 #include "CheckWinService.hpp"

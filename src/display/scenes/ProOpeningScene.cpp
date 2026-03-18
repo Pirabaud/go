@@ -11,17 +11,14 @@ void ProOpeningScene::handleEvent(const std::optional<sf::Event>& event, sf::Ren
         aiSuggestionTimer.restart();
         draw(window);
     }
-    const bool doesStoneHaveBeenPlaced = handleStonePlacement(event, window);
-    if (doesStoneHaveBeenPlaced) {
-        winningColor = CheckWinService::isWin(board);
-        if (winningColor && winSound) {
-            winSound->play();
-        }
-        draw(window);
-        if (!winningColor) {
-            needsAiSuggestion = true;
-            aiSuggestionTimer.restart();
-        }
+    winningColor = handleStonePlacement(event, window);
+    if (winningColor && winSound) {
+        winSound->play();
+    }
+    draw(window);
+    if (!winningColor) {
+        needsAiSuggestion = true;
+        aiSuggestionTimer.restart();
     }
 }
 
@@ -39,9 +36,9 @@ bool ProOpeningScene::isOutsideProZone(int row, int col) {
     return std::max(distRow, distCol) >= 3;
 }
 
-bool ProOpeningScene::handleStonePlacement(const std::optional<sf::Event>& event, sf::RenderWindow& window) {
+const sf::Color *ProOpeningScene::handleStonePlacement(const std::optional<sf::Event> &event, sf::RenderWindow &window) {
     if (!event || !event->is<sf::Event::MouseButtonPressed>()) {
-        return false;
+        return nullptr;
     }
 
     if (const auto& mousePressedEvent = event->getIf<sf::Event::MouseButtonPressed>(); mousePressedEvent &&
@@ -50,20 +47,23 @@ bool ProOpeningScene::handleStonePlacement(const std::optional<sf::Event>& event
         const auto [row, col] = getCellFromMousePosition(mousePos);
         illegalMove = getLegalMove(row, col);
         if (illegalMove != IllegalMoves::Type::NONE) {
-            return false;
+            return nullptr;
         }
         if (moveNumber == 0 && (row != Board::SIZE / 2 || col != Board::SIZE / 2)) {
             illegalMove = IllegalMoves::Type::PRO_OPENING_FIRST_IN_MIDDLE;
-            return false;
+            return nullptr;
         }
         if (moveNumber == 2 && !isOutsideProZone(row, col)) {
             illegalMove = IllegalMoves::Type::PRO_OPENING_THIRD_AT_DISTANCE;
-            return false;
+            return nullptr;
         }
         playMove(Position{row, col});
+        if (winningColor) {
+            return winningColor;
+        }
         draw(window);
         moveNumber++;
-        return true;
+        return CheckWinService::isWin(board);
     }
-    return false;
+    return nullptr;
 }

@@ -59,7 +59,7 @@ protected:
 
 
     virtual void drawTexts(sf::RenderWindow& window) = 0;
-    virtual bool handleStonePlacement(const std::optional<sf::Event>& event, sf::RenderWindow& window) = 0;
+    virtual const sf::Color *handleStonePlacement(const std::optional<sf::Event> &event, sf::RenderWindow &window) = 0;
 
     bool handleHistoryEvent(const std::optional<sf::Event>&, sf::RenderWindow& window);
     void drawDefaultTexts(sf::RenderWindow& window) const;

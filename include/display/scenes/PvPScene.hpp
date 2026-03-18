@@ -15,7 +15,8 @@ public:
 
     void handleEvent(const std::optional<sf::Event>&, sf::RenderWindow& window) override;
     void drawTexts(sf::RenderWindow& window) override;
-    bool handleStonePlacement(const std::optional<sf::Event>& event, sf::RenderWindow& window) override;
+
+    const sf::Color *handleStonePlacement(const std::optional<sf::Event> &event, sf::RenderWindow &window) override;
 
 protected:
     sf::Clock aiSuggestionTimer;

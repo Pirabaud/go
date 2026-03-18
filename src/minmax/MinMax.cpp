@@ -212,7 +212,7 @@ int MinMax::minmax(Board& currentBoard, const int limitDepth, const int currentD
             int newScore = currentScore + (whiteScoreAfter - moveData.whiteScoreBefore) - (blackScoreAfter - moveData.
                 blackScoreBefore);
             if (checkCapture > 0) {
-                const int captureBonus = checkCapture * 8000;
+                const int captureBonus = checkCapture * 1000 * (isMaximizing ? currentBoard.getBlackCaptured() : currentBoard.getWhiteCaptured());
                 newScore += isMaximizing ? captureBonus : -captureBonus;
             }
             eval = executePVS(currentBoard, limitDepth, currentDepth, alpha, beta, isMaximizing, newScore, firstMove);
