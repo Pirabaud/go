@@ -7,6 +7,5 @@ int main() {
     Board::initZobrist();
 
     DisplayService displayService;
-
     displayService.start();
 }

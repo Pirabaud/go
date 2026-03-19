@@ -39,7 +39,7 @@ std::vector<std::pair<std::string, int16_t>> HeuristicService::loadPatternsFromF
     }
 
     std::string line;
-    const std::regex rgx("^([AEO]{0,9}):(-?\\d+)$");
+    const std::regex rgx("^([AEOW]{0,9}):(-?\\d+)$");
     std::smatch matches;
 
     while (std::getline(file, line)) {

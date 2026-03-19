@@ -4,7 +4,9 @@ AAAAA:30000
 # --- Menaces Mortelles (Taille 4) ---
 OAAAAO:28000
 EAAAAO:25000
+WAAAAO:25000
 OAAAAE:25000
+OAAAAW:25000
 
 # --- Capture & Attaque ---
 AEEA:8000
@@ -14,5 +16,7 @@ AEEO:1500
 
 # --- Construction ---
 EAAAO:200
+WAAAO:100
 OAAAE:200
+OAAAW:100
 OAAO:50
