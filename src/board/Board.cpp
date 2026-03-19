@@ -76,7 +76,7 @@ template <int Offset>
 void updatePattern(int& index, const int center, const int dir, const std::array<uint64_t, 6>& ally,
                    const std::array<uint64_t, 6>& enemy) {
     const int pos = center + Offset * dir;
-    if (pos < 0 || pos >= (Board::SIZE * (Board::SIZE + 1)) || (pos % (Board::SIZE + 1)) == Board::SIZE) {
+    if (pos < 0 || pos >= (Board::SIZE * (Board::SIZE + 1))) {
         // If out of bounds, consider it as a wall
         index = (index << 2) | HeuristicService::WALL_BITS_MASK;
         return;
